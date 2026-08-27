@@ -19,15 +19,15 @@ export default function AdminPage() {
 
   const [cargando, setCargando] = useState(true);
   const [guardando, setGuardando] = useState(false);
+  const [mensaje, setMensaje] = useState("");
 
   const [nuevaActividad, setNuevaActividad] = useState("");
 
   const [nuevoProfesor, setNuevoProfesor] = useState({
     nombre: "",
     descripcion: "",
+    actividadIds: [],
   });
-
-  const [mensaje, setMensaje] = useState("");
 
   useEffect(() => {
     cargarActividades();
@@ -47,6 +47,7 @@ export default function AdminPage() {
       }
     } catch (error) {
       console.error("Error cargando actividades:", error);
+      setMensaje("❌ No se pudieron cargar las actividades.");
     } finally {
       setCargando(false);
     }
@@ -58,8 +59,6 @@ export default function AdminPage() {
         cache: "no-store",
       });
 
-      if (!respuesta.ok) return;
-
       const datos = await respuesta.json();
 
       if (datos.correcto) {
@@ -67,6 +66,7 @@ export default function AdminPage() {
       }
     } catch (error) {
       console.error("Error cargando profesores:", error);
+      setMensaje("❌ No se pudieron cargar los profesores.");
     }
   }
 
@@ -116,6 +116,21 @@ export default function AdminPage() {
     }
   }
 
+  function cambiarActividadProfesor(id) {
+    setNuevoProfesor((actual) => {
+      const existe = actual.actividadIds.includes(id);
+
+      return {
+        ...actual,
+        actividadIds: existe
+          ? actual.actividadIds.filter(
+              (actividadId) => actividadId !== id
+            )
+          : [...actual.actividadIds, id],
+      };
+    });
+  }
+
   async function agregarProfesor(event) {
     event.preventDefault();
 
@@ -135,10 +150,7 @@ export default function AdminPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          nombre,
-          descripcion: nuevoProfesor.descripcion.trim(),
-        }),
+        body: JSON.stringify(nuevoProfesor),
       });
 
       const datos = await respuesta.json();
@@ -152,6 +164,7 @@ export default function AdminPage() {
       setNuevoProfesor({
         nombre: "",
         descripcion: "",
+        actividadIds: [],
       });
 
       setMensaje("✅ Profesor creado correctamente.");
@@ -212,9 +225,7 @@ export default function AdminPage() {
               PANEL DE ADMINISTRACIÓN
             </p>
 
-            <h1 style={estilos.titulo}>
-              Hola 👋🏼
-            </h1>
+            <h1 style={estilos.titulo}>Hola 👋🏼</h1>
 
             <p style={estilos.subtitulo}>
               Gestiona fácilmente el contenido de Lucena Baila.
@@ -268,13 +279,9 @@ export default function AdminPage() {
                 </div>
               ) : actividades.length === 0 ? (
                 <div style={estilos.vacio}>
-                  <div style={estilos.iconoVacio}>
-                    💃
-                  </div>
+                  <div style={estilos.iconoVacio}>💃</div>
 
-                  <h3>
-                    No hay actividades todavía
-                  </h3>
+                  <h3>No hay actividades todavía</h3>
 
                   <p>
                     Añade la primera actividad.
@@ -291,9 +298,7 @@ export default function AdminPage() {
                     </div>
 
                     <div style={estilos.nombreActividad}>
-                      <strong>
-                        {actividad.nombre}
-                      </strong>
+                      <strong>{actividad.nombre}</strong>
 
                       <span>
                         {actividad.activa
@@ -371,7 +376,8 @@ export default function AdminPage() {
                 </h2>
 
                 <p style={estilos.descripcionSeccion}>
-                  Gestiona los profesores de la escuela.
+                  Gestiona los profesores y las disciplinas
+                  que imparten.
                 </p>
               </div>
 
@@ -383,57 +389,83 @@ export default function AdminPage() {
             <div style={estilos.tarjeta}>
               {profesores.length === 0 ? (
                 <div style={estilos.vacio}>
-                  <div style={estilos.iconoVacio}>
-                    👥
-                  </div>
+                  <div style={estilos.iconoVacio}>👥</div>
 
                   <h3>
                     No hay profesores todavía
                   </h3>
 
                   <p>
-                    Añade el primer profesor utilizando
-                    el formulario de abajo.
+                    Añade el primer profesor.
                   </p>
                 </div>
               ) : (
-                profesores.map((profesor, index) => (
-                  <div
-                    key={profesor.id}
-                    style={estilos.fila}
-                  >
-                    <div style={estilos.numero}>
-                      {String(index + 1).padStart(
-                        2,
-                        "0"
-                      )}
-                    </div>
+                profesores.map((profesor, index) => {
+                  const nombresActividades =
+                    (profesor.actividad_ids || [])
+                      .map((id) => {
+                        const actividad =
+                          actividades.find(
+                            (item) => item.id === id
+                          );
 
-                    <div style={estilos.nombreActividad}>
-                      <strong>
-                        {profesor.nombre}
-                      </strong>
+                        return actividad
+                          ? actividad.nombre
+                          : null;
+                      })
+                      .filter(Boolean);
 
-                      <span>
-                        {profesor.descripcion ||
-                          "Sin descripción"}
+                  return (
+                    <div
+                      key={profesor.id}
+                      style={estilos.filaProfesor}
+                    >
+                      <div style={estilos.numero}>
+                        {String(index + 1).padStart(
+                          2,
+                          "0"
+                        )}
+                      </div>
+
+                      <div style={estilos.nombreActividad}>
+                        <strong>
+                          {profesor.nombre}
+                        </strong>
+
+                        <span>
+                          {nombresActividades.length > 0
+                            ? nombresActividades.join(
+                                " · "
+                              )
+                            : "Sin actividades asignadas"}
+                        </span>
+
+                        {profesor.descripcion && (
+                          <small
+                            style={
+                              estilos.descripcionProfesor
+                            }
+                          >
+                            {profesor.descripcion}
+                          </small>
+                        )}
+                      </div>
+
+                      <span
+                        style={{
+                          ...estilos.estado,
+                          ...(profesor.activa
+                            ? estilos.estadoActivo
+                            : estilos.estadoInactivo),
+                        }}
+                      >
+                        {profesor.activa
+                          ? "ACTIVO"
+                          : "OCULTO"}
                       </span>
                     </div>
-
-                    <span
-                      style={{
-                        ...estilos.estado,
-                        ...(profesor.activa
-                          ? estilos.estadoActivo
-                          : estilos.estadoInactivo),
-                      }}
-                    >
-                      {profesor.activa
-                        ? "ACTIVO"
-                        : "OCULTO"}
-                    </span>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
 
@@ -475,8 +507,49 @@ export default function AdminPage() {
                   placeholder="Descripción breve"
                   style={estilos.textarea}
                   disabled={guardando}
-                  rows={4}
+                  rows={3}
                 />
+
+                <div>
+                  <p style={estilos.etiqueta}>
+                    ACTIVIDADES QUE IMPARTE
+                  </p>
+
+                  <div style={estilos.checkGrid}>
+                    {actividades.map((actividad) => {
+                      const seleccionada =
+                        nuevoProfesor.actividadIds.includes(
+                          actividad.id
+                        );
+
+                      return (
+                        <label
+                          key={actividad.id}
+                          style={{
+                            ...estilos.checkbox,
+                            ...(seleccionada
+                              ? estilos.checkboxSeleccionada
+                              : {}),
+                          }}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={seleccionada}
+                            onChange={() =>
+                              cambiarActividadProfesor(
+                                actividad.id
+                              )
+                            }
+                          />
+
+                          <span>
+                            {actividad.nombre}
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
 
                 <button
                   type="submit"
@@ -678,11 +751,19 @@ const estilos = {
     borderBottom: "1px solid #29292f",
   },
 
+  filaProfesor: {
+    display: "flex",
+    alignItems: "center",
+    padding: "20px 22px",
+    borderBottom: "1px solid #29292f",
+  },
+
   numero: {
     width: "45px",
     color: "#ff3cac",
     fontWeight: "800",
     fontSize: "13px",
+    flexShrink: 0,
   },
 
   nombreActividad: {
@@ -690,6 +771,11 @@ const estilos = {
     display: "flex",
     flexDirection: "column",
     gap: "5px",
+  },
+
+  descripcionProfesor: {
+    color: "#777",
+    marginTop: "3px",
   },
 
   estado: {
@@ -731,12 +817,13 @@ const estilos = {
   formularioVertical: {
     display: "flex",
     flexDirection: "column",
-    gap: "12px",
-    maxWidth: "650px",
+    gap: "16px",
+    maxWidth: "700px",
   },
 
   input: {
-    flex: 1,
+    width: "100%",
+    boxSizing: "border-box",
     background: "#09090b",
     color: "#fff",
     border: "1px solid #3a3a42",
@@ -748,6 +835,7 @@ const estilos = {
 
   textarea: {
     width: "100%",
+    boxSizing: "border-box",
     background: "#09090b",
     color: "#fff",
     border: "1px solid #3a3a42",
@@ -755,8 +843,40 @@ const estilos = {
     padding: "13px",
     fontSize: "15px",
     resize: "vertical",
-    boxSizing: "border-box",
     outline: "none",
+  },
+
+  etiqueta: {
+    color: "#aaa",
+    fontSize: "11px",
+    fontWeight: "800",
+    letterSpacing: "1px",
+    marginBottom: "10px",
+  },
+
+  checkGrid: {
+    display: "grid",
+    gridTemplateColumns:
+      "repeat(auto-fit, minmax(190px, 1fr))",
+    gap: "9px",
+  },
+
+  checkbox: {
+    display: "flex",
+    alignItems: "center",
+    gap: "9px",
+    padding: "12px",
+    border: "1px solid #34343b",
+    borderRadius: "9px",
+    color: "#aaa",
+    cursor: "pointer",
+    fontSize: "13px",
+  },
+
+  checkboxSeleccionada: {
+    border: "1px solid #ff3cac",
+    background: "#261322",
+    color: "#fff",
   },
 
   botonAnadir: {
@@ -767,6 +887,7 @@ const estilos = {
     padding: "13px 22px",
     fontWeight: "700",
     cursor: "pointer",
+    alignSelf: "flex-start",
   },
 
   mensaje: {
