@@ -29,6 +29,8 @@ export default function AdminPage() {
     actividadIds: [],
   });
 
+  const [profesorEditando, setProfesorEditando] = useState(null);
+
   useEffect(() => {
     cargarActividades();
     cargarProfesores();
@@ -131,6 +133,23 @@ export default function AdminPage() {
     });
   }
 
+  function cambiarActividadEdicion(id) {
+    setProfesorEditando((actual) => {
+      if (!actual) return actual;
+
+      const existe = actual.actividadIds.includes(id);
+
+      return {
+        ...actual,
+        actividadIds: existe
+          ? actual.actividadIds.filter(
+              (actividadId) => actividadId !== id
+            )
+          : [...actual.actividadIds, id],
+      };
+    });
+  }
+
   async function agregarProfesor(event) {
     event.preventDefault();
 
@@ -178,9 +197,72 @@ export default function AdminPage() {
     }
   }
 
+  function comenzarEdicion(profesor) {
+    setMensaje("");
+
+    setProfesorEditando({
+      id: profesor.id,
+      nombre: profesor.nombre || "",
+      descripcion: profesor.descripcion || "",
+      actividadIds: profesor.actividad_ids || [],
+    });
+  }
+
+  function cancelarEdicion() {
+    setProfesorEditando(null);
+  }
+
+  async function guardarProfesor() {
+    if (!profesorEditando) return;
+
+    const nombre = profesorEditando.nombre.trim();
+
+    if (!nombre) {
+      setMensaje("⚠️ El nombre es obligatorio.");
+      return;
+    }
+
+    setGuardando(true);
+    setMensaje("");
+
+    try {
+      const respuesta = await fetch("/api/profesores", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: profesorEditando.id,
+          nombre,
+          descripcion: profesorEditando.descripcion.trim(),
+          actividadIds: profesorEditando.actividadIds,
+        }),
+      });
+
+      const datos = await respuesta.json();
+
+      if (!respuesta.ok || !datos.correcto) {
+        throw new Error(
+          datos.mensaje || "No se pudo actualizar el profesor"
+        );
+      }
+
+      setProfesorEditando(null);
+      setMensaje("✅ Profesor actualizado correctamente.");
+
+      await cargarProfesores();
+    } catch (error) {
+      console.error(error);
+      setMensaje(`❌ ${error.message}`);
+    } finally {
+      setGuardando(false);
+    }
+  }
+
   function cambiarSeccion(id) {
     setSeccion(id);
     setMensaje("");
+    setProfesorEditando(null);
   }
 
   return (
@@ -340,9 +422,7 @@ export default function AdminPage() {
                 <input
                   value={nuevaActividad}
                   onChange={(event) =>
-                    setNuevaActividad(
-                      event.target.value
-                    )
+                    setNuevaActividad(event.target.value)
                   }
                   placeholder="Ej.: Flamenco"
                   style={estilos.input}
@@ -354,9 +434,7 @@ export default function AdminPage() {
                   style={estilos.botonAnadir}
                   disabled={guardando}
                 >
-                  {guardando
-                    ? "Guardando..."
-                    : "Añadir"}
+                  {guardando ? "Guardando..." : "Añadir"}
                 </button>
               </form>
             </div>
@@ -376,8 +454,7 @@ export default function AdminPage() {
                 </h2>
 
                 <p style={estilos.descripcionSeccion}>
-                  Gestiona los profesores y las disciplinas
-                  que imparten.
+                  Gestiona profesores y las disciplinas que imparten.
                 </p>
               </div>
 
@@ -391,9 +468,7 @@ export default function AdminPage() {
                 <div style={estilos.vacio}>
                   <div style={estilos.iconoVacio}>👥</div>
 
-                  <h3>
-                    No hay profesores todavía
-                  </h3>
+                  <h3>No hay profesores todavía</h3>
 
                   <p>
                     Añade el primer profesor.
@@ -404,10 +479,9 @@ export default function AdminPage() {
                   const nombresActividades =
                     (profesor.actividad_ids || [])
                       .map((id) => {
-                        const actividad =
-                          actividades.find(
-                            (item) => item.id === id
-                          );
+                        const actividad = actividades.find(
+                          (item) => item.id === id
+                        );
 
                         return actividad
                           ? actividad.nombre
@@ -415,36 +489,146 @@ export default function AdminPage() {
                       })
                       .filter(Boolean);
 
+                  const editando =
+                    profesorEditando?.id === profesor.id;
+
+                  if (editando) {
+                    return (
+                      <div
+                        key={profesor.id}
+                        style={estilos.edicion}
+                      >
+                        <div style={estilos.edicionCabecera}>
+                          <div>
+                            <p style={estilos.eyebrow}>
+                              EDITANDO PROFESOR
+                            </p>
+
+                            <h3 style={estilos.tituloEdicion}>
+                              {profesor.nombre}
+                            </h3>
+                          </div>
+                        </div>
+
+                        <div style={estilos.formularioVertical}>
+                          <input
+                            value={profesorEditando.nombre}
+                            onChange={(event) =>
+                              setProfesorEditando({
+                                ...profesorEditando,
+                                nombre: event.target.value,
+                              })
+                            }
+                            placeholder="Nombre del profesor"
+                            style={estilos.input}
+                            disabled={guardando}
+                          />
+
+                          <textarea
+                            value={
+                              profesorEditando.descripcion
+                            }
+                            onChange={(event) =>
+                              setProfesorEditando({
+                                ...profesorEditando,
+                                descripcion:
+                                  event.target.value,
+                              })
+                            }
+                            placeholder="Descripción breve"
+                            style={estilos.textarea}
+                            disabled={guardando}
+                            rows={3}
+                          />
+
+                          <div>
+                            <p style={estilos.etiqueta}>
+                              ACTIVIDADES QUE IMPARTE
+                            </p>
+
+                            <div style={estilos.checkGrid}>
+                              {actividades.map((actividad) => {
+                                const seleccionada =
+                                  profesorEditando.actividadIds.includes(
+                                    actividad.id
+                                  );
+
+                                return (
+                                  <label
+                                    key={actividad.id}
+                                    style={{
+                                      ...estilos.checkbox,
+                                      ...(seleccionada
+                                        ? estilos.checkboxSeleccionada
+                                        : {}),
+                                    }}
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      checked={seleccionada}
+                                      onChange={() =>
+                                        cambiarActividadEdicion(
+                                          actividad.id
+                                        )
+                                      }
+                                    />
+
+                                    <span>
+                                      {actividad.nombre}
+                                    </span>
+                                  </label>
+                                );
+                              })}
+                            </div>
+                          </div>
+
+                          <div style={estilos.botonesEdicion}>
+                            <button
+                              type="button"
+                              onClick={guardarProfesor}
+                              style={estilos.botonAnadir}
+                              disabled={guardando}
+                            >
+                              {guardando
+                                ? "Guardando..."
+                                : "Guardar cambios"}
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={cancelarEdicion}
+                              style={estilos.botonCancelar}
+                              disabled={guardando}
+                            >
+                              Cancelar
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+
                   return (
                     <div
                       key={profesor.id}
                       style={estilos.filaProfesor}
                     >
                       <div style={estilos.numero}>
-                        {String(index + 1).padStart(
-                          2,
-                          "0"
-                        )}
+                        {String(index + 1).padStart(2, "0")}
                       </div>
 
                       <div style={estilos.nombreActividad}>
-                        <strong>
-                          {profesor.nombre}
-                        </strong>
+                        <strong>{profesor.nombre}</strong>
 
                         <span>
                           {nombresActividades.length > 0
-                            ? nombresActividades.join(
-                                " · "
-                              )
+                            ? nombresActividades.join(" · ")
                             : "Sin actividades asignadas"}
                         </span>
 
                         {profesor.descripcion && (
                           <small
-                            style={
-                              estilos.descripcionProfesor
-                            }
+                            style={estilos.descripcionProfesor}
                           >
                             {profesor.descripcion}
                           </small>
@@ -463,6 +647,16 @@ export default function AdminPage() {
                           ? "ACTIVO"
                           : "OCULTO"}
                       </span>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          comenzarEdicion(profesor)
+                        }
+                        style={estilos.botonEditar}
+                      >
+                        ✏️ Editar
+                      </button>
                     </div>
                   );
                 })
@@ -500,8 +694,7 @@ export default function AdminPage() {
                   onChange={(event) =>
                     setNuevoProfesor({
                       ...nuevoProfesor,
-                      descripcion:
-                        event.target.value,
+                      descripcion: event.target.value,
                     })
                   }
                   placeholder="Descripción breve"
@@ -542,9 +735,7 @@ export default function AdminPage() {
                             }
                           />
 
-                          <span>
-                            {actividad.nombre}
-                          </span>
+                          <span>{actividad.nombre}</span>
                         </label>
                       );
                     })}
@@ -589,8 +780,8 @@ export default function AdminPage() {
               </h2>
 
               <p>
-                Este apartado lo construiremos y
-                conectaremos con la base de datos.
+                Este apartado lo construiremos y conectaremos
+                con la base de datos.
               </p>
             </section>
           )}
@@ -756,6 +947,7 @@ const estilos = {
     alignItems: "center",
     padding: "20px 22px",
     borderBottom: "1px solid #29292f",
+    gap: "15px",
   },
 
   numero: {
@@ -783,7 +975,8 @@ const estilos = {
     borderRadius: "20px",
     fontSize: "10px",
     fontWeight: "800",
-    marginRight: "15px",
+    marginRight: "5px",
+    flexShrink: 0,
   },
 
   estadoActivo: {
@@ -794,6 +987,48 @@ const estilos = {
   estadoInactivo: {
     background: "#3d2020",
     color: "#ff8585",
+  },
+
+  botonEditar: {
+    background: "#25252b",
+    color: "#fff",
+    border: "1px solid #414149",
+    borderRadius: "8px",
+    padding: "9px 12px",
+    cursor: "pointer",
+    fontSize: "12px",
+    flexShrink: 0,
+  },
+
+  edicion: {
+    padding: "25px",
+    borderBottom: "1px solid #29292f",
+    background: "#151519",
+  },
+
+  edicionCabecera: {
+    marginBottom: "20px",
+  },
+
+  tituloEdicion: {
+    margin: "7px 0 0",
+    fontSize: "22px",
+  },
+
+  botonesEdicion: {
+    display: "flex",
+    gap: "10px",
+    alignItems: "center",
+  },
+
+  botonCancelar: {
+    background: "transparent",
+    color: "#aaa",
+    border: "1px solid #414149",
+    borderRadius: "9px",
+    padding: "13px 22px",
+    fontWeight: "700",
+    cursor: "pointer",
   },
 
   anadir: {
