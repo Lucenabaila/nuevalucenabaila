@@ -38,7 +38,6 @@ export async function GET() {
 
     const resultado = profesores.map((profesor) => ({
       ...profesor,
-
       actividad_ids: profesor.actividad_ids
         ? profesor.actividad_ids
             .split(",")
@@ -55,16 +54,18 @@ export async function GET() {
   } catch (error) {
 
     console.error(
-      "Error obteniendo profesores:",
+      "ERROR OBTENIENDO PROFESORES:",
       error
     );
 
     return Response.json(
       {
         correcto: false,
-        mensaje:
-          "Error obteniendo profesores",
+        mensaje: "Error obteniendo profesores",
         error: error.message,
+        codigo: error.code || null,
+        errno: error.errno || null,
+        sqlMessage: error.sqlMessage || null,
       },
       {
         status: 500,
@@ -95,9 +96,7 @@ export async function POST(request) {
       body.descripcion?.trim() || null;
 
     const actividadIds =
-      Array.isArray(
-        body.actividadIds
-      )
+      Array.isArray(body.actividadIds)
         ? [
             ...new Set(
               body.actividadIds
@@ -165,6 +164,7 @@ export async function POST(request) {
           .map(() => "?")
           .join(",");
 
+
       const [
         actividadesValidas,
       ] = await connection.query(
@@ -231,44 +231,21 @@ export async function POST(request) {
     );
 
 
- } catch (error) {
+  } catch (error) {
 
-  try {
-    await connection.rollback();
-  } catch (rollbackError) {
-    console.error(
-      "Error haciendo rollback:",
-      rollbackError
-    );
-  }
-
-  connection.release();
-
-  console.error(
-    "ERROR REAL ACTUALIZANDO PROFESOR:",
-    error
-  );
-
-  return Response.json(
-    {
-      correcto: false,
-      mensaje:
-        "Error actualizando profesor",
-      error: error.message,
-      codigo: error.code || null,
-      errno: error.errno || null,
-      sqlMessage: error.sqlMessage || null,
-    },
-    {
-      status: 500,
+    try {
+      await connection.rollback();
+    } catch (rollbackError) {
+      console.error(
+        "ERROR HACIENDO ROLLBACK:",
+        rollbackError
+      );
     }
-  );
-}
 
     connection.release();
 
     console.error(
-      "Error creando profesor:",
+      "ERROR CREANDO PROFESOR:",
       error
     );
 
@@ -277,7 +254,18 @@ export async function POST(request) {
         correcto: false,
         mensaje:
           "Error creando profesor",
-        error: error.message,
+
+        error:
+          error.message,
+
+        codigo:
+          error.code || null,
+
+        errno:
+          error.errno || null,
+
+        sqlMessage:
+          error.sqlMessage || null,
       },
       {
         status: 500,
@@ -315,9 +303,7 @@ export async function PUT(request) {
 
 
     const actividadIds =
-      Array.isArray(
-        body.actividadIds
-      )
+      Array.isArray(body.actividadIds)
         ? [
             ...new Set(
               body.actividadIds
@@ -408,17 +394,15 @@ export async function PUT(request) {
 
 
     // -----------------------------------------------------
-    // ACTUALIZAR DATOS DEL PROFESOR
+    // ACTUALIZAR PROFESOR
     // -----------------------------------------------------
 
     await connection.query(
       `
       UPDATE profesores
-
       SET
         nombre = ?,
         descripcion = ?
-
       WHERE id = ?
       `,
       [
@@ -448,20 +432,38 @@ export async function PUT(request) {
         actividadesValidas,
       ] = await connection.query(
         `
-        SELECT id
+        SELECT
+          id,
+          nombre,
+          activa
         FROM actividades
         WHERE id IN (${placeholders})
-          AND activa = TRUE
         `,
         actividadIds
       );
 
 
       idsValidos =
-        actividadesValidas.map(
-          (actividad) =>
-            Number(actividad.id)
-        );
+        actividadesValidas
+          .filter(
+            (actividad) =>
+              Number(actividad.activa) === 1
+          )
+          .map(
+            (actividad) =>
+              Number(actividad.id)
+          );
+
+
+      console.log(
+        "Actividades recibidas:",
+        actividadIds
+      );
+
+      console.log(
+        "Actividades válidas:",
+        idsValidos
+      );
 
     }
 
@@ -525,12 +527,25 @@ export async function PUT(request) {
 
   } catch (error) {
 
-    await connection.rollback();
+    try {
+
+      await connection.rollback();
+
+    } catch (rollbackError) {
+
+      console.error(
+        "ERROR HACIENDO ROLLBACK:",
+        rollbackError
+      );
+
+    }
+
 
     connection.release();
 
+
     console.error(
-      "Error actualizando profesor:",
+      "ERROR REAL ACTUALIZANDO PROFESOR:",
       error
     );
 
@@ -538,9 +553,21 @@ export async function PUT(request) {
     return Response.json(
       {
         correcto: false,
+
         mensaje:
           "Error actualizando profesor",
-        error: error.message,
+
+        error:
+          error.message,
+
+        codigo:
+          error.code || null,
+
+        errno:
+          error.errno || null,
+
+        sqlMessage:
+          error.sqlMessage || null,
       },
       {
         status: 500,
