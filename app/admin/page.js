@@ -11,11 +11,22 @@ const secciones = [
   { id: "mensajes", icono: "📩", nombre: "Mensajes" },
 ];
 
+const diasSemana = [
+  "Lunes",
+  "Martes",
+  "Miércoles",
+  "Jueves",
+  "Viernes",
+  "Sábado",
+  "Domingo",
+];
+
 export default function AdminPage() {
   const [seccion, setSeccion] = useState("actividades");
 
   const [actividades, setActividades] = useState([]);
   const [profesores, setProfesores] = useState([]);
+  const [horarios, setHorarios] = useState([]);
 
   const [cargando, setCargando] = useState(true);
   const [guardando, setGuardando] = useState(false);
@@ -31,9 +42,22 @@ export default function AdminPage() {
 
   const [profesorEditando, setProfesorEditando] = useState(null);
 
+  const [nuevoHorario, setNuevoHorario] = useState({
+    actividadId: "",
+    dia: "Lunes",
+    horaInicio: "",
+    horaFin: "",
+    nivel: "",
+    profesorIds: [],
+    orden: 0,
+  });
+
+  const [horarioEditando, setHorarioEditando] = useState(null);
+
   useEffect(() => {
     cargarActividades();
     cargarProfesores();
+    cargarHorarios();
   }, []);
 
   async function cargarActividades() {
@@ -69,6 +93,23 @@ export default function AdminPage() {
     } catch (error) {
       console.error("Error cargando profesores:", error);
       setMensaje("❌ No se pudieron cargar los profesores.");
+    }
+  }
+
+  async function cargarHorarios() {
+    try {
+      const respuesta = await fetch("/api/horarios", {
+        cache: "no-store",
+      });
+
+      const datos = await respuesta.json();
+
+      if (datos.correcto) {
+        setHorarios(datos.horarios || []);
+      }
+    } catch (error) {
+      console.error("Error cargando horarios:", error);
+      setMensaje("❌ No se pudieron cargar los horarios.");
     }
   }
 
@@ -259,10 +300,225 @@ export default function AdminPage() {
     }
   }
 
+  function cambiarProfesorHorario(id) {
+    setNuevoHorario((actual) => {
+      const existe = actual.profesorIds.includes(id);
+
+      return {
+        ...actual,
+        profesorIds: existe
+          ? actual.profesorIds.filter(
+              (profesorId) => profesorId !== id
+            )
+          : [...actual.profesorIds, id],
+      };
+    });
+  }
+
+  function cambiarProfesorHorarioEdicion(id) {
+    setHorarioEditando((actual) => {
+      if (!actual) return actual;
+
+      const existe = actual.profesorIds.includes(id);
+
+      return {
+        ...actual,
+        profesorIds: existe
+          ? actual.profesorIds.filter(
+              (profesorId) => profesorId !== id
+            )
+          : [...actual.profesorIds, id],
+      };
+    });
+  }
+
+  async function agregarHorario(event) {
+    event.preventDefault();
+
+    if (!nuevoHorario.actividadId) {
+      setMensaje("⚠️ Selecciona una actividad.");
+      return;
+    }
+
+    if (!nuevoHorario.horaInicio || !nuevoHorario.horaFin) {
+      setMensaje("⚠️ Indica la hora de inicio y de fin.");
+      return;
+    }
+
+    if (nuevoHorario.profesorIds.length === 0) {
+      setMensaje("⚠️ Selecciona al menos un profesor.");
+      return;
+    }
+
+    setGuardando(true);
+    setMensaje("");
+
+    try {
+      const respuesta = await fetch("/api/horarios", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(nuevoHorario),
+      });
+
+      const datos = await respuesta.json();
+
+      if (!respuesta.ok || !datos.correcto) {
+        throw new Error(
+          datos.mensaje || "No se pudo crear el horario"
+        );
+      }
+
+      setNuevoHorario({
+        actividadId: "",
+        dia: "Lunes",
+        horaInicio: "",
+        horaFin: "",
+        nivel: "",
+        profesorIds: [],
+        orden: horarios.length,
+      });
+
+      setMensaje("✅ Horario creado correctamente.");
+
+      await cargarHorarios();
+    } catch (error) {
+      console.error(error);
+      setMensaje(`❌ ${error.message}`);
+    } finally {
+      setGuardando(false);
+    }
+  }
+
+  function comenzarEdicionHorario(horario) {
+    setMensaje("");
+
+    setHorarioEditando({
+      id: horario.id,
+      actividadId: horario.actividad_id,
+      dia: horario.dia,
+      horaInicio: horario.hora_inicio
+        ? String(horario.hora_inicio).slice(0, 5)
+        : "",
+      horaFin: horario.hora_fin
+        ? String(horario.hora_fin).slice(0, 5)
+        : "",
+      nivel: horario.nivel || "",
+      profesorIds: horario.profesor_ids || [],
+      activa: horario.activa,
+      orden: horario.orden || 0,
+    });
+  }
+
+  function cancelarEdicionHorario() {
+    setHorarioEditando(null);
+  }
+
+  async function guardarHorario() {
+    if (!horarioEditando) return;
+
+    if (!horarioEditando.actividadId) {
+      setMensaje("⚠️ Selecciona una actividad.");
+      return;
+    }
+
+    if (
+      !horarioEditando.horaInicio ||
+      !horarioEditando.horaFin
+    ) {
+      setMensaje("⚠️ Indica la hora de inicio y de fin.");
+      return;
+    }
+
+    if (horarioEditando.profesorIds.length === 0) {
+      setMensaje("⚠️ Selecciona al menos un profesor.");
+      return;
+    }
+
+    setGuardando(true);
+    setMensaje("");
+
+    try {
+      const respuesta = await fetch("/api/horarios", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(horarioEditando),
+      });
+
+      const datos = await respuesta.json();
+
+      if (!respuesta.ok || !datos.correcto) {
+        throw new Error(
+          datos.mensaje || "No se pudo actualizar el horario"
+        );
+      }
+
+      setHorarioEditando(null);
+      setMensaje("✅ Horario actualizado correctamente.");
+
+      await cargarHorarios();
+    } catch (error) {
+      console.error(error);
+      setMensaje(`❌ ${error.message}`);
+    } finally {
+      setGuardando(false);
+    }
+  }
+
+  async function eliminarHorario(id) {
+    const confirmar = window.confirm(
+      "¿Seguro que quieres eliminar este horario?"
+    );
+
+    if (!confirmar) return;
+
+    setGuardando(true);
+    setMensaje("");
+
+    try {
+      const respuesta = await fetch("/api/horarios", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id }),
+      });
+
+      const datos = await respuesta.json();
+
+      if (!respuesta.ok || !datos.correcto) {
+        throw new Error(
+          datos.mensaje || "No se pudo eliminar el horario"
+        );
+      }
+
+      setMensaje("✅ Horario eliminado correctamente.");
+
+      await cargarHorarios();
+    } catch (error) {
+      console.error(error);
+      setMensaje(`❌ ${error.message}`);
+    } finally {
+      setGuardando(false);
+    }
+  }
+
   function cambiarSeccion(id) {
     setSeccion(id);
     setMensaje("");
     setProfesorEditando(null);
+    setHorarioEditando(null);
+  }
+
+  function nombreProfesor(id) {
+    const profesor = profesores.find(
+      (item) => item.id === id
+    );
+
+    return profesor ? profesor.nombre : "";
   }
 
   return (
@@ -334,7 +590,7 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* ACTIVIDADES */}
+        {/* ================= ACTIVIDADES ================= */}
 
         {seccion === "actividades" && (
           <section>
@@ -435,7 +691,7 @@ export default function AdminPage() {
           </section>
         )}
 
-        {/* PROFESORES */}
+        {/* ================= PROFESORES ================= */}
 
         {seccion === "profesores" && (
           <section>
@@ -477,8 +733,6 @@ export default function AdminPage() {
                 const editando =
                   profesorEditando?.id === profesor.id;
 
-                /* FORMULARIO DE EDICIÓN */
-
                 if (editando) {
                   return (
                     <div
@@ -493,9 +747,7 @@ export default function AdminPage() {
                         {profesor.nombre}
                       </h3>
 
-                      <div
-                        style={estilos.formularioVertical}
-                      >
+                      <div style={estilos.formularioVertical}>
                         <input
                           value={profesorEditando.nombre}
                           onChange={(event) =>
@@ -569,9 +821,7 @@ export default function AdminPage() {
                           </div>
                         </div>
 
-                        <div
-                          style={estilos.botonesEdicion}
-                        >
+                        <div style={estilos.botonesEdicion}>
                           <button
                             type="button"
                             onClick={guardarProfesor}
@@ -597,8 +847,6 @@ export default function AdminPage() {
                   );
                 }
 
-                /* PROFESOR NORMAL */
-
                 return (
                   <div
                     key={profesor.id}
@@ -618,12 +866,7 @@ export default function AdminPage() {
                       </span>
 
                       {profesor.descripcion && (
-                        <small
-                          style={{
-                            color: "#777",
-                            marginTop: "3px",
-                          }}
-                        >
+                        <small style={{ color: "#777" }}>
                           {profesor.descripcion}
                         </small>
                       )}
@@ -642,8 +885,6 @@ export default function AdminPage() {
                         : "OCULTO"}
                     </span>
 
-                    {/* ESTE ES EL BOTÓN QUE FALTABA */}
-
                     <button
                       type="button"
                       onClick={() =>
@@ -657,8 +898,6 @@ export default function AdminPage() {
                 );
               })}
             </div>
-
-            {/* NUEVO PROFESOR */}
 
             <div style={estilos.anadir}>
               <p style={estilos.eyebrow}>
@@ -753,10 +992,547 @@ export default function AdminPage() {
           </section>
         )}
 
-        {/* RESTO DE SECCIONES */}
+        {/* ================= HORARIOS ================= */}
+
+        {seccion === "horarios" && (
+          <section>
+            <div style={estilos.tituloSeccion}>
+              <div>
+                <p style={estilos.eyebrow}>
+                  ORGANIZACIÓN DE LAS CLASES
+                </p>
+
+                <h2 style={estilos.tituloH2}>
+                  Horarios
+                </h2>
+
+                <p style={estilos.descripcionSeccion}>
+                  Crea y gestiona los horarios de todas las actividades.
+                </p>
+              </div>
+
+              <span style={estilos.contador}>
+                {horarios.length} horarios
+              </span>
+            </div>
+
+            <div style={estilos.tarjeta}>
+              {horarios.length === 0 ? (
+                <div style={estilos.vacio}>
+                  <div style={estilos.iconoVacio}>
+                    🕐
+                  </div>
+
+                  <h3>
+                    No hay horarios todavía
+                  </h3>
+
+                  <p>
+                    Añade el primer horario de la escuela.
+                  </p>
+                </div>
+              ) : (
+                horarios.map((horario, index) => {
+                  const profesoresHorario =
+                    horario.profesor_ids || [];
+
+                  const nombresProfesores =
+                    profesoresHorario
+                      .map(nombreProfesor)
+                      .filter(Boolean);
+
+                  return (
+                    <div
+                      key={horario.id}
+                      style={estilos.filaHorario}
+                    >
+                      <div style={estilos.numero}>
+                        {String(index + 1).padStart(2, "0")}
+                      </div>
+
+                      <div style={estilos.horaHorario}>
+                        <strong>
+                          {String(
+                            horario.hora_inicio
+                          ).slice(0, 5)}
+                          {" - "}
+                          {String(
+                            horario.hora_fin
+                          ).slice(0, 5)}
+                        </strong>
+
+                        <span>
+                          {horario.dia}
+                        </span>
+                      </div>
+
+                      <div style={estilos.infoHorario}>
+                        <strong>
+                          {horario.actividad_nombre}
+                        </strong>
+
+                        <span>
+                          {horario.nivel ||
+                            "Nivel general"}
+                        </span>
+
+                        <small>
+                          👤{" "}
+                          {nombresProfesores.length > 0
+                            ? nombresProfesores.join(" · ")
+                            : "Sin profesor asignado"}
+                        </small>
+                      </div>
+
+                      <span
+                        style={{
+                          ...estilos.estado,
+                          ...(horario.activa
+                            ? estilos.estadoActivo
+                            : estilos.estadoInactivo),
+                        }}
+                      >
+                        {horario.activa
+                          ? "ACTIVO"
+                          : "OCULTO"}
+                      </span>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          comenzarEdicionHorario(
+                            horario
+                          )
+                        }
+                        style={estilos.botonEditar}
+                      >
+                        ✏️ Editar
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          eliminarHorario(horario.id)
+                        }
+                        style={estilos.botonEliminar}
+                        disabled={guardando}
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            {/* FORMULARIO NUEVO HORARIO */}
+
+            <div style={estilos.anadir}>
+              <p style={estilos.eyebrow}>
+                NUEVO HORARIO
+              </p>
+
+              <h3 style={estilos.tituloAnadir}>
+                + Añadir horario
+              </h3>
+
+              <form
+                onSubmit={agregarHorario}
+                style={estilos.formularioVertical}
+              >
+                <div style={estilos.gridFormulario}>
+                  <div>
+                    <label style={estilos.label}>
+                      ACTIVIDAD
+                    </label>
+
+                    <select
+                      value={nuevoHorario.actividadId}
+                      onChange={(event) =>
+                        setNuevoHorario({
+                          ...nuevoHorario,
+                          actividadId:
+                            Number(event.target.value),
+                        })
+                      }
+                      style={estilos.input}
+                      disabled={guardando}
+                    >
+                      <option value="">
+                        Selecciona una actividad
+                      </option>
+
+                      {actividades.map(
+                        (actividad) => (
+                          <option
+                            key={actividad.id}
+                            value={actividad.id}
+                          >
+                            {actividad.nombre}
+                          </option>
+                        )
+                      )}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label style={estilos.label}>
+                      DÍA
+                    </label>
+
+                    <select
+                      value={nuevoHorario.dia}
+                      onChange={(event) =>
+                        setNuevoHorario({
+                          ...nuevoHorario,
+                          dia: event.target.value,
+                        })
+                      }
+                      style={estilos.input}
+                      disabled={guardando}
+                    >
+                      {diasSemana.map((dia) => (
+                        <option
+                          key={dia}
+                          value={dia}
+                        >
+                          {dia}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div style={estilos.gridFormulario}>
+                  <div>
+                    <label style={estilos.label}>
+                      HORA DE INICIO
+                    </label>
+
+                    <input
+                      type="time"
+                      value={nuevoHorario.horaInicio}
+                      onChange={(event) =>
+                        setNuevoHorario({
+                          ...nuevoHorario,
+                          horaInicio:
+                            event.target.value,
+                        })
+                      }
+                      style={estilos.input}
+                      disabled={guardando}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={estilos.label}>
+                      HORA DE FIN
+                    </label>
+
+                    <input
+                      type="time"
+                      value={nuevoHorario.horaFin}
+                      onChange={(event) =>
+                        setNuevoHorario({
+                          ...nuevoHorario,
+                          horaFin:
+                            event.target.value,
+                        })
+                      }
+                      style={estilos.input}
+                      disabled={guardando}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={estilos.label}>
+                      NIVEL
+                    </label>
+
+                    <input
+                      type="text"
+                      value={nuevoHorario.nivel}
+                      onChange={(event) =>
+                        setNuevoHorario({
+                          ...nuevoHorario,
+                          nivel: event.target.value,
+                        })
+                      }
+                      placeholder="Ej.: Inicial"
+                      style={estilos.input}
+                      disabled={guardando}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <p style={estilos.etiqueta}>
+                    PROFESORES QUE IMPARTEN ESTA CLASE
+                  </p>
+
+                  <div style={estilos.checkGrid}>
+                    {profesores.map((profesor) => {
+                      const seleccionado =
+                        nuevoHorario.profesorIds.includes(
+                          profesor.id
+                        );
+
+                      return (
+                        <label
+                          key={profesor.id}
+                          style={{
+                            ...estilos.checkbox,
+                            ...(seleccionado
+                              ? estilos.checkboxSeleccionada
+                              : {}),
+                          }}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={seleccionado}
+                            onChange={() =>
+                              cambiarProfesorHorario(
+                                profesor.id
+                              )
+                            }
+                          />
+
+                          {profesor.nombre}
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  style={estilos.botonAnadir}
+                  disabled={guardando}
+                >
+                  {guardando
+                    ? "Guardando..."
+                    : "Añadir horario"}
+                </button>
+              </form>
+            </div>
+
+            {/* EDICIÓN DE HORARIO */}
+
+            {horarioEditando && (
+              <div style={estilos.anadir}>
+                <p style={estilos.eyebrow}>
+                  EDITANDO HORARIO
+                </p>
+
+                <h3 style={estilos.tituloAnadir}>
+                  Modificar horario
+                </h3>
+
+                <div style={estilos.formularioVertical}>
+                  <div style={estilos.gridFormulario}>
+                    <div>
+                      <label style={estilos.label}>
+                        ACTIVIDAD
+                      </label>
+
+                      <select
+                        value={
+                          horarioEditando.actividadId
+                        }
+                        onChange={(event) =>
+                          setHorarioEditando({
+                            ...horarioEditando,
+                            actividadId:
+                              Number(
+                                event.target.value
+                              ),
+                          })
+                        }
+                        style={estilos.input}
+                        disabled={guardando}
+                      >
+                        <option value="">
+                          Selecciona una actividad
+                        </option>
+
+                        {actividades.map(
+                          (actividad) => (
+                            <option
+                              key={actividad.id}
+                              value={actividad.id}
+                            >
+                              {actividad.nombre}
+                            </option>
+                          )
+                        )}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label style={estilos.label}>
+                        DÍA
+                      </label>
+
+                      <select
+                        value={horarioEditando.dia}
+                        onChange={(event) =>
+                          setHorarioEditando({
+                            ...horarioEditando,
+                            dia: event.target.value,
+                          })
+                        }
+                        style={estilos.input}
+                        disabled={guardando}
+                      >
+                        {diasSemana.map((dia) => (
+                          <option
+                            key={dia}
+                            value={dia}
+                          >
+                            {dia}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div style={estilos.gridFormulario}>
+                    <div>
+                      <label style={estilos.label}>
+                        HORA DE INICIO
+                      </label>
+
+                      <input
+                        type="time"
+                        value={
+                          horarioEditando.horaInicio
+                        }
+                        onChange={(event) =>
+                          setHorarioEditando({
+                            ...horarioEditando,
+                            horaInicio:
+                              event.target.value,
+                          })
+                        }
+                        style={estilos.input}
+                        disabled={guardando}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={estilos.label}>
+                        HORA DE FIN
+                      </label>
+
+                      <input
+                        type="time"
+                        value={
+                          horarioEditando.horaFin
+                        }
+                        onChange={(event) =>
+                          setHorarioEditando({
+                            ...horarioEditando,
+                            horaFin:
+                              event.target.value,
+                          })
+                        }
+                        style={estilos.input}
+                        disabled={guardando}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={estilos.label}>
+                        NIVEL
+                      </label>
+
+                      <input
+                        type="text"
+                        value={horarioEditando.nivel}
+                        onChange={(event) =>
+                          setHorarioEditando({
+                            ...horarioEditando,
+                            nivel: event.target.value,
+                          })
+                        }
+                        placeholder="Ej.: Inicial"
+                        style={estilos.input}
+                        disabled={guardando}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <p style={estilos.etiqueta}>
+                      PROFESORES
+                    </p>
+
+                    <div style={estilos.checkGrid}>
+                      {profesores.map((profesor) => {
+                        const seleccionado =
+                          horarioEditando.profesorIds.includes(
+                            profesor.id
+                          );
+
+                        return (
+                          <label
+                            key={profesor.id}
+                            style={{
+                              ...estilos.checkbox,
+                              ...(seleccionado
+                                ? estilos.checkboxSeleccionada
+                                : {}),
+                            }}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={seleccionado}
+                              onChange={() =>
+                                cambiarProfesorHorarioEdicion(
+                                  profesor.id
+                                )
+                              }
+                            />
+
+                            {profesor.nombre}
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div style={estilos.botonesEdicion}>
+                    <button
+                      type="button"
+                      onClick={guardarHorario}
+                      style={estilos.botonAnadir}
+                      disabled={guardando}
+                    >
+                      {guardando
+                        ? "Guardando..."
+                        : "Guardar cambios"}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={cancelarEdicionHorario}
+                      style={estilos.botonCancelar}
+                      disabled={guardando}
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* ================= RESTO ================= */}
 
         {seccion !== "actividades" &&
-          seccion !== "profesores" && (
+          seccion !== "profesores" &&
+          seccion !== "horarios" && (
             <section style={estilos.proximamente}>
               <div style={estilos.iconoGrande}>
                 {
@@ -831,7 +1607,7 @@ const estilos = {
   contenido: {
     flex: 1,
     padding: "50px",
-    maxWidth: "1100px",
+    maxWidth: "1200px",
     boxSizing: "border-box",
   },
 
@@ -947,6 +1723,14 @@ const estilos = {
     gap: "15px",
   },
 
+  filaHorario: {
+    display: "flex",
+    alignItems: "center",
+    padding: "20px 22px",
+    borderBottom: "1px solid #29292f",
+    gap: "15px",
+  },
+
   numero: {
     width: "45px",
     color: "#ff3cac",
@@ -956,6 +1740,21 @@ const estilos = {
   },
 
   nombreActividad: {
+    flex: 1,
+    display: "flex",
+    flexDirection: "column",
+    gap: "5px",
+  },
+
+  horaHorario: {
+    width: "125px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "4px",
+    flexShrink: 0,
+  },
+
+  infoHorario: {
     flex: 1,
     display: "flex",
     flexDirection: "column",
@@ -994,6 +1793,17 @@ const estilos = {
     flexShrink: 0,
   },
 
+  botonEliminar: {
+    background: "#3b2025",
+    color: "#ff8585",
+    border: "1px solid #63343d",
+    borderRadius: "8px",
+    padding: "10px 12px",
+    cursor: "pointer",
+    fontSize: "12px",
+    flexShrink: 0,
+  },
+
   edicion: {
     padding: "25px",
     borderBottom: "1px solid #29292f",
@@ -1003,28 +1813,6 @@ const estilos = {
   tituloEdicion: {
     margin: "8px 0 20px",
     fontSize: "22px",
-  },
-
-  formularioVertical: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "16px",
-    maxWidth: "700px",
-  },
-
-  botonesEdicion: {
-    display: "flex",
-    gap: "10px",
-  },
-
-  botonCancelar: {
-    background: "transparent",
-    color: "#aaa",
-    border: "1px solid #414149",
-    borderRadius: "9px",
-    padding: "13px 22px",
-    fontWeight: "700",
-    cursor: "pointer",
   },
 
   anadir: {
@@ -1043,6 +1831,29 @@ const estilos = {
   formulario: {
     display: "flex",
     gap: "10px",
+  },
+
+  formularioVertical: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "16px",
+    maxWidth: "800px",
+  },
+
+  gridFormulario: {
+    display: "grid",
+    gridTemplateColumns:
+      "repeat(auto-fit, minmax(200px, 1fr))",
+    gap: "15px",
+  },
+
+  label: {
+    display: "block",
+    color: "#aaa",
+    fontSize: "10px",
+    fontWeight: "800",
+    letterSpacing: "1.5px",
+    marginBottom: "7px",
   },
 
   input: {
@@ -1114,6 +1925,21 @@ const estilos = {
     alignSelf: "flex-start",
   },
 
+  botonesEdicion: {
+    display: "flex",
+    gap: "10px",
+  },
+
+  botonCancelar: {
+    background: "transparent",
+    color: "#aaa",
+    border: "1px solid #414149",
+    borderRadius: "9px",
+    padding: "13px 22px",
+    fontWeight: "700",
+    cursor: "pointer",
+  },
+
   mensaje: {
     padding: "13px 16px",
     borderRadius: "10px",
@@ -1135,6 +1961,17 @@ const estilos = {
     padding: "45px",
     textAlign: "center",
     color: "#888891",
+  },
+
+  vacio: {
+    padding: "55px 25px",
+    textAlign: "center",
+    color: "#888891",
+  },
+
+  iconoVacio: {
+    fontSize: "45px",
+    marginBottom: "10px",
   },
 
   proximamente: {
