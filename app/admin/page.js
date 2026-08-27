@@ -15,20 +15,26 @@ export default function AdminPage() {
   const [seccion, setSeccion] = useState("actividades");
 
   const [actividades, setActividades] = useState([]);
+  const [profesores, setProfesores] = useState([]);
+
   const [cargando, setCargando] = useState(true);
   const [guardando, setGuardando] = useState(false);
 
   const [nuevaActividad, setNuevaActividad] = useState("");
+
+  const [nuevoProfesor, setNuevoProfesor] = useState({
+    nombre: "",
+    descripcion: "",
+  });
+
   const [mensaje, setMensaje] = useState("");
 
   useEffect(() => {
     cargarActividades();
+    cargarProfesores();
   }, []);
 
   async function cargarActividades() {
-    setCargando(true);
-    setMensaje("");
-
     try {
       const respuesta = await fetch("/api/actividades", {
         cache: "no-store",
@@ -36,16 +42,31 @@ export default function AdminPage() {
 
       const datos = await respuesta.json();
 
-      if (!respuesta.ok || !datos.correcto) {
-        throw new Error(datos.mensaje || "No se pudieron cargar las actividades");
+      if (datos.correcto) {
+        setActividades(datos.actividades || []);
       }
-
-      setActividades(datos.actividades || []);
     } catch (error) {
-      console.error(error);
-      setMensaje("❌ No se pudieron cargar las actividades.");
+      console.error("Error cargando actividades:", error);
     } finally {
       setCargando(false);
+    }
+  }
+
+  async function cargarProfesores() {
+    try {
+      const respuesta = await fetch("/api/profesores", {
+        cache: "no-store",
+      });
+
+      if (!respuesta.ok) return;
+
+      const datos = await respuesta.json();
+
+      if (datos.correcto) {
+        setProfesores(datos.profesores || []);
+      }
+    } catch (error) {
+      console.error("Error cargando profesores:", error);
     }
   }
 
@@ -78,7 +99,9 @@ export default function AdminPage() {
       const datos = await respuesta.json();
 
       if (!respuesta.ok || !datos.correcto) {
-        throw new Error(datos.mensaje || "No se pudo crear la actividad");
+        throw new Error(
+          datos.mensaje || "No se pudo crear la actividad"
+        );
       }
 
       setNuevaActividad("");
@@ -91,6 +114,60 @@ export default function AdminPage() {
     } finally {
       setGuardando(false);
     }
+  }
+
+  async function agregarProfesor(event) {
+    event.preventDefault();
+
+    const nombre = nuevoProfesor.nombre.trim();
+
+    if (!nombre) {
+      setMensaje("⚠️ Escribe el nombre del profesor.");
+      return;
+    }
+
+    setGuardando(true);
+    setMensaje("");
+
+    try {
+      const respuesta = await fetch("/api/profesores", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          nombre,
+          descripcion: nuevoProfesor.descripcion.trim(),
+        }),
+      });
+
+      const datos = await respuesta.json();
+
+      if (!respuesta.ok || !datos.correcto) {
+        throw new Error(
+          datos.mensaje || "No se pudo crear el profesor"
+        );
+      }
+
+      setNuevoProfesor({
+        nombre: "",
+        descripcion: "",
+      });
+
+      setMensaje("✅ Profesor creado correctamente.");
+
+      await cargarProfesores();
+    } catch (error) {
+      console.error(error);
+      setMensaje(`❌ ${error.message}`);
+    } finally {
+      setGuardando(false);
+    }
+  }
+
+  function cambiarSeccion(id) {
+    setSeccion(id);
+    setMensaje("");
   }
 
   return (
@@ -109,10 +186,12 @@ export default function AdminPage() {
           {secciones.map((item) => (
             <button
               key={item.id}
-              onClick={() => setSeccion(item.id)}
+              onClick={() => cambiarSeccion(item.id)}
               style={{
                 ...estilos.botonMenu,
-                ...(seccion === item.id ? estilos.botonActivo : {}),
+                ...(seccion === item.id
+                  ? estilos.botonActivo
+                  : {}),
               }}
             >
               <span>{item.icono}</span>
@@ -129,9 +208,13 @@ export default function AdminPage() {
       <section style={estilos.contenido}>
         <header style={estilos.cabecera}>
           <div>
-            <p style={estilos.eyebrow}>PANEL DE ADMINISTRACIÓN</p>
+            <p style={estilos.eyebrow}>
+              PANEL DE ADMINISTRACIÓN
+            </p>
 
-            <h1 style={estilos.titulo}>Hola 👋🏼</h1>
+            <h1 style={estilos.titulo}>
+              Hola 👋🏼
+            </h1>
 
             <p style={estilos.subtitulo}>
               Gestiona fácilmente el contenido de Lucena Baila.
@@ -143,16 +226,33 @@ export default function AdminPage() {
           </a>
         </header>
 
+        {mensaje && (
+          <div
+            style={{
+              ...estilos.mensaje,
+              ...(mensaje.startsWith("❌")
+                ? estilos.mensajeError
+                : estilos.mensajeCorrecto),
+            }}
+          >
+            {mensaje}
+          </div>
+        )}
+
         {seccion === "actividades" && (
           <section>
             <div style={estilos.tituloSeccion}>
               <div>
-                <p style={estilos.eyebrow}>CONTENIDO DE LA ESCUELA</p>
+                <p style={estilos.eyebrow}>
+                  CONTENIDO DE LA ESCUELA
+                </p>
 
-                <h2 style={estilos.tituloH2}>Actividades</h2>
+                <h2 style={estilos.tituloH2}>
+                  Actividades
+                </h2>
 
                 <p style={estilos.descripcionSeccion}>
-                  Añade, modifica y gestiona las disciplinas de la escuela.
+                  Añade y gestiona las disciplinas de la escuela.
                 </p>
               </div>
 
@@ -161,19 +261,6 @@ export default function AdminPage() {
               </span>
             </div>
 
-            {mensaje && (
-              <div
-                style={{
-                  ...estilos.mensaje,
-                  ...(mensaje.startsWith("❌")
-                    ? estilos.mensajeError
-                    : estilos.mensajeCorrecto),
-                }}
-              >
-                {mensaje}
-              </div>
-            )}
-
             <div style={estilos.tarjeta}>
               {cargando ? (
                 <div style={estilos.cargando}>
@@ -181,24 +268,32 @@ export default function AdminPage() {
                 </div>
               ) : actividades.length === 0 ? (
                 <div style={estilos.vacio}>
-                  <div style={estilos.iconoVacio}>💃</div>
+                  <div style={estilos.iconoVacio}>
+                    💃
+                  </div>
 
-                  <h3>No hay actividades todavía</h3>
+                  <h3>
+                    No hay actividades todavía
+                  </h3>
 
                   <p>
-                    Añade la primera actividad utilizando el formulario de
-                    abajo.
+                    Añade la primera actividad.
                   </p>
                 </div>
               ) : (
                 actividades.map((actividad, index) => (
-                  <div key={actividad.id} style={estilos.fila}>
+                  <div
+                    key={actividad.id}
+                    style={estilos.fila}
+                  >
                     <div style={estilos.numero}>
                       {String(index + 1).padStart(2, "0")}
                     </div>
 
                     <div style={estilos.nombreActividad}>
-                      <strong>{actividad.nombre}</strong>
+                      <strong>
+                        {actividad.nombre}
+                      </strong>
 
                       <span>
                         {actividad.activa
@@ -215,7 +310,9 @@ export default function AdminPage() {
                           : estilos.estadoInactivo),
                       }}
                     >
-                      {actividad.activa ? "ACTIVA" : "OCULTA"}
+                      {actividad.activa
+                        ? "ACTIVA"
+                        : "OCULTA"}
                     </span>
                   </div>
                 ))
@@ -223,15 +320,13 @@ export default function AdminPage() {
             </div>
 
             <div style={estilos.anadir}>
-              <p style={estilos.eyebrow}>NUEVA DISCIPLINA</p>
+              <p style={estilos.eyebrow}>
+                NUEVA DISCIPLINA
+              </p>
 
               <h3 style={estilos.tituloAnadir}>
                 + Añadir actividad
               </h3>
-
-              <p style={estilos.descripcionAnadir}>
-                La nueva actividad quedará guardada en la base de datos.
-              </p>
 
               <form
                 onSubmit={agregarActividad}
@@ -240,7 +335,9 @@ export default function AdminPage() {
                 <input
                   value={nuevaActividad}
                   onChange={(event) =>
-                    setNuevaActividad(event.target.value)
+                    setNuevaActividad(
+                      event.target.value
+                    )
                   }
                   placeholder="Ej.: Flamenco"
                   style={estilos.input}
@@ -252,31 +349,178 @@ export default function AdminPage() {
                   style={estilos.botonAnadir}
                   disabled={guardando}
                 >
-                  {guardando ? "Guardando..." : "Añadir"}
+                  {guardando
+                    ? "Guardando..."
+                    : "Añadir"}
                 </button>
               </form>
             </div>
           </section>
         )}
 
-        {seccion !== "actividades" && (
-          <section style={estilos.proximamente}>
-            <div style={estilos.iconoGrande}>
-              {secciones.find((item) => item.id === seccion)?.icono}
+        {seccion === "profesores" && (
+          <section>
+            <div style={estilos.tituloSeccion}>
+              <div>
+                <p style={estilos.eyebrow}>
+                  EQUIPO DOCENTE
+                </p>
+
+                <h2 style={estilos.tituloH2}>
+                  Profesores
+                </h2>
+
+                <p style={estilos.descripcionSeccion}>
+                  Gestiona los profesores de la escuela.
+                </p>
+              </div>
+
+              <span style={estilos.contador}>
+                {profesores.length} profesores
+              </span>
             </div>
 
-            <p style={estilos.eyebrow}>PRÓXIMAMENTE</p>
+            <div style={estilos.tarjeta}>
+              {profesores.length === 0 ? (
+                <div style={estilos.vacio}>
+                  <div style={estilos.iconoVacio}>
+                    👥
+                  </div>
 
-            <h2 style={estilos.tituloH2}>
-              {secciones.find((item) => item.id === seccion)?.nombre}
-            </h2>
+                  <h3>
+                    No hay profesores todavía
+                  </h3>
 
-            <p>
-              Este apartado lo construiremos y conectaremos con la base de
-              datos en los siguientes pasos.
-            </p>
+                  <p>
+                    Añade el primer profesor utilizando
+                    el formulario de abajo.
+                  </p>
+                </div>
+              ) : (
+                profesores.map((profesor, index) => (
+                  <div
+                    key={profesor.id}
+                    style={estilos.fila}
+                  >
+                    <div style={estilos.numero}>
+                      {String(index + 1).padStart(
+                        2,
+                        "0"
+                      )}
+                    </div>
+
+                    <div style={estilos.nombreActividad}>
+                      <strong>
+                        {profesor.nombre}
+                      </strong>
+
+                      <span>
+                        {profesor.descripcion ||
+                          "Sin descripción"}
+                      </span>
+                    </div>
+
+                    <span
+                      style={{
+                        ...estilos.estado,
+                        ...(profesor.activa
+                          ? estilos.estadoActivo
+                          : estilos.estadoInactivo),
+                      }}
+                    >
+                      {profesor.activa
+                        ? "ACTIVO"
+                        : "OCULTO"}
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div style={estilos.anadir}>
+              <p style={estilos.eyebrow}>
+                NUEVO PROFESOR
+              </p>
+
+              <h3 style={estilos.tituloAnadir}>
+                + Añadir profesor
+              </h3>
+
+              <form
+                onSubmit={agregarProfesor}
+                style={estilos.formularioVertical}
+              >
+                <input
+                  value={nuevoProfesor.nombre}
+                  onChange={(event) =>
+                    setNuevoProfesor({
+                      ...nuevoProfesor,
+                      nombre: event.target.value,
+                    })
+                  }
+                  placeholder="Nombre del profesor"
+                  style={estilos.input}
+                  disabled={guardando}
+                />
+
+                <textarea
+                  value={nuevoProfesor.descripcion}
+                  onChange={(event) =>
+                    setNuevoProfesor({
+                      ...nuevoProfesor,
+                      descripcion:
+                        event.target.value,
+                    })
+                  }
+                  placeholder="Descripción breve"
+                  style={estilos.textarea}
+                  disabled={guardando}
+                  rows={4}
+                />
+
+                <button
+                  type="submit"
+                  style={estilos.botonAnadir}
+                  disabled={guardando}
+                >
+                  {guardando
+                    ? "Guardando..."
+                    : "Añadir profesor"}
+                </button>
+              </form>
+            </div>
           </section>
         )}
+
+        {seccion !== "actividades" &&
+          seccion !== "profesores" && (
+            <section style={estilos.proximamente}>
+              <div style={estilos.iconoGrande}>
+                {
+                  secciones.find(
+                    (item) => item.id === seccion
+                  )?.icono
+                }
+              </div>
+
+              <p style={estilos.eyebrow}>
+                PRÓXIMAMENTE
+              </p>
+
+              <h2 style={estilos.tituloH2}>
+                {
+                  secciones.find(
+                    (item) => item.id === seccion
+                  )?.nombre
+                }
+              </h2>
+
+              <p>
+                Este apartado lo construiremos y
+                conectaremos con la base de datos.
+              </p>
+            </section>
+          )}
       </section>
     </main>
   );
@@ -475,19 +719,20 @@ const estilos = {
   },
 
   tituloAnadir: {
-    margin: "8px 0",
+    margin: "8px 0 20px",
     fontSize: "22px",
-  },
-
-  descripcionAnadir: {
-    color: "#888891",
-    fontSize: "13px",
-    margin: "0 0 20px",
   },
 
   formulario: {
     display: "flex",
     gap: "10px",
+  },
+
+  formularioVertical: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "12px",
+    maxWidth: "650px",
   },
 
   input: {
@@ -498,6 +743,19 @@ const estilos = {
     borderRadius: "9px",
     padding: "13px",
     fontSize: "15px",
+    outline: "none",
+  },
+
+  textarea: {
+    width: "100%",
+    background: "#09090b",
+    color: "#fff",
+    border: "1px solid #3a3a42",
+    borderRadius: "9px",
+    padding: "13px",
+    fontSize: "15px",
+    resize: "vertical",
+    boxSizing: "border-box",
     outline: "none",
   },
 
@@ -514,7 +772,7 @@ const estilos = {
   mensaje: {
     padding: "13px 16px",
     borderRadius: "10px",
-    marginBottom: "15px",
+    marginBottom: "20px",
     fontSize: "13px",
   },
 
