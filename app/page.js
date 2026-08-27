@@ -120,7 +120,7 @@ export default function Home() {
           <h2>¿Quieres <em>bailar</em> con nosotros?</h2>
           <p>Déjanos tus datos y te contamos qué clase encaja mejor contigo.</p>
         </div>
-        <form className="form" action="#" onSubmit={(e) => e.preventDefault()}>
+        <form className="form" action="contacto">
           <input aria-label="Nombre" placeholder="Tu nombre" />
           <input aria-label="Teléfono" placeholder="Teléfono" />
           <select aria-label="Actividad">
