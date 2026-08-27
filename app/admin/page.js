@@ -131,10 +131,6 @@ export default function AdminPage() {
             <h1 style={estilos.titulo}>
               Hola 👋
             </h1>
-
-            <p style={estilos.subtitulo}>
-              Gestiona fácilmente el contenido de la escuela.
-            </p>
           </div>
         </header>
 
