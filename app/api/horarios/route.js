@@ -1,10 +1,5 @@
 import pool from "../../lib/db";
 
-
-// =========================================================
-// GET — OBTENER TODOS LOS HORARIOS
-// =========================================================
-
 export async function GET() {
   try {
     const [horarios] = await pool.query(`
@@ -15,48 +10,57 @@ export async function GET() {
         h.hora_inicio,
         h.hora_fin,
         h.nivel,
-        h.profesor_id,
         h.activa,
         h.orden,
-
         a.nombre AS actividad_nombre,
-
-        p.nombre AS profesor_nombre
-
+        GROUP_CONCAT(
+          DISTINCT hp.profesor_id
+          ORDER BY hp.profesor_id
+          SEPARATOR ','
+        ) AS profesor_ids
       FROM horarios h
-
       INNER JOIN actividades a
         ON h.actividad_id = a.id
-
-      LEFT JOIN profesores p
-        ON h.profesor_id = p.id
-
+      LEFT JOIN horario_profesor hp
+        ON h.id = hp.horario_id
+      GROUP BY
+        h.id,
+        h.actividad_id,
+        h.dia,
+        h.hora_inicio,
+        h.hora_fin,
+        h.nivel,
+        h.activa,
+        h.orden,
+        a.nombre
       ORDER BY
-        h.orden ASC,
         FIELD(
-          LOWER(h.dia),
-          'lunes',
-          'martes',
-          'miércoles',
-          'jueves',
-          'viernes',
-          'sábado',
-          'domingo'
+          h.dia,
+          'Lunes',
+          'Martes',
+          'Miércoles',
+          'Jueves',
+          'Viernes',
+          'Sábado',
+          'Domingo'
         ),
-        h.hora_inicio ASC
+        h.hora_inicio ASC,
+        h.orden ASC
     `);
+
+    const resultado = horarios.map((horario) => ({
+      ...horario,
+      profesor_ids: horario.profesor_ids
+        ? horario.profesor_ids.split(",").map(Number)
+        : [],
+    }));
 
     return Response.json({
       correcto: true,
-      horarios,
+      horarios: resultado,
     });
-
   } catch (error) {
-
-    console.error(
-      "Error obteniendo horarios:",
-      error
-    );
+    console.error("Error obteniendo horarios:", error);
 
     return Response.json(
       {
@@ -64,125 +68,80 @@ export async function GET() {
         mensaje: "Error obteniendo horarios",
         error: error.message,
       },
-      {
-        status: 500,
-      }
+      { status: 500 }
     );
   }
 }
 
 
-// =========================================================
-// POST — CREAR HORARIO
-// =========================================================
-
 export async function POST(request) {
+  const connection = await pool.getConnection();
 
   try {
-
     const body = await request.json();
 
     const actividadId = Number(
-      body.actividad_id ?? body.actividadId
+      body.actividadId ?? body.actividad_id
     );
 
     const dia = body.dia?.trim();
 
     const horaInicio =
-      body.hora_inicio ??
-      body.horaInicio;
+      body.horaInicio ?? body.hora_inicio;
 
     const horaFin =
-      body.hora_fin ??
-      body.horaFin;
+      body.horaFin ?? body.hora_fin;
 
     const nivel =
       body.nivel?.trim() || null;
 
-    const profesorIdRaw =
-      body.profesor_id ??
-      body.profesorId;
+    const profesorIds = Array.isArray(body.profesorIds)
+      ? body.profesorIds
+          .map(Number)
+          .filter((id) => id > 0)
+      : [];
 
-    const profesorId =
-      profesorIdRaw === null ||
-      profesorIdRaw === undefined ||
-      profesorIdRaw === ""
-        ? null
-        : Number(profesorIdRaw);
-
-    const orden =
-      Number(body.orden) || 0;
-
-
-    // -----------------------------------------------------
-    // VALIDACIONES
-    // -----------------------------------------------------
+    const orden = Number(body.orden) || 0;
 
     if (!actividadId) {
+      connection.release();
 
       return Response.json(
         {
           correcto: false,
-          mensaje:
-            "Debes seleccionar una actividad.",
+          mensaje: "La actividad es obligatoria.",
         },
-        {
-          status: 400,
-        }
+        { status: 400 }
       );
     }
-
 
     if (!dia) {
+      connection.release();
 
       return Response.json(
         {
           correcto: false,
-          mensaje:
-            "Debes seleccionar un día.",
+          mensaje: "El día es obligatorio.",
         },
-        {
-          status: 400,
-        }
+        { status: 400 }
       );
     }
 
-
-    if (!horaInicio) {
+    if (!horaInicio || !horaFin) {
+      connection.release();
 
       return Response.json(
         {
           correcto: false,
-          mensaje:
-            "Debes indicar la hora de inicio.",
+          mensaje: "Las horas son obligatorias.",
         },
-        {
-          status: 400,
-        }
+        { status: 400 }
       );
     }
 
+    await connection.beginTransaction();
 
-    if (!horaFin) {
-
-      return Response.json(
-        {
-          correcto: false,
-          mensaje:
-            "Debes indicar la hora de finalización.",
-        },
-        {
-          status: 400,
-        }
-      );
-    }
-
-
-    // -----------------------------------------------------
-    // COMPROBAR ACTIVIDAD
-    // -----------------------------------------------------
-
-    const [actividad] = await pool.query(
+    const [actividad] = await connection.query(
       `
       SELECT id
       FROM actividades
@@ -192,289 +151,247 @@ export async function POST(request) {
       [actividadId]
     );
 
-
     if (actividad.length === 0) {
+      await connection.rollback();
+      connection.release();
 
       return Response.json(
         {
           correcto: false,
-          mensaje:
-            "La actividad seleccionada no existe.",
+          mensaje: "La actividad no existe.",
         },
-        {
-          status: 400,
-        }
+        { status: 400 }
       );
     }
 
-
-    // -----------------------------------------------------
-    // COMPROBAR PROFESOR
-    // -----------------------------------------------------
-
-    if (profesorId !== null) {
-
-      const [profesor] =
-        await pool.query(
-          `
-          SELECT id
-          FROM profesores
-          WHERE id = ?
-          LIMIT 1
-          `,
-          [profesorId]
-        );
-
+    for (const profesorId of profesorIds) {
+      const [profesor] = await connection.query(
+        `
+        SELECT id
+        FROM profesores
+        WHERE id = ?
+        LIMIT 1
+        `,
+        [profesorId]
+      );
 
       if (profesor.length === 0) {
+        await connection.rollback();
+        connection.release();
 
         return Response.json(
           {
             correcto: false,
-            mensaje:
-              "El profesor seleccionado no existe.",
+            mensaje: `El profesor con ID ${profesorId} no existe.`,
           },
-          {
-            status: 400,
-          }
+          { status: 400 }
         );
       }
     }
 
-
-    // -----------------------------------------------------
-    // INSERTAR
-    // -----------------------------------------------------
-
-    const [resultado] =
-      await pool.query(
-        `
-        INSERT INTO horarios
-          (
-            actividad_id,
-            dia,
-            hora_inicio,
-            hora_fin,
-            nivel,
-            profesor_id,
-            activa,
-            orden
-          )
-
-        VALUES
-          (?, ?, ?, ?, ?, ?, TRUE, ?)
-        `,
-        [
-          actividadId,
+    const [resultado] = await connection.query(
+      `
+      INSERT INTO horarios
+        (
+          actividad_id,
           dia,
-          horaInicio,
-          horaFin,
+          hora_inicio,
+          hora_fin,
           nivel,
-          profesorId,
-          orden,
-        ]
-      );
+          activa,
+          orden
+        )
+      VALUES
+        (?, ?, ?, ?, ?, TRUE, ?)
+      `,
+      [
+        actividadId,
+        dia,
+        horaInicio,
+        horaFin,
+        nivel,
+        orden,
+      ]
+    );
 
+    const horarioId = resultado.insertId;
+
+    for (const profesorId of profesorIds) {
+      await connection.query(
+        `
+        INSERT INTO horario_profesor
+          (
+            horario_id,
+            profesor_id
+          )
+        VALUES
+          (?, ?)
+        `,
+        [horarioId, profesorId]
+      );
+    }
+
+    await connection.commit();
+    connection.release();
 
     return Response.json(
       {
         correcto: true,
-        mensaje:
-          "Horario creado correctamente.",
-        id: resultado.insertId,
+        mensaje: "Horario creado correctamente.",
+        id: horarioId,
       },
-      {
-        status: 201,
-      }
+      { status: 201 }
     );
-
-
   } catch (error) {
+    await connection.rollback();
+    connection.release();
 
-    console.error(
-      "Error creando horario:",
-      error
-    );
+    console.error("Error creando horario:", error);
 
     return Response.json(
       {
         correcto: false,
-        mensaje:
-          "Error creando horario.",
+        mensaje: "Error creando horario.",
         error: error.message,
       },
-      {
-        status: 500,
-      }
+      { status: 500 }
     );
   }
 }
 
 
-// =========================================================
-// PUT — MODIFICAR HORARIO
-// =========================================================
-
 export async function PUT(request) {
+  const connection = await pool.getConnection();
 
   try {
-
     const body = await request.json();
 
     const id = Number(body.id);
 
-    if (!id) {
-
-      return Response.json(
-        {
-          correcto: false,
-          mensaje:
-            "El ID del horario es obligatorio.",
-        },
-        {
-          status: 400,
-        }
-      );
-    }
-
-
     const actividadId = Number(
-      body.actividad_id ?? body.actividadId
+      body.actividadId ?? body.actividad_id
     );
 
     const dia = body.dia?.trim();
 
     const horaInicio =
-      body.hora_inicio ??
-      body.horaInicio;
+      body.horaInicio ?? body.hora_inicio;
 
     const horaFin =
-      body.hora_fin ??
-      body.horaFin;
+      body.horaFin ?? body.hora_fin;
 
     const nivel =
       body.nivel?.trim() || null;
 
-    const profesorIdRaw =
-      body.profesor_id ??
-      body.profesorId;
-
-    const profesorId =
-      profesorIdRaw === null ||
-      profesorIdRaw === undefined ||
-      profesorIdRaw === ""
-        ? null
-        : Number(profesorIdRaw);
+    const profesorIds = Array.isArray(body.profesorIds)
+      ? body.profesorIds
+          .map(Number)
+          .filter((profesorId) => profesorId > 0)
+      : [];
 
     const activa =
-      body.activa === false ||
-      body.activa === 0
-        ? false
-        : true;
+      body.activa === false ? false : true;
 
-    const orden =
-      Number(body.orden) || 0;
+    const orden = Number(body.orden) || 0;
 
+    if (!id) {
+      connection.release();
 
-    if (!actividadId) {
+      return Response.json(
+        {
+          correcto: false,
+          mensaje: "El ID del horario es obligatorio.",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (!actividadId || !dia || !horaInicio || !horaFin) {
+      connection.release();
 
       return Response.json(
         {
           correcto: false,
           mensaje:
-            "Debes seleccionar una actividad.",
+            "Actividad, día y horas son obligatorios.",
         },
-        {
-          status: 400,
-        }
+        { status: 400 }
       );
     }
 
+    await connection.beginTransaction();
 
-    if (!dia) {
-
-      return Response.json(
-        {
-          correcto: false,
-          mensaje:
-            "Debes seleccionar un día.",
-        },
-        {
-          status: 400,
-        }
-      );
-    }
-
-
-    if (!horaInicio || !horaFin) {
-
-      return Response.json(
-        {
-          correcto: false,
-          mensaje:
-            "Debes indicar las horas.",
-        },
-        {
-          status: 400,
-        }
-      );
-    }
-
-
-    const [resultado] =
-      await pool.query(
-        `
-        UPDATE horarios
-
-        SET
-          actividad_id = ?,
-          dia = ?,
-          hora_inicio = ?,
-          hora_fin = ?,
-          nivel = ?,
-          profesor_id = ?,
-          activa = ?,
-          orden = ?
-
-        WHERE id = ?
-        `,
-        [
-          actividadId,
-          dia,
-          horaInicio,
-          horaFin,
-          nivel,
-          profesorId,
-          activa,
-          orden,
-          id,
-        ]
-      );
-
+    const [resultado] = await connection.query(
+      `
+      UPDATE horarios
+      SET
+        actividad_id = ?,
+        dia = ?,
+        hora_inicio = ?,
+        hora_fin = ?,
+        nivel = ?,
+        activa = ?,
+        orden = ?
+      WHERE id = ?
+      `,
+      [
+        actividadId,
+        dia,
+        horaInicio,
+        horaFin,
+        nivel,
+        activa,
+        orden,
+        id,
+      ]
+    );
 
     if (resultado.affectedRows === 0) {
+      await connection.rollback();
+      connection.release();
 
       return Response.json(
         {
           correcto: false,
-          mensaje:
-            "No se encontró el horario.",
+          mensaje: "No se encontró el horario.",
         },
-        {
-          status: 404,
-        }
+        { status: 404 }
       );
     }
 
+    await connection.query(
+      `
+      DELETE FROM horario_profesor
+      WHERE horario_id = ?
+      `,
+      [id]
+    );
+
+    for (const profesorId of profesorIds) {
+      await connection.query(
+        `
+        INSERT INTO horario_profesor
+          (
+            horario_id,
+            profesor_id
+          )
+        VALUES
+          (?, ?)
+        `,
+        [id, profesorId]
+      );
+    }
+
+    await connection.commit();
+    connection.release();
 
     return Response.json({
       correcto: true,
-      mensaje:
-        "Horario actualizado correctamente.",
+      mensaje: "Horario actualizado correctamente.",
     });
-
-
   } catch (error) {
+    await connection.rollback();
+    connection.release();
 
     console.error(
       "Error actualizando horario:",
@@ -484,78 +401,76 @@ export async function PUT(request) {
     return Response.json(
       {
         correcto: false,
-        mensaje:
-          "Error actualizando horario.",
+        mensaje: "Error actualizando horario.",
         error: error.message,
       },
-      {
-        status: 500,
-      }
+      { status: 500 }
     );
   }
 }
 
 
-// =========================================================
-// DELETE — ELIMINAR HORARIO
-// =========================================================
-
 export async function DELETE(request) {
+  const connection = await pool.getConnection();
 
   try {
-
     const body = await request.json();
 
     const id = Number(body.id);
 
     if (!id) {
+      connection.release();
 
       return Response.json(
         {
           correcto: false,
-          mensaje:
-            "El ID del horario es obligatorio.",
+          mensaje: "El ID del horario es obligatorio.",
         },
-        {
-          status: 400,
-        }
+        { status: 400 }
       );
     }
 
+    await connection.beginTransaction();
 
-    const [resultado] =
-      await pool.query(
-        `
-        DELETE FROM horarios
-        WHERE id = ?
-        `,
-        [id]
-      );
+    await connection.query(
+      `
+      DELETE FROM horario_profesor
+      WHERE horario_id = ?
+      `,
+      [id]
+    );
 
+    const [resultado] = await connection.query(
+      `
+      DELETE FROM horarios
+      WHERE id = ?
+      `,
+      [id]
+    );
 
     if (resultado.affectedRows === 0) {
+      await connection.rollback();
+      connection.release();
 
       return Response.json(
         {
           correcto: false,
-          mensaje:
-            "No se encontró el horario.",
+          mensaje: "No se encontró el horario.",
         },
-        {
-          status: 404,
-        }
+        { status: 404 }
       );
     }
 
+    await connection.commit();
+    connection.release();
 
     return Response.json({
       correcto: true,
-      mensaje:
-        "Horario eliminado correctamente.",
+      mensaje: "Horario eliminado correctamente.",
     });
-
-
   } catch (error) {
+    await connection.rollback();
+    connection.release();
 
     console.error(
       "Error eliminando horario:",
@@ -565,13 +480,10 @@ export async function DELETE(request) {
     return Response.json(
       {
         correcto: false,
-        mensaje:
-          "Error eliminando horario.",
+        mensaje: "Error eliminando horario.",
         error: error.message,
       },
-      {
-        status: 500,
-      }
+      { status: 500 }
     );
   }
 }
