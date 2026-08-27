@@ -5,17 +5,18 @@ export async function GET() {
     const [rows] = await pool.query("SELECT 1 AS conectado");
 
     return Response.json({
-      ok: true,
-      mensaje: "Conexión a MySQL correcta",
+      correcto: true,
+      mensaje: "Conexión con MySQL correcta",
       resultado: rows,
     });
   } catch (error) {
-    console.error("Error MySQL:", error);
+    console.error(error);
 
     return Response.json(
       {
-        ok: false,
-        mensaje: "No se ha podido conectar con MySQL",
+        correcto: false,
+        mensaje: "Error conectando con MySQL",
+        error: error.message,
       },
       { status: 500 }
     );
