@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const secciones = [
   { id: "actividades", icono: "💃", nombre: "Actividades" },
@@ -11,38 +11,94 @@ const secciones = [
   { id: "mensajes", icono: "📩", nombre: "Mensajes" },
 ];
 
-const actividadesIniciales = [
-  "Bachata",
-  "Salsa",
-  "Bailes de Salón",
-  "Ladies Style",
-  "Ballet Clásico",
-  "Fitness Barré",
-  "Baile Urbano",
-  "K-Pop",
-];
-
 export default function AdminPage() {
   const [seccion, setSeccion] = useState("actividades");
-  const [actividades, setActividades] = useState(actividadesIniciales);
-  const [nuevaActividad, setNuevaActividad] = useState("");
 
-  function agregarActividad(e) {
-    e.preventDefault();
+  const [actividades, setActividades] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [guardando, setGuardando] = useState(false);
+
+  const [nuevaActividad, setNuevaActividad] = useState("");
+  const [mensaje, setMensaje] = useState("");
+
+  useEffect(() => {
+    cargarActividades();
+  }, []);
+
+  async function cargarActividades() {
+    setCargando(true);
+    setMensaje("");
+
+    try {
+      const respuesta = await fetch("/api/actividades", {
+        cache: "no-store",
+      });
+
+      const datos = await respuesta.json();
+
+      if (!respuesta.ok || !datos.correcto) {
+        throw new Error(datos.mensaje || "No se pudieron cargar las actividades");
+      }
+
+      setActividades(datos.actividades || []);
+    } catch (error) {
+      console.error(error);
+      setMensaje("❌ No se pudieron cargar las actividades.");
+    } finally {
+      setCargando(false);
+    }
+  }
+
+  async function agregarActividad(event) {
+    event.preventDefault();
 
     const nombre = nuevaActividad.trim();
 
-    if (!nombre) return;
+    if (!nombre) {
+      setMensaje("⚠️ Escribe el nombre de la actividad.");
+      return;
+    }
 
-    setActividades([...actividades, nombre]);
-    setNuevaActividad("");
+    setGuardando(true);
+    setMensaje("");
+
+    try {
+      const respuesta = await fetch("/api/actividades", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          nombre,
+          descripcion: "",
+          orden: actividades.length,
+        }),
+      });
+
+      const datos = await respuesta.json();
+
+      if (!respuesta.ok || !datos.correcto) {
+        throw new Error(datos.mensaje || "No se pudo crear la actividad");
+      }
+
+      setNuevaActividad("");
+      setMensaje("✅ Actividad creada correctamente.");
+
+      await cargarActividades();
+    } catch (error) {
+      console.error(error);
+      setMensaje(`❌ ${error.message}`);
+    } finally {
+      setGuardando(false);
+    }
   }
 
   return (
     <main style={estilos.contenedor}>
       <aside style={estilos.menu}>
         <div style={estilos.logo}>
-          <span>LB</span>
+          <span style={estilos.logoMarca}>LB</span>
+
           <div>
             <strong>Lucena Baila</strong>
             <small>Administración</small>
@@ -74,7 +130,9 @@ export default function AdminPage() {
         <header style={estilos.cabecera}>
           <div>
             <p style={estilos.eyebrow}>PANEL DE ADMINISTRACIÓN</p>
+
             <h1 style={estilos.titulo}>Hola 👋🏼</h1>
+
             <p style={estilos.subtitulo}>
               Gestiona fácilmente el contenido de Lucena Baila.
             </p>
@@ -89,9 +147,12 @@ export default function AdminPage() {
           <section>
             <div style={estilos.tituloSeccion}>
               <div>
-                <h2>Actividades</h2>
-                <p>
-                  Añade, modifica u oculta las disciplinas de la escuela.
+                <p style={estilos.eyebrow}>CONTENIDO DE LA ESCUELA</p>
+
+                <h2 style={estilos.tituloH2}>Actividades</h2>
+
+                <p style={estilos.descripcionSeccion}>
+                  Añade, modifica y gestiona las disciplinas de la escuela.
                 </p>
               </div>
 
@@ -100,36 +161,98 @@ export default function AdminPage() {
               </span>
             </div>
 
+            {mensaje && (
+              <div
+                style={{
+                  ...estilos.mensaje,
+                  ...(mensaje.startsWith("❌")
+                    ? estilos.mensajeError
+                    : estilos.mensajeCorrecto),
+                }}
+              >
+                {mensaje}
+              </div>
+            )}
+
             <div style={estilos.tarjeta}>
-              {actividades.map((actividad, index) => (
-                <div key={actividad} style={estilos.fila}>
-                  <div style={estilos.numero}>
-                    {String(index + 1).padStart(2, "0")}
-                  </div>
-
-                  <div style={estilos.nombreActividad}>
-                    <strong>{actividad}</strong>
-                    <span>Actividad activa</span>
-                  </div>
-
-                  <button style={estilos.editar}>Editar</button>
+              {cargando ? (
+                <div style={estilos.cargando}>
+                  Cargando actividades...
                 </div>
-              ))}
+              ) : actividades.length === 0 ? (
+                <div style={estilos.vacio}>
+                  <div style={estilos.iconoVacio}>💃</div>
+
+                  <h3>No hay actividades todavía</h3>
+
+                  <p>
+                    Añade la primera actividad utilizando el formulario de
+                    abajo.
+                  </p>
+                </div>
+              ) : (
+                actividades.map((actividad, index) => (
+                  <div key={actividad.id} style={estilos.fila}>
+                    <div style={estilos.numero}>
+                      {String(index + 1).padStart(2, "0")}
+                    </div>
+
+                    <div style={estilos.nombreActividad}>
+                      <strong>{actividad.nombre}</strong>
+
+                      <span>
+                        {actividad.activa
+                          ? "Actividad activa"
+                          : "Actividad oculta"}
+                      </span>
+                    </div>
+
+                    <span
+                      style={{
+                        ...estilos.estado,
+                        ...(actividad.activa
+                          ? estilos.estadoActivo
+                          : estilos.estadoInactivo),
+                      }}
+                    >
+                      {actividad.activa ? "ACTIVA" : "OCULTA"}
+                    </span>
+                  </div>
+                ))
+              )}
             </div>
 
             <div style={estilos.anadir}>
-              <h3>+ Añadir actividad</h3>
+              <p style={estilos.eyebrow}>NUEVA DISCIPLINA</p>
 
-              <form onSubmit={agregarActividad} style={estilos.formulario}>
+              <h3 style={estilos.tituloAnadir}>
+                + Añadir actividad
+              </h3>
+
+              <p style={estilos.descripcionAnadir}>
+                La nueva actividad quedará guardada en la base de datos.
+              </p>
+
+              <form
+                onSubmit={agregarActividad}
+                style={estilos.formulario}
+              >
                 <input
                   value={nuevaActividad}
-                  onChange={(e) => setNuevaActividad(e.target.value)}
+                  onChange={(event) =>
+                    setNuevaActividad(event.target.value)
+                  }
                   placeholder="Ej.: Flamenco"
                   style={estilos.input}
+                  disabled={guardando}
                 />
 
-                <button type="submit" style={estilos.botonAnadir}>
-                  Añadir
+                <button
+                  type="submit"
+                  style={estilos.botonAnadir}
+                  disabled={guardando}
+                >
+                  {guardando ? "Guardando..." : "Añadir"}
                 </button>
               </form>
             </div>
@@ -142,12 +265,15 @@ export default function AdminPage() {
               {secciones.find((item) => item.id === seccion)?.icono}
             </div>
 
-            <h2>
+            <p style={estilos.eyebrow}>PRÓXIMAMENTE</p>
+
+            <h2 style={estilos.tituloH2}>
               {secciones.find((item) => item.id === seccion)?.nombre}
             </h2>
 
             <p>
-              Este apartado lo construiremos en el siguiente paso.
+              Este apartado lo construiremos y conectaremos con la base de
+              datos en los siguientes pasos.
             </p>
           </section>
         )}
@@ -162,7 +288,7 @@ const estilos = {
     display: "flex",
     background: "#09090b",
     color: "#fff",
-    fontFamily: "Arial, sans-serif",
+    fontFamily: "Arial, Helvetica, sans-serif",
   },
 
   menu: {
@@ -183,10 +309,23 @@ const estilos = {
     padding: "4px 10px 32px",
   },
 
+  logoMarca: {
+    width: "38px",
+    height: "38px",
+    display: "grid",
+    placeItems: "center",
+    background: "#ff3cac",
+    color: "#fff",
+    fontWeight: "800",
+    fontSize: "12px",
+    borderRadius: "9px",
+  },
+
   contenido: {
     flex: 1,
     padding: "50px",
     maxWidth: "1100px",
+    boxSizing: "border-box",
   },
 
   cabecera: {
@@ -199,7 +338,7 @@ const estilos = {
   eyebrow: {
     margin: 0,
     color: "#ff3cac",
-    fontSize: "12px",
+    fontSize: "11px",
     fontWeight: "800",
     letterSpacing: "2px",
   },
@@ -207,6 +346,13 @@ const estilos = {
   titulo: {
     fontSize: "46px",
     margin: "10px 0 5px",
+    letterSpacing: "-1px",
+  },
+
+  tituloH2: {
+    fontSize: "34px",
+    margin: "8px 0",
+    letterSpacing: "-1px",
   },
 
   subtitulo: {
@@ -221,6 +367,7 @@ const estilos = {
     border: "1px solid #44444b",
     padding: "12px 18px",
     borderRadius: "10px",
+    fontSize: "13px",
   },
 
   botonMenu: {
@@ -255,12 +402,22 @@ const estilos = {
   tituloSeccion: {
     display: "flex",
     justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "20px",
+    alignItems: "flex-end",
+    marginBottom: "25px",
   },
 
-  tituloSeccionH2: {
-    fontSize: "30px",
+  descripcionSeccion: {
+    color: "#888891",
+    margin: "5px 0 0",
+    fontSize: "14px",
+  },
+
+  contador: {
+    background: "#222228",
+    color: "#ccc",
+    padding: "8px 13px",
+    borderRadius: "20px",
+    fontSize: "13px",
   },
 
   tarjeta: {
@@ -281,6 +438,7 @@ const estilos = {
     width: "45px",
     color: "#ff3cac",
     fontWeight: "800",
+    fontSize: "13px",
   },
 
   nombreActividad: {
@@ -290,21 +448,22 @@ const estilos = {
     gap: "5px",
   },
 
-  editar: {
-    background: "#222228",
-    color: "#fff",
-    border: "1px solid #3a3a42",
-    borderRadius: "8px",
-    padding: "9px 15px",
-    cursor: "pointer",
+  estado: {
+    padding: "6px 10px",
+    borderRadius: "20px",
+    fontSize: "10px",
+    fontWeight: "800",
+    marginRight: "15px",
   },
 
-  contador: {
-    background: "#222228",
-    color: "#ccc",
-    padding: "8px 13px",
-    borderRadius: "20px",
-    fontSize: "13px",
+  estadoActivo: {
+    background: "#143d2a",
+    color: "#54e59a",
+  },
+
+  estadoInactivo: {
+    background: "#3d2020",
+    color: "#ff8585",
   },
 
   anadir: {
@@ -313,6 +472,17 @@ const estilos = {
     background: "#151519",
     borderRadius: "16px",
     border: "1px solid #29292f",
+  },
+
+  tituloAnadir: {
+    margin: "8px 0",
+    fontSize: "22px",
+  },
+
+  descripcionAnadir: {
+    color: "#888891",
+    fontSize: "13px",
+    margin: "0 0 20px",
   },
 
   formulario: {
@@ -328,6 +498,7 @@ const estilos = {
     borderRadius: "9px",
     padding: "13px",
     fontSize: "15px",
+    outline: "none",
   },
 
   botonAnadir: {
@@ -340,12 +511,47 @@ const estilos = {
     cursor: "pointer",
   },
 
+  mensaje: {
+    padding: "13px 16px",
+    borderRadius: "10px",
+    marginBottom: "15px",
+    fontSize: "13px",
+  },
+
+  mensajeCorrecto: {
+    background: "#143d2a",
+    color: "#54e59a",
+  },
+
+  mensajeError: {
+    background: "#3d2020",
+    color: "#ff8585",
+  },
+
+  cargando: {
+    padding: "45px",
+    textAlign: "center",
+    color: "#888891",
+  },
+
+  vacio: {
+    padding: "55px 25px",
+    textAlign: "center",
+    color: "#888891",
+  },
+
+  iconoVacio: {
+    fontSize: "45px",
+    marginBottom: "10px",
+  },
+
   proximamente: {
     textAlign: "center",
     padding: "100px 20px",
     background: "#111114",
     borderRadius: "20px",
     border: "1px solid #29292f",
+    color: "#888891",
   },
 
   iconoGrande: {
