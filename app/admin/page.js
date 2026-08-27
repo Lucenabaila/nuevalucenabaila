@@ -273,7 +273,9 @@ export default function AdminPage() {
 
           <div>
             <strong>Lucena Baila</strong>
-            <small>Administración</small>
+            <small style={{ display: "block", color: "#777" }}>
+              Administración
+            </small>
           </div>
         </div>
 
@@ -296,7 +298,7 @@ export default function AdminPage() {
         </nav>
 
         <div style={estilos.pieMenu}>
-          <span>🟢</span> Web en pruebas
+          🟢 Web en pruebas
         </div>
       </aside>
 
@@ -307,7 +309,7 @@ export default function AdminPage() {
               PANEL DE ADMINISTRACIÓN
             </p>
 
-            <h1 style={estilos.titulo}>Hola 👋🏼</h1>
+            <h1 style={estilos.titulo}>Hola 👋</h1>
 
             <p style={estilos.subtitulo}>
               Gestiona fácilmente el contenido de Lucena Baila.
@@ -331,6 +333,8 @@ export default function AdminPage() {
             {mensaje}
           </div>
         )}
+
+        {/* ACTIVIDADES */}
 
         {seccion === "actividades" && (
           <section>
@@ -358,16 +362,6 @@ export default function AdminPage() {
               {cargando ? (
                 <div style={estilos.cargando}>
                   Cargando actividades...
-                </div>
-              ) : actividades.length === 0 ? (
-                <div style={estilos.vacio}>
-                  <div style={estilos.iconoVacio}>💃</div>
-
-                  <h3>No hay actividades todavía</h3>
-
-                  <p>
-                    Añade la primera actividad.
-                  </p>
                 </div>
               ) : (
                 actividades.map((actividad, index) => (
@@ -441,6 +435,8 @@ export default function AdminPage() {
           </section>
         )}
 
+        {/* PROFESORES */}
+
         {seccion === "profesores" && (
           <section>
             <div style={estilos.tituloSeccion}>
@@ -454,7 +450,7 @@ export default function AdminPage() {
                 </h2>
 
                 <p style={estilos.descripcionSeccion}>
-                  Gestiona profesores y las disciplinas que imparten.
+                  Gestiona los profesores y las disciplinas que imparten.
                 </p>
               </div>
 
@@ -464,90 +460,80 @@ export default function AdminPage() {
             </div>
 
             <div style={estilos.tarjeta}>
-              {profesores.length === 0 ? (
-                <div style={estilos.vacio}>
-                  <div style={estilos.iconoVacio}>👥</div>
+              {profesores.map((profesor, index) => {
+                const nombresActividades =
+                  (profesor.actividad_ids || [])
+                    .map((id) => {
+                      const actividad = actividades.find(
+                        (item) => item.id === id
+                      );
 
-                  <h3>No hay profesores todavía</h3>
+                      return actividad
+                        ? actividad.nombre
+                        : null;
+                    })
+                    .filter(Boolean);
 
-                  <p>
-                    Añade el primer profesor.
-                  </p>
-                </div>
-              ) : (
-                profesores.map((profesor, index) => {
-                  const nombresActividades =
-                    (profesor.actividad_ids || [])
-                      .map((id) => {
-                        const actividad = actividades.find(
-                          (item) => item.id === id
-                        );
+                const editando =
+                  profesorEditando?.id === profesor.id;
 
-                        return actividad
-                          ? actividad.nombre
-                          : null;
-                      })
-                      .filter(Boolean);
+                /* FORMULARIO DE EDICIÓN */
 
-                  const editando =
-                    profesorEditando?.id === profesor.id;
+                if (editando) {
+                  return (
+                    <div
+                      key={profesor.id}
+                      style={estilos.edicion}
+                    >
+                      <p style={estilos.eyebrow}>
+                        EDITANDO PROFESOR
+                      </p>
 
-                  if (editando) {
-                    return (
+                      <h3 style={estilos.tituloEdicion}>
+                        {profesor.nombre}
+                      </h3>
+
                       <div
-                        key={profesor.id}
-                        style={estilos.edicion}
+                        style={estilos.formularioVertical}
                       >
-                        <div style={estilos.edicionCabecera}>
-                          <div>
-                            <p style={estilos.eyebrow}>
-                              EDITANDO PROFESOR
-                            </p>
+                        <input
+                          value={profesorEditando.nombre}
+                          onChange={(event) =>
+                            setProfesorEditando({
+                              ...profesorEditando,
+                              nombre: event.target.value,
+                            })
+                          }
+                          placeholder="Nombre"
+                          style={estilos.input}
+                          disabled={guardando}
+                        />
 
-                            <h3 style={estilos.tituloEdicion}>
-                              {profesor.nombre}
-                            </h3>
-                          </div>
-                        </div>
+                        <textarea
+                          value={
+                            profesorEditando.descripcion
+                          }
+                          onChange={(event) =>
+                            setProfesorEditando({
+                              ...profesorEditando,
+                              descripcion:
+                                event.target.value,
+                            })
+                          }
+                          placeholder="Descripción"
+                          style={estilos.textarea}
+                          rows={3}
+                          disabled={guardando}
+                        />
 
-                        <div style={estilos.formularioVertical}>
-                          <input
-                            value={profesorEditando.nombre}
-                            onChange={(event) =>
-                              setProfesorEditando({
-                                ...profesorEditando,
-                                nombre: event.target.value,
-                              })
-                            }
-                            placeholder="Nombre del profesor"
-                            style={estilos.input}
-                            disabled={guardando}
-                          />
+                        <div>
+                          <p style={estilos.etiqueta}>
+                            ACTIVIDADES QUE IMPARTE
+                          </p>
 
-                          <textarea
-                            value={
-                              profesorEditando.descripcion
-                            }
-                            onChange={(event) =>
-                              setProfesorEditando({
-                                ...profesorEditando,
-                                descripcion:
-                                  event.target.value,
-                              })
-                            }
-                            placeholder="Descripción breve"
-                            style={estilos.textarea}
-                            disabled={guardando}
-                            rows={3}
-                          />
-
-                          <div>
-                            <p style={estilos.etiqueta}>
-                              ACTIVIDADES QUE IMPARTE
-                            </p>
-
-                            <div style={estilos.checkGrid}>
-                              {actividades.map((actividad) => {
+                          <div style={estilos.checkGrid}>
+                            {actividades.map(
+                              (actividad) => {
                                 const seleccionada =
                                   profesorEditando.actividadIds.includes(
                                     actividad.id
@@ -565,7 +551,9 @@ export default function AdminPage() {
                                   >
                                     <input
                                       type="checkbox"
-                                      checked={seleccionada}
+                                      checked={
+                                        seleccionada
+                                      }
                                       onChange={() =>
                                         cambiarActividadEdicion(
                                           actividad.id
@@ -573,95 +561,104 @@ export default function AdminPage() {
                                       }
                                     />
 
-                                    <span>
-                                      {actividad.nombre}
-                                    </span>
+                                    {actividad.nombre}
                                   </label>
                                 );
-                              })}
-                            </div>
-                          </div>
-
-                          <div style={estilos.botonesEdicion}>
-                            <button
-                              type="button"
-                              onClick={guardarProfesor}
-                              style={estilos.botonAnadir}
-                              disabled={guardando}
-                            >
-                              {guardando
-                                ? "Guardando..."
-                                : "Guardar cambios"}
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={cancelarEdicion}
-                              style={estilos.botonCancelar}
-                              disabled={guardando}
-                            >
-                              Cancelar
-                            </button>
+                              }
+                            )}
                           </div>
                         </div>
-                      </div>
-                    );
-                  }
 
-                  return (
-                    <div
-                      key={profesor.id}
-                      style={estilos.filaProfesor}
-                    >
-                      <div style={estilos.numero}>
-                        {String(index + 1).padStart(2, "0")}
-                      </div>
-
-                      <div style={estilos.nombreActividad}>
-                        <strong>{profesor.nombre}</strong>
-
-                        <span>
-                          {nombresActividades.length > 0
-                            ? nombresActividades.join(" · ")
-                            : "Sin actividades asignadas"}
-                        </span>
-
-                        {profesor.descripcion && (
-                          <small
-                            style={estilos.descripcionProfesor}
+                        <div
+                          style={estilos.botonesEdicion}
+                        >
+                          <button
+                            type="button"
+                            onClick={guardarProfesor}
+                            style={estilos.botonAnadir}
+                            disabled={guardando}
                           >
-                            {profesor.descripcion}
-                          </small>
-                        )}
+                            {guardando
+                              ? "Guardando..."
+                              : "Guardar cambios"}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={cancelarEdicion}
+                            style={estilos.botonCancelar}
+                            disabled={guardando}
+                          >
+                            Cancelar
+                          </button>
+                        </div>
                       </div>
-
-                      <span
-                        style={{
-                          ...estilos.estado,
-                          ...(profesor.activa
-                            ? estilos.estadoActivo
-                            : estilos.estadoInactivo),
-                        }}
-                      >
-                        {profesor.activa
-                          ? "ACTIVO"
-                          : "OCULTO"}
-                      </span>
-
-                      <button
-                        type="button"
-                        onClick={() =>
-                          comenzarEdicion(profesor)
-                        }
-                        style={estilos.botonEditar}
-                      >
-                        ✏️ Editar
-                      </button>
                     </div>
                   );
-                })
-              )}
+                }
+
+                /* PROFESOR NORMAL */
+
+                return (
+                  <div
+                    key={profesor.id}
+                    style={estilos.filaProfesor}
+                  >
+                    <div style={estilos.numero}>
+                      {String(index + 1).padStart(2, "0")}
+                    </div>
+
+                    <div style={estilos.nombreActividad}>
+                      <strong>{profesor.nombre}</strong>
+
+                      <span>
+                        {nombresActividades.length > 0
+                          ? nombresActividades.join(" · ")
+                          : "Sin actividades asignadas"}
+                      </span>
+
+                      {profesor.descripcion && (
+                        <small
+                          style={{
+                            color: "#777",
+                            marginTop: "3px",
+                          }}
+                        >
+                          {profesor.descripcion}
+                        </small>
+                      )}
+                    </div>
+
+                    <span
+                      style={{
+                        ...estilos.estado,
+                        ...(profesor.activa
+                          ? estilos.estadoActivo
+                          : estilos.estadoInactivo),
+                      }}
+                    >
+                      {profesor.activa
+                        ? "ACTIVO"
+                        : "OCULTO"}
+                    </span>
+
+                    {/* ESTE ES EL BOTÓN QUE FALTABA */}
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        comenzarEdicion(profesor)
+                      }
+                      style={estilos.botonEditar}
+                    >
+                      ✏️ Editar
+                    </button>
+                  </div>
+                );
+              })}
             </div>
+
+            {/* NUEVO PROFESOR */}
 
             <div style={estilos.anadir}>
               <p style={estilos.eyebrow}>
@@ -697,10 +694,10 @@ export default function AdminPage() {
                       descripcion: event.target.value,
                     })
                   }
-                  placeholder="Descripción breve"
+                  placeholder="Descripción"
                   style={estilos.textarea}
-                  disabled={guardando}
                   rows={3}
+                  disabled={guardando}
                 />
 
                 <div>
@@ -735,7 +732,7 @@ export default function AdminPage() {
                             }
                           />
 
-                          <span>{actividad.nombre}</span>
+                          {actividad.nombre}
                         </label>
                       );
                     })}
@@ -755,6 +752,8 @@ export default function AdminPage() {
             </div>
           </section>
         )}
+
+        {/* RESTO DE SECCIONES */}
 
         {seccion !== "actividades" &&
           seccion !== "profesores" && (
@@ -854,13 +853,11 @@ const estilos = {
   titulo: {
     fontSize: "46px",
     margin: "10px 0 5px",
-    letterSpacing: "-1px",
   },
 
   tituloH2: {
     fontSize: "34px",
     margin: "8px 0",
-    letterSpacing: "-1px",
   },
 
   subtitulo: {
@@ -965,11 +962,6 @@ const estilos = {
     gap: "5px",
   },
 
-  descripcionProfesor: {
-    color: "#777",
-    marginTop: "3px",
-  },
-
   estado: {
     padding: "6px 10px",
     borderRadius: "20px",
@@ -992,11 +984,13 @@ const estilos = {
   botonEditar: {
     background: "#25252b",
     color: "#fff",
-    border: "1px solid #414149",
+    border: "1px solid #55555e",
     borderRadius: "8px",
-    padding: "9px 12px",
+    padding: "10px 14px",
     cursor: "pointer",
     fontSize: "12px",
+    fontWeight: "700",
+    whiteSpace: "nowrap",
     flexShrink: 0,
   },
 
@@ -1006,19 +1000,21 @@ const estilos = {
     background: "#151519",
   },
 
-  edicionCabecera: {
-    marginBottom: "20px",
+  tituloEdicion: {
+    margin: "8px 0 20px",
+    fontSize: "22px",
   },
 
-  tituloEdicion: {
-    margin: "7px 0 0",
-    fontSize: "22px",
+  formularioVertical: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "16px",
+    maxWidth: "700px",
   },
 
   botonesEdicion: {
     display: "flex",
     gap: "10px",
-    alignItems: "center",
   },
 
   botonCancelar: {
@@ -1047,13 +1043,6 @@ const estilos = {
   formulario: {
     display: "flex",
     gap: "10px",
-  },
-
-  formularioVertical: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "16px",
-    maxWidth: "700px",
   },
 
   input: {
@@ -1146,17 +1135,6 @@ const estilos = {
     padding: "45px",
     textAlign: "center",
     color: "#888891",
-  },
-
-  vacio: {
-    padding: "55px 25px",
-    textAlign: "center",
-    color: "#888891",
-  },
-
-  iconoVacio: {
-    fontSize: "45px",
-    marginBottom: "10px",
   },
 
   proximamente: {
