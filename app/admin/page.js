@@ -975,23 +975,22 @@ function ProfesorFila({
       setGuardando(true);
 
       const respuesta =
-        await fetch(
-          `/api/profesores/${profesor.id}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
-            body:
-              JSON.stringify({
-                nombre,
-                descripcion,
-                actividadIds:
-                  actividadesSeleccionadas,
-              }),
-          }
-        );
+  await fetch(
+    "/api/profesores",
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: profesor.id,
+        nombre,
+        descripcion,
+        actividadIds:
+          actividadesSeleccionadas,
+      }),
+    }
+  );
 
       const datos =
         await respuesta.json();
