@@ -57,11 +57,13 @@ export default function AdminPage() {
       <aside style={estilos.menuLateral}>
 
         <div style={estilos.logoArea}>
+
           <div style={estilos.logo}>
             LB
           </div>
 
           <div>
+
             <div style={estilos.nombreEscuela}>
               Lucena
             </div>
@@ -73,12 +75,16 @@ export default function AdminPage() {
             <div style={estilos.administracion}>
               Administración
             </div>
+
           </div>
+
         </div>
+
 
         <nav style={estilos.navegacion}>
 
           {menu.map((item) => (
+
             <button
               key={item.id}
               type="button"
@@ -92,6 +98,7 @@ export default function AdminPage() {
                   : {}),
               }}
             >
+
               <span style={estilos.iconoMenu}>
                 {item.icono}
               </span>
@@ -99,14 +106,22 @@ export default function AdminPage() {
               <span>
                 {item.nombre}
               </span>
+
             </button>
+
           ))}
 
         </nav>
 
+
         <div style={estilos.estadoWeb}>
+
           <span style={estilos.puntoVerde}></span>
-          <span>Web en pruebas</span>
+
+          <span>
+            Web en pruebas
+          </span>
+
         </div>
 
       </aside>
@@ -132,45 +147,69 @@ export default function AdminPage() {
         <main style={estilos.contenido}>
 
           {seccionActiva === "inicio" && (
+
             <Inicio
               profesores={profesores}
               actividades={actividades}
               cargando={cargando}
             />
+
           )}
 
+
           {seccionActiva === "actividades" && (
+
             <Actividades
               actividades={actividades}
               recargar={cargarDatos}
             />
+
           )}
 
+
           {seccionActiva === "profesores" && (
+
             <Profesores
               profesores={profesores}
               actividades={actividades}
               recargar={cargarDatos}
             />
+
           )}
 
+
           {seccionActiva === "horarios" && (
+
             <Horarios
               actividades={actividades}
               profesores={profesores}
             />
+
           )}
+
 
           {seccionActiva === "eventos" && (
-            <SeccionProximamente titulo="Eventos" />
+
+            <Eventos />
+
           )}
+
 
           {seccionActiva === "galeria" && (
-            <SeccionProximamente titulo="Galería" />
+
+            <SeccionProximamente
+              titulo="Galería"
+            />
+
           )}
 
+
           {seccionActiva === "mensajes" && (
-            <SeccionProximamente titulo="Mensajes" />
+
+            <SeccionProximamente
+              titulo="Mensajes"
+            />
+
           )}
 
         </main>
@@ -191,26 +230,31 @@ function Inicio({
   actividades,
   cargando,
 }) {
+
   return (
+
     <div>
 
       <div style={estilos.etiquetaSeccion}>
         RESUMEN
       </div>
 
+
       <h2 style={estilos.tituloSeccion}>
         Panel de administración
       </h2>
 
+
       <p style={estilos.descripcionSeccion}>
         Desde aquí puedes gestionar profesores,
-        actividades y próximamente todos los contenidos
-        de la escuela.
+        actividades, horarios y eventos de la escuela.
       </p>
+
 
       <div style={estilos.tarjetas}>
 
         <div style={estilos.tarjeta}>
+
           <div style={estilos.tarjetaIcono}>
             💃
           </div>
@@ -224,10 +268,12 @@ function Inicio({
           <div style={estilos.tarjetaTexto}>
             Actividades
           </div>
+
         </div>
 
 
         <div style={estilos.tarjeta}>
+
           <div style={estilos.tarjetaIcono}>
             👥
           </div>
@@ -241,21 +287,24 @@ function Inicio({
           <div style={estilos.tarjetaTexto}>
             Profesores
           </div>
+
         </div>
 
 
         <div style={estilos.tarjeta}>
+
           <div style={estilos.tarjetaIcono}>
             🕐
           </div>
 
           <div style={estilos.tarjetaNumero}>
-            Próximamente
+            Horarios
           </div>
 
           <div style={estilos.tarjetaTexto}>
-            Horarios
+            Clases semanales
           </div>
+
         </div>
 
       </div>
@@ -303,15 +352,18 @@ function Actividades({
 
 
   function nuevaActividad() {
+
     setNombre("");
     setDescripcion("");
     setOrden(0);
     setEditando(null);
     setMostrandoFormulario(true);
+
   }
 
 
   function editarActividad(actividad) {
+
     setNombre(actividad.nombre || "");
     setDescripcion(actividad.descripcion || "");
     setOrden(actividad.orden || 0);
@@ -322,55 +374,89 @@ function Actividades({
       top: 0,
       behavior: "smooth",
     });
+
   }
 
 
   async function guardarActividad(event) {
+
     event.preventDefault();
 
     if (!nombre.trim()) {
-      alert("El nombre de la actividad es obligatorio.");
+
+      alert(
+        "El nombre de la actividad es obligatorio."
+      );
+
       return;
     }
 
+
     try {
+
       setGuardando(true);
 
-      const metodo = editando ? "PUT" : "POST";
+      const metodo =
+        editando
+          ? "PUT"
+          : "POST";
+
 
       const cuerpo = {
-        nombre: nombre.trim(),
-        descripcion: descripcion.trim(),
-        orden: Number(orden) || 0,
+        nombre:
+          nombre.trim(),
+
+        descripcion:
+          descripcion.trim(),
+
+        orden:
+          Number(orden) || 0,
       };
 
+
       if (editando) {
-        cuerpo.id = editando.id;
+        cuerpo.id =
+          editando.id;
       }
 
-      const respuesta = await fetch(
-        "/api/actividades",
-        {
-          method: metodo,
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(cuerpo),
-        }
-      );
 
-      const datos = await respuesta.json();
+      const respuesta =
+        await fetch(
+          "/api/actividades",
+          {
+            method: metodo,
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+            body:
+              JSON.stringify(cuerpo),
+          }
+        );
 
-      if (!respuesta.ok || !datos.correcto) {
+
+      const datos =
+        await respuesta.json();
+
+
+      if (
+        !respuesta.ok ||
+        !datos.correcto
+      ) {
+
         alert(
           datos.mensaje ||
           "No se pudo guardar la actividad."
         );
+
         return;
       }
 
+
       limpiarFormulario();
+
       await recargar();
+
 
     } catch (error) {
 
@@ -381,17 +467,22 @@ function Actividades({
       );
 
     } finally {
+
       setGuardando(false);
+
     }
+
   }
 
 
   return (
+
     <div>
 
       <div style={estilos.cabeceraSeccion}>
 
         <div>
+
           <div style={estilos.etiquetaSeccion}>
             GESTIÓN
           </div>
@@ -403,7 +494,9 @@ function Actividades({
           <p style={estilos.descripcionSeccion}>
             Gestiona las disciplinas que ofrece la escuela.
           </p>
+
         </div>
+
 
         <button
           type="button"
@@ -417,6 +510,7 @@ function Actividades({
 
 
       {mostrandoFormulario && (
+
         <div style={estilos.editor}>
 
           <div style={estilos.editorCabecera}>
@@ -489,6 +583,7 @@ function Actividades({
                 Cancelar
               </button>
 
+
               <button
                 type="submit"
                 style={estilos.botonGuardar}
@@ -506,6 +601,7 @@ function Actividades({
           </form>
 
         </div>
+
       )}
 
 
@@ -528,8 +624,11 @@ function Actividades({
               >
 
                 <div style={estilos.numero}>
-                  {String(indice + 1).padStart(2, "0")}
+                  {String(
+                    indice + 1
+                  ).padStart(2, "0")}
                 </div>
+
 
                 <div style={estilos.filaContenido}>
 
@@ -537,13 +636,17 @@ function Actividades({
                     {actividad.nombre}
                   </div>
 
+
                   {actividad.descripcion && (
+
                     <div style={estilos.filaDescripcion}>
                       {actividad.descripcion}
                     </div>
+
                   )}
 
                 </div>
+
 
                 <div style={estilos.filaAcciones}>
 
@@ -551,10 +654,13 @@ function Actividades({
                     ACTIVA
                   </span>
 
+
                   <button
                     type="button"
                     onClick={() =>
-                      editarActividad(actividad)
+                      editarActividad(
+                        actividad
+                      )
                     }
                     style={estilos.botonEditar}
                   >
@@ -566,6 +672,7 @@ function Actividades({
               </div>
 
             )
+
           )
 
         )}
@@ -587,8 +694,10 @@ function Profesores({
   recargar,
 }) {
 
-  const [mostrandoFormulario, setMostrandoFormulario] =
-    useState(false);
+  const [
+    mostrandoFormulario,
+    setMostrandoFormulario,
+  ] = useState(false);
 
   const [nombre, setNombre] =
     useState("");
@@ -596,22 +705,27 @@ function Profesores({
   const [descripcion, setDescripcion] =
     useState("");
 
-  const [actividadesSeleccionadas, setActividadesSeleccionadas] =
-    useState([]);
+  const [
+    actividadesSeleccionadas,
+    setActividadesSeleccionadas,
+  ] = useState([]);
 
   const [guardando, setGuardando] =
     useState(false);
 
 
   function limpiarFormulario() {
+
     setNombre("");
     setDescripcion("");
     setActividadesSeleccionadas([]);
     setMostrandoFormulario(false);
+
   }
 
 
   function nuevoProfesor() {
+
     setNombre("");
     setDescripcion("");
     setActividadesSeleccionadas([]);
@@ -621,26 +735,31 @@ function Profesores({
       top: 0,
       behavior: "smooth",
     });
+
   }
 
 
   function cambiarActividadNuevoProfesor(id) {
 
-    setActividadesSeleccionadas((actuales) => {
+    setActividadesSeleccionadas(
+      (actuales) => {
 
-      if (actuales.includes(id)) {
-        return actuales.filter(
-          (actividadId) =>
-            actividadId !== id
-        );
+        if (actuales.includes(id)) {
+
+          return actuales.filter(
+            (actividadId) =>
+              actividadId !== id
+          );
+
+        }
+
+        return [
+          ...actuales,
+          id,
+        ];
+
       }
-
-      return [
-        ...actuales,
-        id,
-      ];
-
-    });
+    );
 
   }
 
@@ -650,13 +769,19 @@ function Profesores({
     event.preventDefault();
 
     if (!nombre.trim()) {
-      alert("El nombre del profesor es obligatorio.");
+
+      alert(
+        "El nombre del profesor es obligatorio."
+      );
+
       return;
     }
+
 
     try {
 
       setGuardando(true);
+
 
       const respuesta =
         await fetch(
@@ -671,16 +796,20 @@ function Profesores({
               JSON.stringify({
                 nombre:
                   nombre.trim(),
+
                 descripcion:
                   descripcion.trim(),
+
                 actividadIds:
                   actividadesSeleccionadas,
               }),
           }
         );
 
+
       const datos =
         await respuesta.json();
+
 
       if (
         !respuesta.ok ||
@@ -695,9 +824,11 @@ function Profesores({
         return;
       }
 
+
       limpiarFormulario();
 
       await recargar();
+
 
     } catch (error) {
 
@@ -717,6 +848,7 @@ function Profesores({
 
 
   return (
+
     <div>
 
       <div style={estilos.cabeceraSeccion}>
@@ -762,9 +894,7 @@ function Profesores({
           </div>
 
 
-          <form
-            onSubmit={guardarProfesor}
-          >
+          <form onSubmit={guardarProfesor}>
 
             <label style={estilos.label}>
               Nombre
@@ -811,6 +941,7 @@ function Profesores({
                     actividadesSeleccionadas.includes(
                       actividad.id
                     );
+
 
                   return (
 
@@ -974,54 +1105,75 @@ function ProfesorFila({
 
       setGuardando(true);
 
+
       const respuesta =
-  await fetch(
-    "/api/profesores",
-    {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        id: profesor.id,
-        nombre,
-        descripcion,
-        actividadIds:
-          actividadesSeleccionadas,
-      }),
-    }
-  );
+        await fetch(
+          "/api/profesores",
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+            body:
+              JSON.stringify({
+                id:
+                  profesor.id,
+
+                nombre:
+                  nombre.trim(),
+
+                descripcion:
+                  descripcion.trim(),
+
+                actividadIds:
+                  actividadesSeleccionadas,
+              }),
+          }
+        );
+
 
       const datos =
         await respuesta.json();
 
-    if (
-  !respuesta.ok ||
-  !datos.correcto
-) {
 
-  console.error(
-    "Error recibido de la API:",
-    datos
-  );
+      if (
+        !respuesta.ok ||
+        !datos.correcto
+      ) {
 
-  alert(
-    [
-      datos.mensaje || "Error al guardar el profesor.",
-      datos.error ? `\n\nError: ${datos.error}` : "",
-      datos.codigo ? `\nCódigo: ${datos.codigo}` : "",
-      datos.sqlMessage
-        ? `\n\nMySQL: ${datos.sqlMessage}`
-        : "",
-    ].join("")
-  );
+        console.error(
+          "Error recibido de la API:",
+          datos
+        );
 
-  return;
-}
+        alert(
+          [
+            datos.mensaje ||
+              "Error al guardar el profesor.",
+
+            datos.error
+              ? `\n\nError: ${datos.error}`
+              : "",
+
+            datos.codigo
+              ? `\nCódigo: ${datos.codigo}`
+              : "",
+
+            datos.sqlMessage
+              ? `\n\nMySQL: ${datos.sqlMessage}`
+              : "",
+          ].join("")
+        );
+
+        return;
+      }
+
 
       setEditando(false);
 
       await recargar();
+
 
     } catch (error) {
 
@@ -1049,7 +1201,9 @@ function ProfesorFila({
         <div style={estilos.editorCabecera}>
 
           <div style={estilos.numero}>
-            {String(indice + 1).padStart(2, "0")}
+            {String(
+              indice + 1
+            ).padStart(2, "0")}
           </div>
 
           <div style={estilos.editorTitulo}>
@@ -1100,6 +1254,7 @@ function ProfesorFila({
                 actividadesSeleccionadas.includes(
                   actividad.id
                 );
+
 
               return (
 
@@ -1175,7 +1330,9 @@ function ProfesorFila({
     <div style={estilos.fila}>
 
       <div style={estilos.numero}>
-        {String(indice + 1).padStart(2, "0")}
+        {String(
+          indice + 1
+        ).padStart(2, "0")}
       </div>
 
 
@@ -1184,6 +1341,7 @@ function ProfesorFila({
         <div style={estilos.filaTitulo}>
           {profesor.nombre}
         </div>
+
 
         <div style={estilos.filaDescripcion}>
           {profesor.descripcion ||
@@ -1205,9 +1363,11 @@ function ProfesorFila({
                       item.id === actividadId
                   );
 
+
                 if (!actividad) {
                   return null;
                 }
+
 
                 return (
 
@@ -1282,6 +1442,7 @@ function Horarios({
   const [editando, setEditando] =
     useState(null);
 
+
   const horarioInicial = {
     actividadId: "",
     dia: "Lunes",
@@ -1292,8 +1453,10 @@ function Horarios({
     orden: 0,
   };
 
+
   const [formulario, setFormulario] =
     useState(horarioInicial);
+
 
   const dias = [
     "Lunes",
@@ -1312,6 +1475,7 @@ function Horarios({
 
       setCargando(true);
 
+
       const respuesta =
         await fetch(
           "/api/horarios",
@@ -1320,8 +1484,10 @@ function Horarios({
           }
         );
 
+
       const datos =
         await respuesta.json();
+
 
       if (datos.correcto) {
 
@@ -1337,6 +1503,7 @@ function Horarios({
         );
 
       }
+
 
     } catch (error) {
 
@@ -1367,19 +1534,21 @@ function Horarios({
       const existe =
         actual.profesorIds.includes(id);
 
+
       return {
 
         ...actual,
 
-        profesorIds: existe
-          ? actual.profesorIds.filter(
-              (profesorId) =>
-                profesorId !== id
-            )
-          : [
-              ...actual.profesorIds,
-              id,
-            ],
+        profesorIds:
+          existe
+            ? actual.profesorIds.filter(
+                (profesorId) =>
+                  profesorId !== id
+              )
+            : [
+                ...actual.profesorIds,
+                id,
+              ],
 
       };
 
@@ -1392,6 +1561,7 @@ function Horarios({
 
     event.preventDefault();
 
+
     if (!formulario.actividadId) {
 
       alert(
@@ -1400,6 +1570,7 @@ function Horarios({
 
       return;
     }
+
 
     if (
       !formulario.horaInicio ||
@@ -1413,14 +1584,17 @@ function Horarios({
       return;
     }
 
+
     try {
 
       setGuardando(true);
+
 
       const metodo =
         editando
           ? "PUT"
           : "POST";
+
 
       const cuerpo = {
 
@@ -1428,21 +1602,26 @@ function Horarios({
 
         ...(editando
           ? {
-              id: editando.id,
+              id:
+                editando.id,
             }
           : {}),
 
       };
 
+
       const respuesta =
         await fetch(
           "/api/horarios",
           {
-            method: metodo,
+            method:
+              metodo,
+
             headers: {
               "Content-Type":
                 "application/json",
             },
+
             body:
               JSON.stringify(
                 cuerpo
@@ -1450,8 +1629,10 @@ function Horarios({
           }
         );
 
+
       const datos =
         await respuesta.json();
+
 
       if (
         !respuesta.ok ||
@@ -1466,6 +1647,7 @@ function Horarios({
         return;
       }
 
+
       setFormulario(
         horarioInicial
       );
@@ -1473,6 +1655,7 @@ function Horarios({
       setEditando(null);
 
       await cargarHorarios();
+
 
     } catch (error) {
 
@@ -1494,6 +1677,7 @@ function Horarios({
   function editarHorario(horario) {
 
     setEditando(horario);
+
 
     setFormulario({
 
@@ -1524,6 +1708,7 @@ function Horarios({
 
     });
 
+
     window.scrollTo({
       top: 0,
       behavior: "smooth",
@@ -1539,13 +1724,16 @@ function Horarios({
         "¿Seguro que quieres eliminar este horario?"
       );
 
+
     if (!confirmar) {
       return;
     }
 
+
     try {
 
       setGuardando(true);
+
 
       const respuesta =
         await fetch(
@@ -1563,8 +1751,10 @@ function Horarios({
           }
         );
 
+
       const datos =
         await respuesta.json();
+
 
       if (
         !respuesta.ok ||
@@ -1579,7 +1769,9 @@ function Horarios({
         return;
       }
 
+
       await cargarHorarios();
+
 
     } catch (error) {
 
@@ -1617,6 +1809,7 @@ function Horarios({
           item.id === id
       );
 
+
     return actividad
       ? actividad.nombre
       : "Actividad";
@@ -1634,6 +1827,7 @@ function Horarios({
             (item) =>
               item.id === id
           );
+
 
         return profesor
           ? profesor.nombre
@@ -1654,9 +1848,11 @@ function Horarios({
         HORARIOS
       </div>
 
+
       <h2 style={estilos.tituloSeccion}>
         Horarios
       </h2>
+
 
       <p style={estilos.descripcionSeccion}>
         Organiza las clases semanales de la escuela.
@@ -1677,6 +1873,7 @@ function Horarios({
           <label style={estilos.label}>
             Actividad
           </label>
+
 
           <select
             value={
@@ -1699,6 +1896,7 @@ function Horarios({
               Selecciona una actividad
             </option>
 
+
             {actividades.map(
               (actividad) => (
 
@@ -1719,8 +1917,11 @@ function Horarios({
             Día
           </label>
 
+
           <select
-            value={formulario.dia}
+            value={
+              formulario.dia
+            }
             onChange={(event) =>
               setFormulario({
                 ...formulario,
@@ -1750,6 +1951,7 @@ function Horarios({
             Hora de inicio
           </label>
 
+
           <input
             type="time"
             value={
@@ -1771,6 +1973,7 @@ function Horarios({
             Hora de fin
           </label>
 
+
           <input
             type="time"
             value={
@@ -1791,6 +1994,7 @@ function Horarios({
           <label style={estilos.label}>
             Nivel / grupo
           </label>
+
 
           <input
             type="text"
@@ -1814,6 +2018,7 @@ function Horarios({
             Profesores
           </label>
 
+
           <div
             style={
               estilos.actividadesChecks
@@ -1827,6 +2032,7 @@ function Horarios({
                   formulario.profesorIds.includes(
                     profesor.id
                   );
+
 
                 return (
 
@@ -1971,15 +2177,21 @@ function Horarios({
                         estilos.filaTitulo
                       }
                     >
+
                       {horario.dia}
+
                       {" · "}
+
                       {String(
                         horario.hora_inicio
                       ).slice(0, 5)}
+
                       {" - "}
+
                       {String(
                         horario.hora_fin
                       ).slice(0, 5)}
+
                     </div>
 
 
@@ -1988,6 +2200,7 @@ function Horarios({
                         estilos.filaDescripcion
                       }
                     >
+
                       {nombreActividad(
                         horario.actividad_id
                       )}
@@ -1995,6 +2208,7 @@ function Horarios({
                       {horario.nivel
                         ? ` · ${horario.nivel}`
                         : ""}
+
                     </div>
 
 
@@ -2013,10 +2227,13 @@ function Horarios({
                             estilos.chip
                           }
                         >
+
                           👤{" "}
+
                           {nombresProfesores(
                             horario.profesor_ids
                           )}
+
                         </span>
 
                       ) : (
@@ -2101,12 +2318,977 @@ function Horarios({
 
 
 /* =========================================================
+   EVENTOS
+========================================================= */
+
+function Eventos() {
+
+  const eventoInicial = {
+    titulo: "",
+    descripcion: "",
+    fecha: "",
+    hora: "",
+    lugar: "",
+    imagen: "",
+    activa: true,
+  };
+
+
+  const [eventos, setEventos] =
+    useState([]);
+
+  const [cargando, setCargando] =
+    useState(true);
+
+  const [guardando, setGuardando] =
+    useState(false);
+
+  const [mostrandoFormulario, setMostrandoFormulario] =
+    useState(false);
+
+  const [editando, setEditando] =
+    useState(null);
+
+  const [formulario, setFormulario] =
+    useState(eventoInicial);
+
+
+  async function cargarEventos() {
+
+    try {
+
+      setCargando(true);
+
+
+      const respuesta =
+        await fetch(
+          "/api/eventos",
+          {
+            cache: "no-store",
+          }
+        );
+
+
+      const datos =
+        await respuesta.json();
+
+
+      if (
+        !respuesta.ok ||
+        !datos.correcto
+      ) {
+
+        alert(
+          datos.mensaje ||
+          "No se pudieron cargar los eventos."
+        );
+
+        return;
+      }
+
+
+      setEventos(
+        datos.eventos || []
+      );
+
+
+    } catch (error) {
+
+      console.error(
+        "Error cargando eventos:",
+        error
+      );
+
+
+      alert(
+        "Error cargando los eventos."
+      );
+
+
+    } finally {
+
+      setCargando(false);
+
+    }
+
+  }
+
+
+  useEffect(() => {
+
+    cargarEventos();
+
+  }, []);
+
+
+  function nuevoEvento() {
+
+    setFormulario({
+      ...eventoInicial,
+    });
+
+    setEditando(null);
+
+    setMostrandoFormulario(true);
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+
+  }
+
+
+  function editarEvento(evento) {
+
+    setFormulario({
+
+      titulo:
+        evento.titulo || "",
+
+      descripcion:
+        evento.descripcion || "",
+
+      fecha:
+        evento.fecha
+          ? String(
+              evento.fecha
+            ).slice(0, 10)
+          : "",
+
+      hora:
+        evento.hora
+          ? String(
+              evento.hora
+            ).slice(0, 5)
+          : "",
+
+      lugar:
+        evento.lugar || "",
+
+      imagen:
+        evento.imagen || "",
+
+      activa:
+        Number(evento.activa) !== 0,
+
+    });
+
+
+    setEditando(evento);
+
+    setMostrandoFormulario(true);
+
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+
+  }
+
+
+  function cerrarFormulario() {
+
+    setFormulario({
+      ...eventoInicial,
+    });
+
+    setEditando(null);
+    setMostrandoFormulario(false);
+
+  }
+
+
+  function cambiarCampo(campo, valor) {
+
+    setFormulario(
+      (actual) => ({
+        ...actual,
+        [campo]: valor,
+      })
+    );
+
+  }
+
+
+  async function guardarEvento(event) {
+
+    event.preventDefault();
+
+
+    if (
+      !formulario.titulo.trim()
+    ) {
+
+      alert(
+        "El título del evento es obligatorio."
+      );
+
+      return;
+    }
+
+
+    if (!formulario.fecha) {
+
+      alert(
+        "La fecha del evento es obligatoria."
+      );
+
+      return;
+    }
+
+
+    try {
+
+      setGuardando(true);
+
+
+      const metodo =
+        editando
+          ? "PUT"
+          : "POST";
+
+
+      const cuerpo = {
+
+        titulo:
+          formulario.titulo.trim(),
+
+        descripcion:
+          formulario.descripcion.trim(),
+
+        fecha:
+          formulario.fecha,
+
+        hora:
+          formulario.hora || null,
+
+        lugar:
+          formulario.lugar.trim(),
+
+        imagen:
+          formulario.imagen.trim(),
+
+        activa:
+          formulario.activa,
+
+      };
+
+
+      if (editando) {
+
+        cuerpo.id =
+          editando.id;
+
+      }
+
+
+      const respuesta =
+        await fetch(
+          "/api/eventos",
+          {
+            method:
+              metodo,
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body:
+              JSON.stringify(
+                cuerpo
+              ),
+          }
+        );
+
+
+      const datos =
+        await respuesta.json();
+
+
+      if (
+        !respuesta.ok ||
+        !datos.correcto
+      ) {
+
+        console.error(
+          "Error guardando evento:",
+          datos
+        );
+
+
+        alert(
+          [
+            datos.mensaje ||
+              "No se pudo guardar el evento.",
+
+            datos.error
+              ? `\n\nError: ${datos.error}`
+              : "",
+
+            datos.sqlMessage
+              ? `\n\nMySQL: ${datos.sqlMessage}`
+              : "",
+          ].join("")
+        );
+
+        return;
+      }
+
+
+      cerrarFormulario();
+
+      await cargarEventos();
+
+
+    } catch (error) {
+
+      console.error(
+        "Error guardando evento:",
+        error
+      );
+
+
+      alert(
+        "Ha ocurrido un error al guardar el evento."
+      );
+
+
+    } finally {
+
+      setGuardando(false);
+
+    }
+
+  }
+
+
+  async function eliminarEvento(id) {
+
+    const confirmar =
+      window.confirm(
+        "¿Seguro que quieres eliminar este evento?"
+      );
+
+
+    if (!confirmar) {
+      return;
+    }
+
+
+    try {
+
+      setGuardando(true);
+
+
+      const respuesta =
+        await fetch(
+          "/api/eventos",
+          {
+            method: "DELETE",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+                id,
+              }),
+          }
+        );
+
+
+      const datos =
+        await respuesta.json();
+
+
+      if (
+        !respuesta.ok ||
+        !datos.correcto
+      ) {
+
+        alert(
+          datos.mensaje ||
+          "No se pudo eliminar el evento."
+        );
+
+        return;
+      }
+
+
+      await cargarEventos();
+
+
+    } catch (error) {
+
+      console.error(
+        "Error eliminando evento:",
+        error
+      );
+
+
+      alert(
+        "Ha ocurrido un error al eliminar el evento."
+      );
+
+
+    } finally {
+
+      setGuardando(false);
+
+    }
+
+  }
+
+
+  async function cambiarEstadoEvento(evento) {
+
+    try {
+
+      setGuardando(true);
+
+
+      const respuesta =
+        await fetch(
+          "/api/eventos",
+          {
+            method: "PUT",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+
+                id:
+                  evento.id,
+
+                titulo:
+                  evento.titulo,
+
+                descripcion:
+                  evento.descripcion || "",
+
+                fecha:
+                  String(
+                    evento.fecha
+                  ).slice(0, 10),
+
+                hora:
+                  evento.hora
+                    ? String(
+                        evento.hora
+                      ).slice(0, 5)
+                    : "",
+
+                lugar:
+                  evento.lugar || "",
+
+                imagen:
+                  evento.imagen || "",
+
+                activa:
+                  Number(
+                    evento.activa
+                  ) === 0,
+
+              }),
+          }
+        );
+
+
+      const datos =
+        await respuesta.json();
+
+
+      if (
+        !respuesta.ok ||
+        !datos.correcto
+      ) {
+
+        alert(
+          datos.mensaje ||
+          "No se pudo cambiar el estado."
+        );
+
+        return;
+      }
+
+
+      await cargarEventos();
+
+
+    } catch (error) {
+
+      console.error(
+        "Error cambiando estado:",
+        error
+      );
+
+
+      alert(
+        "Error cambiando el estado del evento."
+      );
+
+
+    } finally {
+
+      setGuardando(false);
+
+    }
+
+  }
+
+
+  return (
+
+    <div>
+
+      <div style={estilos.cabeceraSeccion}>
+
+        <div>
+
+          <div style={estilos.etiquetaSeccion}>
+            AGENDA
+          </div>
+
+          <h2 style={estilos.tituloSeccion}>
+            Eventos
+          </h2>
+
+          <p style={estilos.descripcionSeccion}>
+            Gestiona los eventos, actuaciones y actividades especiales de la escuela.
+          </p>
+
+        </div>
+
+
+        <button
+          type="button"
+          onClick={nuevoEvento}
+          style={estilos.botonNuevo}
+        >
+          + Añadir evento
+        </button>
+
+      </div>
+
+
+      {mostrandoFormulario && (
+
+        <div style={estilos.editor}>
+
+          <div style={estilos.editorCabecera}>
+
+            <div style={estilos.editorTitulo}>
+              {editando
+                ? "Editar evento"
+                : "Nuevo evento"}
+            </div>
+
+          </div>
+
+
+          <form onSubmit={guardarEvento}>
+
+            <label style={estilos.label}>
+              Título
+            </label>
+
+
+            <input
+              value={
+                formulario.titulo
+              }
+              onChange={(e) =>
+                cambiarCampo(
+                  "titulo",
+                  e.target.value
+                )
+              }
+              placeholder="Ej.: Festival de Fin de Curso"
+              style={estilos.input}
+              disabled={guardando}
+            />
+
+
+            <label style={estilos.label}>
+              Descripción
+            </label>
+
+
+            <textarea
+              value={
+                formulario.descripcion
+              }
+              onChange={(e) =>
+                cambiarCampo(
+                  "descripcion",
+                  e.target.value
+                )
+              }
+              placeholder="Describe el evento..."
+              style={estilos.textarea}
+              rows={5}
+              disabled={guardando}
+            />
+
+
+            <label style={estilos.label}>
+              Fecha
+            </label>
+
+
+            <input
+              type="date"
+              value={
+                formulario.fecha
+              }
+              onChange={(e) =>
+                cambiarCampo(
+                  "fecha",
+                  e.target.value
+                )
+              }
+              style={estilos.input}
+              disabled={guardando}
+            />
+
+
+            <label style={estilos.label}>
+              Hora
+            </label>
+
+
+            <input
+              type="time"
+              value={
+                formulario.hora
+              }
+              onChange={(e) =>
+                cambiarCampo(
+                  "hora",
+                  e.target.value
+                )
+              }
+              style={estilos.input}
+              disabled={guardando}
+            />
+
+
+            <label style={estilos.label}>
+              Lugar
+            </label>
+
+
+            <input
+              value={
+                formulario.lugar
+              }
+              onChange={(e) =>
+                cambiarCampo(
+                  "lugar",
+                  e.target.value
+                )
+              }
+              placeholder="Ej.: Teatro Palacio Erisana"
+              style={estilos.input}
+              disabled={guardando}
+            />
+
+
+            <label style={estilos.label}>
+              Imagen / cartel
+            </label>
+
+
+            <input
+              value={
+                formulario.imagen
+              }
+              onChange={(e) =>
+                cambiarCampo(
+                  "imagen",
+                  e.target.value
+                )
+              }
+              placeholder="URL de la imagen o cartel"
+              style={estilos.input}
+              disabled={guardando}
+            />
+
+
+            <div style={estilos.checkboxSimple}>
+
+              <label
+                style={estilos.checkEstado}
+              >
+
+                <input
+                  type="checkbox"
+                  checked={
+                    formulario.activa
+                  }
+                  onChange={(e) =>
+                    cambiarCampo(
+                      "activa",
+                      e.target.checked
+                    )
+                  }
+                  disabled={guardando}
+                />
+
+                <span>
+                  Evento visible / activo
+                </span>
+
+              </label>
+
+            </div>
+
+
+            <div style={estilos.botonesEditor}>
+
+              <button
+                type="button"
+                onClick={
+                  cerrarFormulario
+                }
+                style={
+                  estilos.botonCancelar
+                }
+                disabled={guardando}
+              >
+                Cancelar
+              </button>
+
+
+              <button
+                type="submit"
+                style={
+                  estilos.botonGuardar
+                }
+                disabled={guardando}
+              >
+                {guardando
+                  ? "Guardando..."
+                  : editando
+                  ? "Guardar cambios"
+                  : "Crear evento"}
+              </button>
+
+            </div>
+
+          </form>
+
+        </div>
+
+      )}
+
+
+      <div style={estilos.lista}>
+
+        {cargando ? (
+
+          <div style={estilos.vacio}>
+            Cargando eventos...
+          </div>
+
+        ) : eventos.length === 0 ? (
+
+          <div style={estilos.vacio}>
+
+            <div style={estilos.vacioIcono}>
+              📅
+            </div>
+
+            <div style={estilos.vacioTitulo}>
+              No hay eventos todavía.
+            </div>
+
+            <div style={estilos.vacioTexto}>
+              Añade el primer evento utilizando el botón de arriba.
+            </div>
+
+          </div>
+
+        ) : (
+
+          eventos.map(
+            (evento, indice) => (
+
+              <div
+                key={evento.id}
+                style={estilos.fila}
+              >
+
+                <div style={estilos.numero}>
+                  {String(
+                    indice + 1
+                  ).padStart(2, "0")}
+                </div>
+
+
+                <div
+                  style={
+                    estilos.filaContenido
+                  }
+                >
+
+                  <div
+                    style={
+                      estilos.filaTitulo
+                    }
+                  >
+                    {evento.titulo}
+                  </div>
+
+
+                  <div
+                    style={
+                      estilos.filaDescripcion
+                    }
+                  >
+
+                    📅{" "}
+                    {String(
+                      evento.fecha
+                    ).slice(0, 10)}
+
+                    {evento.hora
+                      ? ` · ${String(
+                          evento.hora
+                        ).slice(0, 5)}`
+                      : ""}
+
+                    {evento.lugar
+                      ? ` · ${evento.lugar}`
+                      : ""}
+
+                  </div>
+
+
+                  {evento.descripcion && (
+
+                    <div
+                      style={{
+                        ...estilos.filaDescripcion,
+                        marginTop: "7px",
+                      }}
+                    >
+                      {evento.descripcion}
+                    </div>
+
+                  )}
+
+
+                  {evento.imagen && (
+
+                    <div
+                      style={{
+                        marginTop: "10px",
+                        color: "#ff9aa5",
+                        fontSize: "11px",
+                      }}
+                    >
+                      🖼️ Cartel / imagen añadida
+                    </div>
+
+                  )}
+
+                </div>
+
+
+                <div
+                  style={
+                    estilos.filaAcciones
+                  }
+                >
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      cambiarEstadoEvento(
+                        evento
+                      )
+                    }
+                    style={{
+                      ...estilos.estadoActivo,
+                      border: "0",
+                      cursor: "pointer",
+                    }}
+                    disabled={guardando}
+                  >
+                    {Number(
+                      evento.activa
+                    ) !== 0
+                      ? "ACTIVO"
+                      : "OCULTO"}
+                  </button>
+
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      editarEvento(
+                        evento
+                      )
+                    }
+                    style={
+                      estilos.botonEditar
+                    }
+                    disabled={guardando}
+                  >
+                    Editar
+                  </button>
+
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      eliminarEvento(
+                        evento.id
+                      )
+                    }
+                    style={{
+                      ...estilos.botonEditar,
+                      color: "#ff8995",
+                    }}
+                    disabled={guardando}
+                  >
+                    Eliminar
+                  </button>
+
+                </div>
+
+              </div>
+
+            )
+          )
+
+        )}
+
+      </div>
+
+    </div>
+  );
+}
+
+
+/* =========================================================
    SECCIONES FUTURAS
 ========================================================= */
 
 function SeccionProximamente({
   titulo,
 }) {
+
   return (
 
     <div>
@@ -2115,9 +3297,11 @@ function SeccionProximamente({
         PRÓXIMAMENTE
       </div>
 
+
       <h2 style={estilos.tituloSeccion}>
         {titulo}
       </h2>
+
 
       <div style={estilos.vacio}>
 
@@ -2125,9 +3309,11 @@ function SeccionProximamente({
           ✨
         </div>
 
+
         <div style={estilos.vacioTitulo}>
           Esta sección la prepararemos ahora.
         </div>
+
 
         <div style={estilos.vacioTexto}>
           La estructura ya está preparada
@@ -2681,6 +3867,21 @@ const estilos = {
     color: "#ffffff",
     background:
       "rgba(255, 127, 140, 0.12)",
+  },
+
+
+  checkboxSimple: {
+    marginTop: "18px",
+  },
+
+
+  checkEstado: {
+    display: "flex",
+    alignItems: "center",
+    gap: "9px",
+    color: "#c7c7cd",
+    fontSize: "13px",
+    cursor: "pointer",
   },
 
 
