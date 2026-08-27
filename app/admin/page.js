@@ -606,29 +606,32 @@ function SeccionProximamente({ titulo }) {
 ========================================================= */
 
 const estilos = {
-  pagina: {
-    minHeight: "100vh",
-    width: "100%",
-    display: "flex",
-    background: "#111114",
-    color: "#ffffff",
-    fontFamily:
-      "Arial, Helvetica, sans-serif",
-    boxSizing: "border-box",
-  },
+pagina: {
+  minHeight: "100vh",
+  width: "100%",
+  background: "#111114",
+  color: "#ffffff",
+  fontFamily: "Arial, Helvetica, sans-serif",
+  boxSizing: "border-box",
+  display: "block",
+},
 
-  menu: {
-    width: "260px",
-    minWidth: "260px",
-    minHeight: "100vh",
-    padding: "28px 18px",
-    background: "#111114",
-    borderRight: "1px solid #29292f",
-    display: "flex",
-    flexDirection: "column",
-    boxSizing: "border-box",
-    flexShrink: 0,
-  },
+ menu: {
+  position: "fixed",
+  left: 0,
+  top: 0,
+  bottom: 0,
+  width: "260px",
+  height: "100vh",
+  padding: "28px 18px",
+  background: "#111114",
+  borderRight: "1px solid #29292f",
+  display: "flex",
+  flexDirection: "column",
+  boxSizing: "border-box",
+  zIndex: 1000,
+  overflowY: "auto",
+},
 
   logoArea: {
     display: "flex",
@@ -725,16 +728,20 @@ const estilos = {
   },
 
   contenido: {
-    flex: 1,
-    minWidth: 0,
-    padding: "50px",
-    maxWidth: "1200px",
-    boxSizing: "border-box",
-  },
+  marginLeft: "260px",
+  width: "calc(100% - 260px)",
+  minHeight: "100vh",
+  padding: "50px",
+  boxSizing: "border-box",
+  overflowX: "hidden",
+},
 
   cabecera: {
-    marginBottom: "55px",
-  },
+  marginBottom: "55px",
+  width: "100%",
+  maxWidth: "900px",
+  boxSizing: "border-box",
+},
 
   tituloPequeno: {
     color: "#ff8995",
