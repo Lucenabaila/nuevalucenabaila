@@ -15,7 +15,13 @@ export async function GET() {
       LEFT JOIN profesor_actividad pa
         ON p.id = pa.profesor_id
       WHERE p.activa = TRUE
-      GROUP BY p.id
+      GROUP BY
+        p.id,
+        p.nombre,
+        p.descripcion,
+        p.foto,
+        p.activa,
+        p.orden
       ORDER BY p.orden ASC, p.nombre ASC
     `);
 
@@ -52,7 +58,7 @@ export async function POST(request) {
     const nombre = body.nombre?.trim();
     const descripcion = body.descripcion?.trim() || null;
     const actividadIds = Array.isArray(body.actividadIds)
-      ? body.actividadIds
+      ? body.actividadIds.map(Number).filter(Boolean)
       : [];
 
     if (!nombre) {
@@ -94,7 +100,6 @@ export async function POST(request) {
     }
 
     await connection.commit();
-
     connection.release();
 
     return Response.json({
@@ -112,6 +117,97 @@ export async function POST(request) {
       {
         correcto: false,
         mensaje: "Error creando profesor",
+      },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(request) {
+  const connection = await pool.getConnection();
+
+  try {
+    const body = await request.json();
+
+    const id = Number(body.id);
+    const nombre = body.nombre?.trim();
+    const descripcion = body.descripcion?.trim() || null;
+    const actividadIds = Array.isArray(body.actividadIds)
+      ? body.actividadIds.map(Number).filter(Boolean)
+      : [];
+
+    if (!id) {
+      connection.release();
+
+      return Response.json(
+        {
+          correcto: false,
+          mensaje: "El ID del profesor es obligatorio",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (!nombre) {
+      connection.release();
+
+      return Response.json(
+        {
+          correcto: false,
+          mensaje: "El nombre es obligatorio",
+        },
+        { status: 400 }
+      );
+    }
+
+    await connection.beginTransaction();
+
+    await connection.query(
+      `
+      UPDATE profesores
+      SET nombre = ?, descripcion = ?
+      WHERE id = ?
+      `,
+      [nombre, descripcion, id]
+    );
+
+    await connection.query(
+      `
+      DELETE FROM profesor_actividad
+      WHERE profesor_id = ?
+      `,
+      [id]
+    );
+
+    for (const actividadId of actividadIds) {
+      await connection.query(
+        `
+        INSERT INTO profesor_actividad
+          (profesor_id, actividad_id)
+        VALUES
+          (?, ?)
+        `,
+        [id, actividadId]
+      );
+    }
+
+    await connection.commit();
+    connection.release();
+
+    return Response.json({
+      correcto: true,
+      mensaje: "Profesor actualizado correctamente",
+    });
+  } catch (error) {
+    await connection.rollback();
+    connection.release();
+
+    console.error("Error actualizando profesor:", error);
+
+    return Response.json(
+      {
+        correcto: false,
+        mensaje: "Error actualizando profesor",
       },
       { status: 500 }
     );
