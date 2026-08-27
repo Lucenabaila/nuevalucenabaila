@@ -996,18 +996,29 @@ function ProfesorFila({
       const datos =
         await respuesta.json();
 
-      if (
-        !respuesta.ok ||
-        !datos.correcto
-      ) {
+    if (
+  !respuesta.ok ||
+  !datos.correcto
+) {
 
-        alert(
-          datos.mensaje ||
-          "No se han podido guardar los cambios."
-        );
+  console.error(
+    "Error recibido de la API:",
+    datos
+  );
 
-        return;
-      }
+  alert(
+    [
+      datos.mensaje || "Error al guardar el profesor.",
+      datos.error ? `\n\nError: ${datos.error}` : "",
+      datos.codigo ? `\nCódigo: ${datos.codigo}` : "",
+      datos.sqlMessage
+        ? `\n\nMySQL: ${datos.sqlMessage}`
+        : "",
+    ].join("")
+  );
+
+  return;
+}
 
       setEditando(false);
 
