@@ -18,8 +18,8 @@ export default function AdminPage() {
 
       const [respuestaProfesores, respuestaActividades] =
         await Promise.all([
-          fetch("/api/profesores"),
-          fetch("/api/actividades"),
+          fetch("/api/profesores", { cache: "no-store" }),
+          fetch("/api/actividades", { cache: "no-store" }),
         ]);
 
       const datosProfesores = await respuestaProfesores.json();
@@ -77,30 +77,43 @@ export default function AdminPage() {
     },
   ];
 
-  function cambiarSeccion(id) {
-    setSeccionActiva(id);
-  }
-
   return (
-    <main style={estilos.pagina}>
-      {/* MENÚ LATERAL */}
-      <aside style={estilos.menu}>
+    <div style={estilos.pagina}>
+
+      {/* =====================================================
+          MENÚ LATERAL
+      ===================================================== */}
+
+      <aside style={estilos.menuLateral}>
+
         <div style={estilos.logoArea}>
-          <div style={estilos.logo}>LB</div>
+          <div style={estilos.logo}>
+            LB
+          </div>
 
           <div>
-            <div style={estilos.nombreEscuela}>Lucena</div>
-            <div style={estilos.nombreEscuela}>Baila</div>
-            <div style={estilos.administracion}>Administración</div>
+            <div style={estilos.nombreEscuela}>
+              Lucena
+            </div>
+
+            <div style={estilos.nombreEscuela}>
+              Baila
+            </div>
+
+            <div style={estilos.administracion}>
+              Administración
+            </div>
           </div>
         </div>
 
         <nav style={estilos.navegacion}>
+
           {menu.map((item) => (
+
             <button
               key={item.id}
               type="button"
-              onClick={() => cambiarSeccion(item.id)}
+              onClick={() => setSeccionActiva(item.id)}
               style={{
                 ...estilos.botonMenu,
                 ...(seccionActiva === item.id
@@ -108,66 +121,98 @@ export default function AdminPage() {
                   : {}),
               }}
             >
-              <span style={estilos.iconoMenu}>{item.icono}</span>
-              <span>{item.nombre}</span>
+
+              <span style={estilos.iconoMenu}>
+                {item.icono}
+              </span>
+
+              <span>
+                {item.nombre}
+              </span>
+
             </button>
+
           ))}
+
         </nav>
 
         <div style={estilos.estadoWeb}>
           <span style={estilos.puntoVerde}></span>
           <span>Web en pruebas</span>
         </div>
+
       </aside>
 
-      {/* CONTENIDO PRINCIPAL */}
-      <section style={estilos.contenido}>
-        <header style={estilos.cabecera}>
-          <div>
-            <div style={estilos.tituloPequeno}>
-              PANEL DE ADMINISTRACIÓN
-            </div>
 
-            <h1 style={estilos.titulo}>
-              Hola 👋
-            </h1>
+      {/* =====================================================
+          ZONA PRINCIPAL
+      ===================================================== */}
+
+      <div style={estilos.zonaPrincipal}>
+
+        {/* CABECERA */}
+
+        <header style={estilos.cabecera}>
+
+          <div style={estilos.tituloPequeno}>
+            PANEL DE ADMINISTRACIÓN
           </div>
+
+          <h1 style={estilos.titulo}>
+            Hola 👋
+          </h1>
+
         </header>
 
-        {seccionActiva === "inicio" && (
-          <Inicio
-            profesores={profesores}
-            actividades={actividades}
-            cargando={cargando}
-          />
-        )}
 
-        {seccionActiva === "actividades" && (
-          <Actividades
-            actividades={actividades}
-            recargar={cargarDatos}
-          />
-        )}
+        {/* CONTENIDO */}
 
-        {seccionActiva === "profesores" && (
-          <Profesores
-            profesores={profesores}
-            actividades={actividades}
-            recargar={cargarDatos}
-          />
-        )}
+        <main style={estilos.contenido}>
 
-        {seccionActiva === "horarios" && <SeccionProximamente titulo="Horarios" />}
+          {seccionActiva === "inicio" && (
+            <Inicio
+              profesores={profesores}
+              actividades={actividades}
+              cargando={cargando}
+            />
+          )}
 
-        {seccionActiva === "eventos" && <SeccionProximamente titulo="Eventos" />}
+          {seccionActiva === "actividades" && (
+            <Actividades
+              actividades={actividades}
+              recargar={cargarDatos}
+            />
+          )}
 
-        {seccionActiva === "galeria" && <SeccionProximamente titulo="Galería" />}
+          {seccionActiva === "profesores" && (
+            <Profesores
+              profesores={profesores}
+              actividades={actividades}
+              recargar={cargarDatos}
+            />
+          )}
 
-        {seccionActiva === "mensajes" && (
-          <SeccionProximamente titulo="Mensajes" />
-        )}
-      </section>
-    </main>
+          {seccionActiva === "horarios" && (
+            <SeccionProximamente titulo="Horarios" />
+          )}
+
+          {seccionActiva === "eventos" && (
+            <SeccionProximamente titulo="Eventos" />
+          )}
+
+          {seccionActiva === "galeria" && (
+            <SeccionProximamente titulo="Galería" />
+          )}
+
+          {seccionActiva === "mensajes" && (
+            <SeccionProximamente titulo="Mensajes" />
+          )}
+
+        </main>
+
+      </div>
+
+    </div>
   );
 }
 
@@ -176,51 +221,76 @@ export default function AdminPage() {
    INICIO
 ========================================================= */
 
-function Inicio({ profesores, actividades, cargando }) {
+function Inicio({
+  profesores,
+  actividades,
+  cargando,
+}) {
   return (
     <div>
-      <div style={estilos.etiquetaSeccion}>RESUMEN</div>
+
+      <div style={estilos.etiquetaSeccion}>
+        RESUMEN
+      </div>
 
       <h2 style={estilos.tituloSeccion}>
         Panel de administración
       </h2>
 
       <p style={estilos.descripcionSeccion}>
-        Desde aquí puedes gestionar profesores, actividades y
-        próximamente todos los contenidos de la escuela.
+        Desde aquí puedes gestionar profesores,
+        actividades y próximamente todos los contenidos
+        de la escuela.
       </p>
 
       <div style={estilos.tarjetas}>
+
         <div style={estilos.tarjeta}>
-          <div style={estilos.tarjetaIcono}>💃</div>
+          <div style={estilos.tarjetaIcono}>
+            💃
+          </div>
+
           <div style={estilos.tarjetaNumero}>
             {cargando ? "..." : actividades.length}
           </div>
+
           <div style={estilos.tarjetaTexto}>
             Actividades
           </div>
         </div>
 
+
         <div style={estilos.tarjeta}>
-          <div style={estilos.tarjetaIcono}>👥</div>
+          <div style={estilos.tarjetaIcono}>
+            👥
+          </div>
+
           <div style={estilos.tarjetaNumero}>
             {cargando ? "..." : profesores.length}
           </div>
+
           <div style={estilos.tarjetaTexto}>
             Profesores
           </div>
         </div>
 
+
         <div style={estilos.tarjeta}>
-          <div style={estilos.tarjetaIcono}>🕐</div>
+          <div style={estilos.tarjetaIcono}>
+            🕐
+          </div>
+
           <div style={estilos.tarjetaNumero}>
             Próximamente
           </div>
+
           <div style={estilos.tarjetaTexto}>
             Horarios
           </div>
         </div>
+
       </div>
+
     </div>
   );
 }
@@ -230,9 +300,13 @@ function Inicio({ profesores, actividades, cargando }) {
    ACTIVIDADES
 ========================================================= */
 
-function Actividades({ actividades, recargar }) {
+function Actividades({
+  actividades,
+  recargar,
+}) {
   return (
     <div>
+
       <div style={estilos.etiquetaSeccion}>
         GESTIÓN
       </div>
@@ -246,21 +320,28 @@ function Actividades({ actividades, recargar }) {
       </p>
 
       <div style={estilos.lista}>
+
         {actividades.length === 0 ? (
+
           <div style={estilos.vacio}>
             No hay actividades creadas.
           </div>
+
         ) : (
+
           actividades.map((actividad, indice) => (
+
             <div
               key={actividad.id}
               style={estilos.fila}
             >
+
               <div style={estilos.numero}>
                 {String(indice + 1).padStart(2, "0")}
               </div>
 
               <div style={estilos.filaContenido}>
+
                 <div style={estilos.filaTitulo}>
                   {actividad.nombre}
                 </div>
@@ -270,15 +351,25 @@ function Actividades({ actividades, recargar }) {
                     {actividad.descripcion}
                   </div>
                 )}
+
               </div>
 
-              <div style={estilos.estadoActivo}>
-                ACTIVA
+              <div style={estilos.filaAcciones}>
+
+                <span style={estilos.estadoActivo}>
+                  ACTIVA
+                </span>
+
               </div>
+
             </div>
+
           ))
+
         )}
+
       </div>
+
     </div>
   );
 }
@@ -295,6 +386,7 @@ function Profesores({
 }) {
   return (
     <div>
+
       <div style={estilos.etiquetaSeccion}>
         EQUIPO DOCENTE
       </div>
@@ -308,12 +400,17 @@ function Profesores({
       </p>
 
       <div style={estilos.lista}>
+
         {profesores.length === 0 ? (
+
           <div style={estilos.vacio}>
             No hay profesores creados.
           </div>
+
         ) : (
+
           profesores.map((profesor, indice) => (
+
             <ProfesorFila
               key={profesor.id}
               profesor={profesor}
@@ -321,16 +418,20 @@ function Profesores({
               actividades={actividades}
               recargar={recargar}
             />
+
           ))
+
         )}
+
       </div>
+
     </div>
   );
 }
 
 
 /* =========================================================
-   FILA DE PROFESOR
+   FILA PROFESOR
 ========================================================= */
 
 function ProfesorFila({
@@ -342,26 +443,43 @@ function ProfesorFila({
   const [editando, setEditando] = useState(false);
   const [guardando, setGuardando] = useState(false);
 
-  const [nombre, setNombre] = useState(profesor.nombre || "");
+  const [nombre, setNombre] = useState(
+    profesor.nombre || ""
+  );
+
   const [descripcion, setDescripcion] = useState(
     profesor.descripcion || ""
   );
 
-  const [actividadesSeleccionadas, setActividadesSeleccionadas] =
-    useState(profesor.actividad_ids || []);
+  const [
+    actividadesSeleccionadas,
+    setActividadesSeleccionadas,
+  ] = useState(
+    profesor.actividad_ids || []
+  );
+
 
   function cambiarActividad(id) {
+
     setActividadesSeleccionadas((actuales) => {
+
       if (actuales.includes(id)) {
-        return actuales.filter((item) => item !== id);
+        return actuales.filter(
+          (item) => item !== id
+        );
       }
 
       return [...actuales, id];
+
     });
+
   }
 
+
   async function guardarCambios() {
+
     try {
+
       setGuardando(true);
 
       const respuesta = await fetch(
@@ -374,38 +492,57 @@ function ProfesorFila({
           body: JSON.stringify({
             nombre,
             descripcion,
-            actividadIds: actividadesSeleccionadas,
+            actividadIds:
+              actividadesSeleccionadas,
           }),
         }
       );
 
-      const datos = await respuesta.json();
+      const datos =
+        await respuesta.json();
 
-      if (!respuesta.ok || !datos.correcto) {
+      if (
+        !respuesta.ok ||
+        !datos.correcto
+      ) {
+
         alert(
           datos.mensaje ||
-            "No se han podido guardar los cambios."
+          "No se han podido guardar los cambios."
         );
+
         return;
       }
 
       setEditando(false);
+
       await recargar();
+
     } catch (error) {
+
       console.error(error);
 
       alert(
         "Ha ocurrido un error al guardar el profesor."
       );
+
     } finally {
+
       setGuardando(false);
+
     }
+
   }
 
+
   if (editando) {
+
     return (
+
       <div style={estilos.editor}>
+
         <div style={estilos.editorCabecera}>
+
           <div style={estilos.numero}>
             {String(indice + 1).padStart(2, "0")}
           </div>
@@ -413,7 +550,9 @@ function ProfesorFila({
           <div style={estilos.editorTitulo}>
             Editar profesor
           </div>
+
         </div>
+
 
         <label style={estilos.label}>
           Nombre
@@ -421,9 +560,12 @@ function ProfesorFila({
 
         <input
           value={nombre}
-          onChange={(e) => setNombre(e.target.value)}
+          onChange={(e) =>
+            setNombre(e.target.value)
+          }
           style={estilos.input}
         />
+
 
         <label style={estilos.label}>
           Descripción
@@ -438,18 +580,23 @@ function ProfesorFila({
           rows={3}
         />
 
+
         <label style={estilos.label}>
           Actividades que imparte
         </label>
 
+
         <div style={estilos.actividadesChecks}>
+
           {actividades.map((actividad) => {
+
             const seleccionada =
               actividadesSeleccionadas.includes(
                 actividad.id
               );
 
             return (
+
               <label
                 key={actividad.id}
                 style={{
@@ -459,31 +606,43 @@ function ProfesorFila({
                     : {}),
                 }}
               >
+
                 <input
                   type="checkbox"
                   checked={seleccionada}
                   onChange={() =>
-                    cambiarActividad(actividad.id)
+                    cambiarActividad(
+                      actividad.id
+                    )
                   }
                 />
 
                 <span>
                   {actividad.nombre}
                 </span>
+
               </label>
+
             );
+
           })}
+
         </div>
 
+
         <div style={estilos.botonesEditor}>
+
           <button
             type="button"
-            onClick={() => setEditando(false)}
+            onClick={() =>
+              setEditando(false)
+            }
             style={estilos.botonCancelar}
             disabled={guardando}
           >
             Cancelar
           </button>
+
 
           <button
             type="button"
@@ -495,18 +654,26 @@ function ProfesorFila({
               ? "Guardando..."
               : "Guardar cambios"}
           </button>
+
         </div>
+
       </div>
+
     );
   }
 
+
   return (
+
     <div style={estilos.fila}>
+
       <div style={estilos.numero}>
         {String(indice + 1).padStart(2, "0")}
       </div>
 
+
       <div style={estilos.filaContenido}>
+
         <div style={estilos.filaTitulo}>
           {profesor.nombre}
         </div>
@@ -516,49 +683,73 @@ function ProfesorFila({
             "Sin descripción"}
         </div>
 
+
         <div style={estilos.chips}>
+
           {profesor.actividad_ids &&
           profesor.actividad_ids.length > 0 ? (
-            profesor.actividad_ids.map((actividadId) => {
-              const actividad = actividades.find(
-                (item) => item.id === actividadId
-              );
 
-              if (!actividad) {
-                return null;
+            profesor.actividad_ids.map(
+              (actividadId) => {
+
+                const actividad =
+                  actividades.find(
+                    (item) =>
+                      item.id === actividadId
+                  );
+
+                if (!actividad) {
+                  return null;
+                }
+
+                return (
+
+                  <span
+                    key={actividadId}
+                    style={estilos.chip}
+                  >
+                    {actividad.nombre}
+                  </span>
+
+                );
+
               }
+            )
 
-              return (
-                <span
-                  key={actividadId}
-                  style={estilos.chip}
-                >
-                  {actividad.nombre}
-                </span>
-              );
-            })
           ) : (
+
             <span style={estilos.sinActividades}>
               Sin actividades asignadas
             </span>
+
           )}
+
         </div>
+
       </div>
 
+
       <div style={estilos.filaAcciones}>
+
         <span style={estilos.estadoActivo}>
           ACTIVO
         </span>
 
+
         <button
           type="button"
-          onClick={() => setEditando(true)}
+          onClick={() =>
+            setEditando(true)
+          }
           style={estilos.botonEditar}
         >
           Editar
         </button>
+
       </div>
+
     </div>
+
   );
 }
 
@@ -567,9 +758,13 @@ function ProfesorFila({
    SECCIONES FUTURAS
 ========================================================= */
 
-function SeccionProximamente({ titulo }) {
+function SeccionProximamente({
+  titulo,
+}) {
   return (
+
     <div>
+
       <div style={estilos.etiquetaSeccion}>
         PRÓXIMAMENTE
       </div>
@@ -579,6 +774,7 @@ function SeccionProximamente({ titulo }) {
       </h2>
 
       <div style={estilos.vacio}>
+
         <div style={estilos.vacioIcono}>
           ✨
         </div>
@@ -588,11 +784,14 @@ function SeccionProximamente({ titulo }) {
         </div>
 
         <div style={estilos.vacioTexto}>
-          La estructura ya está preparada para añadir
-          este apartado al panel.
+          La estructura ya está preparada
+          para añadir este apartado al panel.
         </div>
+
       </div>
+
     </div>
+
   );
 }
 
@@ -602,32 +801,48 @@ function SeccionProximamente({ titulo }) {
 ========================================================= */
 
 const estilos = {
-pagina: {
-  minHeight: "100vh",
-  width: "100%",
-  background: "#111114",
-  color: "#ffffff",
-  fontFamily: "Arial, Helvetica, sans-serif",
-  boxSizing: "border-box",
-  display: "block",
-},
 
- menu: {
-  position: "fixed",
-  left: 0,
-  top: 0,
-  bottom: 0,
-  width: "260px",
-  height: "100vh",
-  padding: "28px 18px",
-  background: "#111114",
-  borderRight: "1px solid #29292f",
-  display: "flex",
-  flexDirection: "column",
-  boxSizing: "border-box",
-  zIndex: 1000,
-  overflowY: "auto",
-},
+  pagina: {
+    minHeight: "100vh",
+    width: "100%",
+    margin: 0,
+    padding: 0,
+    background: "#111114",
+    color: "#ffffff",
+    fontFamily:
+      "Arial, Helvetica, sans-serif",
+    boxSizing: "border-box",
+    position: "relative",
+  },
+
+
+  /* MENÚ COMPLETAMENTE INDEPENDIENTE */
+
+  menuLateral: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    bottom: 0,
+    width: "260px",
+    height: "100vh",
+
+    padding: "28px 18px",
+
+    background: "#111114",
+    borderRight:
+      "1px solid #29292f",
+
+    display: "flex",
+    flexDirection: "column",
+
+    boxSizing: "border-box",
+
+    zIndex: 9999,
+
+    overflowY: "auto",
+    overflowX: "hidden",
+  },
+
 
   logoArea: {
     display: "flex",
@@ -635,28 +850,38 @@ pagina: {
     gap: "12px",
     marginBottom: "35px",
     paddingLeft: "5px",
+    flexShrink: 0,
   },
+
 
   logo: {
     width: "50px",
     height: "50px",
+    minWidth: "50px",
+
     borderRadius: "15px",
+
     background:
       "linear-gradient(135deg, #ff7b88, #ff9eaa)",
+
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    color: "#fff",
+
+    color: "#ffffff",
     fontWeight: "800",
     fontSize: "17px",
+
     flexShrink: 0,
   },
+
 
   nombreEscuela: {
     fontSize: "17px",
     fontWeight: "700",
     lineHeight: "19px",
   },
+
 
   administracion: {
     fontSize: "11px",
@@ -665,32 +890,53 @@ pagina: {
     fontWeight: "700",
   },
 
+
   navegacion: {
     display: "flex",
     flexDirection: "column",
+
     width: "100%",
+
     gap: "7px",
-    alignItems: "stretch",
+
     boxSizing: "border-box",
+
+    flexShrink: 0,
   },
+
 
   botonMenu: {
     width: "100%",
+    minWidth: 0,
+    height: "50px",
     minHeight: "50px",
+
     border: "0",
     borderRadius: "14px",
+
     background: "transparent",
+
     color: "#d7d7dc",
+
     display: "flex",
     alignItems: "center",
+
     gap: "13px",
+
     padding: "0 16px",
+
     fontSize: "15px",
     fontWeight: "600",
+
     cursor: "pointer",
+
     textAlign: "left",
+
     boxSizing: "border-box",
+
+    flexShrink: 0,
   },
+
 
   botonMenuActivo: {
     background:
@@ -698,360 +944,629 @@ pagina: {
     color: "#ffffff",
   },
 
+
   iconoMenu: {
     width: "24px",
+    minWidth: "24px",
+
     textAlign: "center",
+
     fontSize: "18px",
+
     flexShrink: 0,
   },
 
+
   estadoWeb: {
     marginTop: "auto",
+
     padding: "15px 10px 5px",
+
     color: "#a8a8af",
+
     fontSize: "12px",
+
     display: "flex",
     alignItems: "center",
+
     gap: "8px",
+
+    flexShrink: 0,
   },
+
 
   puntoVerde: {
     width: "8px",
     height: "8px",
+
+    minWidth: "8px",
+
     borderRadius: "50%",
+
     background: "#8ee35f",
+
     display: "inline-block",
   },
 
-  contenido: {
-  marginLeft: "260px",
-  width: "calc(100% - 260px)",
-  minHeight: "100vh",
-  padding: "50px",
-  boxSizing: "border-box",
-  overflowX: "hidden",
-},
+
+  /* =====================================================
+     ZONA PRINCIPAL
+  ===================================================== */
+
+  zonaPrincipal: {
+    marginLeft: "260px",
+
+    width: "calc(100% - 260px)",
+
+    minHeight: "100vh",
+
+    boxSizing: "border-box",
+
+    overflowX: "hidden",
+
+    position: "relative",
+  },
+
 
   cabecera: {
-  marginBottom: "55px",
-  width: "100%",
-  maxWidth: "900px",
-  boxSizing: "border-box",
-},
+    width: "100%",
+
+    boxSizing: "border-box",
+
+    padding:
+      "50px 50px 0 50px",
+
+    margin: 0,
+
+    position: "relative",
+
+    zIndex: 1,
+  },
+
 
   tituloPequeno: {
     color: "#ff8995",
+
     fontSize: "13px",
+
     fontWeight: "800",
+
     letterSpacing: "3px",
+
     marginBottom: "12px",
   },
+
 
   titulo: {
     fontFamily:
       "Georgia, 'Times New Roman', serif",
+
     fontSize: "58px",
+
     lineHeight: "1",
-    margin: "0",
+
+    margin: 0,
+
+    padding: 0,
+
     color: "#fff5d7",
+
     fontWeight: "500",
   },
 
-  subtitulo: {
-    marginTop: "15px",
-    marginBottom: "0",
-    color: "#bdbdc4",
-    fontSize: "16px",
+
+  contenido: {
+    width: "100%",
+
+    boxSizing: "border-box",
+
+    padding:
+      "55px 50px 60px 50px",
+
+    overflowX: "hidden",
   },
+
 
   etiquetaSeccion: {
     color: "#ff8995",
+
     fontSize: "12px",
+
     fontWeight: "800",
+
     letterSpacing: "3px",
+
     marginBottom: "10px",
   },
+
 
   tituloSeccion: {
     fontFamily:
       "Georgia, 'Times New Roman', serif",
+
     fontSize: "42px",
+
     fontWeight: "500",
+
     color: "#fff5d7",
+
     margin: "0 0 10px",
   },
 
+
   descripcionSeccion: {
     color: "#a9a9b1",
+
     fontSize: "15px",
-    marginTop: "0",
+
+    marginTop: 0,
+
     marginBottom: "30px",
+
+    lineHeight: "1.5",
   },
+
+
+  /* TARJETAS */
 
   tarjetas: {
     display: "grid",
+
     gridTemplateColumns:
       "repeat(auto-fit, minmax(190px, 1fr))",
+
     gap: "18px",
+
+    width: "100%",
   },
+
 
   tarjeta: {
     background: "#18181d",
-    border: "1px solid #29292f",
+
+    border:
+      "1px solid #29292f",
+
     borderRadius: "20px",
+
     padding: "25px",
+
     minHeight: "130px",
+
     boxSizing: "border-box",
   },
+
 
   tarjetaIcono: {
     fontSize: "25px",
     marginBottom: "15px",
   },
 
+
   tarjetaNumero: {
     color: "#fff5d7",
+
     fontSize: "28px",
+
     fontWeight: "700",
   },
+
 
   tarjetaTexto: {
     color: "#92929a",
+
     fontSize: "13px",
+
     marginTop: "4px",
   },
 
+
+  /* LISTAS */
+
   lista: {
     display: "flex",
+
     flexDirection: "column",
+
     gap: "12px",
+
+    width: "100%",
   },
+
 
   fila: {
     width: "100%",
+
     background: "#18181d",
-    border: "1px solid #29292f",
+
+    border:
+      "1px solid #29292f",
+
     borderRadius: "18px",
+
     padding: "22px",
+
     display: "flex",
+
     alignItems: "center",
+
     gap: "20px",
+
     boxSizing: "border-box",
+
+    position: "relative",
   },
+
 
   numero: {
     color: "#ff7f8c",
+
     fontSize: "14px",
+
     fontWeight: "800",
+
     width: "35px",
+
+    minWidth: "35px",
+
     flexShrink: 0,
   },
+
 
   filaContenido: {
     flex: 1,
+
     minWidth: 0,
   },
 
+
   filaTitulo: {
     color: "#fff5d7",
+
     fontSize: "19px",
+
     fontWeight: "700",
+
     marginBottom: "6px",
   },
 
+
   filaDescripcion: {
     color: "#aaaab2",
+
     fontSize: "13px",
+
     lineHeight: "1.5",
   },
 
+
   filaAcciones: {
     display: "flex",
+
     alignItems: "center",
+
     gap: "12px",
+
     flexShrink: 0,
   },
 
+
   estadoActivo: {
-    background: "rgba(128, 220, 83, 0.12)",
+    background:
+      "rgba(128, 220, 83, 0.12)",
+
     color: "#9bea6b",
+
     borderRadius: "30px",
+
     padding: "7px 12px",
+
     fontSize: "10px",
+
     fontWeight: "800",
+
     letterSpacing: "1px",
+
     whiteSpace: "nowrap",
   },
 
+
   botonEditar: {
-    border: "1px solid #45454d",
+    border:
+      "1px solid #45454d",
+
     background: "#222228",
+
     color: "#ffffff",
+
     borderRadius: "10px",
+
     padding: "9px 14px",
+
     cursor: "pointer",
+
     fontSize: "12px",
+
     fontWeight: "700",
+
+    whiteSpace: "nowrap",
   },
+
 
   chips: {
     display: "flex",
+
     flexWrap: "wrap",
+
     gap: "6px",
+
     marginTop: "10px",
   },
 
+
   chip: {
-    background: "rgba(255, 128, 143, 0.12)",
+    background:
+      "rgba(255, 128, 143, 0.12)",
+
     color: "#ff9aa5",
+
     borderRadius: "20px",
+
     padding: "5px 9px",
+
     fontSize: "11px",
+
     fontWeight: "600",
   },
 
+
   sinActividades: {
     display: "inline-block",
+
     marginTop: "9px",
+
     color: "#8d8d95",
+
     fontSize: "12px",
+
     fontStyle: "italic",
   },
 
+
+  /* VACÍO */
+
   vacio: {
     background: "#18181d",
-    border: "1px solid #29292f",
+
+    border:
+      "1px solid #29292f",
+
     borderRadius: "20px",
+
     padding: "45px 30px",
+
     textAlign: "center",
+
     color: "#92929a",
   },
 
+
   vacioIcono: {
     fontSize: "32px",
+
     marginBottom: "12px",
   },
 
+
   vacioTitulo: {
     color: "#fff5d7",
+
     fontSize: "18px",
+
     fontWeight: "700",
+
     marginBottom: "7px",
   },
+
 
   vacioTexto: {
     fontSize: "13px",
+
     color: "#85858d",
   },
 
+
+  /* EDITOR */
+
   editor: {
+    width: "100%",
+
     background: "#18181d",
-    border: "1px solid #393941",
+
+    border:
+      "1px solid #393941",
+
     borderRadius: "20px",
+
     padding: "25px",
+
     boxSizing: "border-box",
   },
+
 
   editorCabecera: {
     display: "flex",
+
     alignItems: "center",
+
     gap: "10px",
+
     marginBottom: "25px",
   },
 
+
   editorTitulo: {
     color: "#fff5d7",
+
     fontSize: "20px",
+
     fontWeight: "700",
   },
+
 
   label: {
     display: "block",
+
     color: "#c7c7cd",
+
     fontSize: "12px",
+
     fontWeight: "700",
+
     marginBottom: "7px",
+
     marginTop: "15px",
   },
 
+
   input: {
     width: "100%",
+
     boxSizing: "border-box",
+
     background: "#101014",
-    border: "1px solid #393941",
+
+    border:
+      "1px solid #393941",
+
     borderRadius: "10px",
+
     padding: "12px",
+
     color: "#ffffff",
+
     outline: "none",
+
     fontSize: "14px",
   },
+
 
   textarea: {
     width: "100%",
+
     boxSizing: "border-box",
+
     background: "#101014",
-    border: "1px solid #393941",
+
+    border:
+      "1px solid #393941",
+
     borderRadius: "10px",
+
     padding: "12px",
+
     color: "#ffffff",
+
     outline: "none",
+
     fontSize: "14px",
+
     resize: "vertical",
-    fontFamily: "Arial, Helvetica, sans-serif",
+
+    fontFamily:
+      "Arial, Helvetica, sans-serif",
   },
+
 
   actividadesChecks: {
     display: "flex",
+
     flexWrap: "wrap",
+
     gap: "8px",
+
     marginTop: "10px",
   },
 
+
   check: {
     display: "flex",
+
     alignItems: "center",
+
     gap: "7px",
+
     padding: "9px 12px",
+
     borderRadius: "10px",
-    border: "1px solid #393941",
+
+    border:
+      "1px solid #393941",
+
     background: "#101014",
+
     color: "#bdbdc4",
+
     fontSize: "12px",
+
     cursor: "pointer",
   },
 
+
   checkActivo: {
     borderColor: "#ff8794",
+
     color: "#ffffff",
+
     background:
       "rgba(255, 127, 140, 0.12)",
   },
 
+
   botonesEditor: {
     display: "flex",
+
     justifyContent: "flex-end",
+
     gap: "10px",
+
     marginTop: "25px",
   },
 
+
   botonCancelar: {
-    border: "1px solid #45454d",
+    border:
+      "1px solid #45454d",
+
     background: "transparent",
+
     color: "#c4c4ca",
+
     borderRadius: "10px",
+
     padding: "11px 18px",
+
     cursor: "pointer",
+
     fontWeight: "600",
   },
 
+
   botonGuardar: {
-    border: "0",
+    border: 0,
+
     background:
       "linear-gradient(135deg, #ff7d8b, #ff9aaa)",
+
     color: "#ffffff",
+
     borderRadius: "10px",
+
     padding: "11px 20px",
+
     cursor: "pointer",
+
     fontWeight: "700",
   },
+
 };
