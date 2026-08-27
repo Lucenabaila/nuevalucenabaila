@@ -536,7 +536,8 @@ export default function AdminPage() {
         </div>
 
         <nav>
-          {secciones.map((item) => (
+<nav style={estilos.navegacion}>
+  {secciones.map((item) => (
             <button
               key={item.id}
               onClick={() => cambiarSeccion(item.id)}
@@ -1576,6 +1577,7 @@ const estilos = {
 
   menu: {
     width: "260px",
+    minWidth: "260px",
     minHeight: "100vh",
     padding: "28px 18px",
     background: "#111114",
@@ -1583,6 +1585,14 @@ const estilos = {
     display: "flex",
     flexDirection: "column",
     boxSizing: "border-box",
+    flexShrink: 0,
+  },
+   navegacion: {
+    display: "flex",
+    flexDirection: "column",
+    width: "100%",
+    gap: "5px",
+    alignItems: "stretch",
   },
 
   logo: {
@@ -1604,8 +1614,9 @@ const estilos = {
     borderRadius: "9px",
   },
 
-  contenido: {
+    contenido: {
     flex: 1,
+    minWidth: 0,
     padding: "50px",
     maxWidth: "1200px",
     boxSizing: "border-box",
