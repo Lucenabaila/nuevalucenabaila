@@ -193,8 +193,11 @@ export default function AdminPage() {
           )}
 
           {seccionActiva === "horarios" && (
-            <SeccionProximamente titulo="Horarios" />
-          )}
+  <Horarios
+    actividades={actividades}
+    profesores={profesores}
+  />
+)}
 
           {seccionActiva === "eventos" && (
             <SeccionProximamente titulo="Eventos" />
