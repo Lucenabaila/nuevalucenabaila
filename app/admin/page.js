@@ -2,1577 +2,619 @@
 
 import { useEffect, useState } from "react";
 
-const secciones = [
-  { id: "actividades", icono: "💃", nombre: "Actividades" },
-  { id: "profesores", icono: "👥", nombre: "Profesores" },
-  { id: "horarios", icono: "🕐", nombre: "Horarios" },
-  { id: "eventos", icono: "📅", nombre: "Eventos" },
-  { id: "galeria", icono: "🖼️", nombre: "Galería" },
-  { id: "mensajes", icono: "📩", nombre: "Mensajes" },
-];
-
-const diasSemana = [
-  "Lunes",
-  "Martes",
-  "Miércoles",
-  "Jueves",
-  "Viernes",
-  "Sábado",
-  "Domingo",
-];
-
 export default function AdminPage() {
-  const [seccion, setSeccion] = useState("actividades");
-
-  const [actividades, setActividades] = useState([]);
+  const [seccionActiva, setSeccionActiva] = useState("inicio");
   const [profesores, setProfesores] = useState([]);
-  const [horarios, setHorarios] = useState([]);
-
+  const [actividades, setActividades] = useState([]);
   const [cargando, setCargando] = useState(true);
-  const [guardando, setGuardando] = useState(false);
-  const [mensaje, setMensaje] = useState("");
-
-  const [nuevaActividad, setNuevaActividad] = useState("");
-
-  const [nuevoProfesor, setNuevoProfesor] = useState({
-    nombre: "",
-    descripcion: "",
-    actividadIds: [],
-  });
-
-  const [profesorEditando, setProfesorEditando] = useState(null);
-
-  const [nuevoHorario, setNuevoHorario] = useState({
-    actividadId: "",
-    dia: "Lunes",
-    horaInicio: "",
-    horaFin: "",
-    nivel: "",
-    profesorIds: [],
-    orden: 0,
-  });
-
-  const [horarioEditando, setHorarioEditando] = useState(null);
 
   useEffect(() => {
-    cargarActividades();
-    cargarProfesores();
-    cargarHorarios();
+    cargarDatos();
   }, []);
 
-  async function cargarActividades() {
+  async function cargarDatos() {
     try {
-      const respuesta = await fetch("/api/actividades", {
-        cache: "no-store",
-      });
+      setCargando(true);
 
-      const datos = await respuesta.json();
+      const [respuestaProfesores, respuestaActividades] =
+        await Promise.all([
+          fetch("/api/profesores"),
+          fetch("/api/actividades"),
+        ]);
 
-      if (datos.correcto) {
-        setActividades(datos.actividades || []);
+      const datosProfesores = await respuestaProfesores.json();
+      const datosActividades = await respuestaActividades.json();
+
+      if (datosProfesores.correcto) {
+        setProfesores(datosProfesores.profesores || []);
+      }
+
+      if (datosActividades.correcto) {
+        setActividades(datosActividades.actividades || []);
       }
     } catch (error) {
-      console.error("Error cargando actividades:", error);
-      setMensaje("❌ No se pudieron cargar las actividades.");
+      console.error("Error cargando datos:", error);
     } finally {
       setCargando(false);
     }
   }
 
-  async function cargarProfesores() {
-    try {
-      const respuesta = await fetch("/api/profesores", {
-        cache: "no-store",
-      });
-
-      const datos = await respuesta.json();
-
-      if (datos.correcto) {
-        setProfesores(datos.profesores || []);
-      }
-    } catch (error) {
-      console.error("Error cargando profesores:", error);
-      setMensaje("❌ No se pudieron cargar los profesores.");
-    }
-  }
-
-  async function cargarHorarios() {
-    try {
-      const respuesta = await fetch("/api/horarios", {
-        cache: "no-store",
-      });
-
-      const datos = await respuesta.json();
-
-      if (datos.correcto) {
-        setHorarios(datos.horarios || []);
-      }
-    } catch (error) {
-      console.error("Error cargando horarios:", error);
-      setMensaje("❌ No se pudieron cargar los horarios.");
-    }
-  }
-
-  async function agregarActividad(event) {
-    event.preventDefault();
-
-    const nombre = nuevaActividad.trim();
-
-    if (!nombre) {
-      setMensaje("⚠️ Escribe el nombre de la actividad.");
-      return;
-    }
-
-    setGuardando(true);
-    setMensaje("");
-
-    try {
-      const respuesta = await fetch("/api/actividades", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          nombre,
-          descripcion: "",
-          orden: actividades.length,
-        }),
-      });
-
-      const datos = await respuesta.json();
-
-      if (!respuesta.ok || !datos.correcto) {
-        throw new Error(
-          datos.mensaje || "No se pudo crear la actividad"
-        );
-      }
-
-      setNuevaActividad("");
-      setMensaje("✅ Actividad creada correctamente.");
-
-      await cargarActividades();
-    } catch (error) {
-      console.error(error);
-      setMensaje(`❌ ${error.message}`);
-    } finally {
-      setGuardando(false);
-    }
-  }
-
-  function cambiarActividadProfesor(id) {
-    setNuevoProfesor((actual) => {
-      const existe = actual.actividadIds.includes(id);
-
-      return {
-        ...actual,
-        actividadIds: existe
-          ? actual.actividadIds.filter(
-              (actividadId) => actividadId !== id
-            )
-          : [...actual.actividadIds, id],
-      };
-    });
-  }
-
-  function cambiarActividadEdicion(id) {
-    setProfesorEditando((actual) => {
-      if (!actual) return actual;
-
-      const existe = actual.actividadIds.includes(id);
-
-      return {
-        ...actual,
-        actividadIds: existe
-          ? actual.actividadIds.filter(
-              (actividadId) => actividadId !== id
-            )
-          : [...actual.actividadIds, id],
-      };
-    });
-  }
-
-  async function agregarProfesor(event) {
-    event.preventDefault();
-
-    const nombre = nuevoProfesor.nombre.trim();
-
-    if (!nombre) {
-      setMensaje("⚠️ Escribe el nombre del profesor.");
-      return;
-    }
-
-    setGuardando(true);
-    setMensaje("");
-
-    try {
-      const respuesta = await fetch("/api/profesores", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(nuevoProfesor),
-      });
-
-      const datos = await respuesta.json();
-
-      if (!respuesta.ok || !datos.correcto) {
-        throw new Error(
-          datos.mensaje || "No se pudo crear el profesor"
-        );
-      }
-
-      setNuevoProfesor({
-        nombre: "",
-        descripcion: "",
-        actividadIds: [],
-      });
-
-      setMensaje("✅ Profesor creado correctamente.");
-
-      await cargarProfesores();
-    } catch (error) {
-      console.error(error);
-      setMensaje(`❌ ${error.message}`);
-    } finally {
-      setGuardando(false);
-    }
-  }
-
-  function comenzarEdicion(profesor) {
-    setMensaje("");
-
-    setProfesorEditando({
-      id: profesor.id,
-      nombre: profesor.nombre || "",
-      descripcion: profesor.descripcion || "",
-      actividadIds: profesor.actividad_ids || [],
-    });
-  }
-
-  function cancelarEdicion() {
-    setProfesorEditando(null);
-  }
-
-  async function guardarProfesor() {
-    if (!profesorEditando) return;
-
-    const nombre = profesorEditando.nombre.trim();
-
-    if (!nombre) {
-      setMensaje("⚠️ El nombre es obligatorio.");
-      return;
-    }
-
-    setGuardando(true);
-    setMensaje("");
-
-    try {
-      const respuesta = await fetch("/api/profesores", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id: profesorEditando.id,
-          nombre,
-          descripcion: profesorEditando.descripcion.trim(),
-          actividadIds: profesorEditando.actividadIds,
-        }),
-      });
-
-      const datos = await respuesta.json();
-
-      if (!respuesta.ok || !datos.correcto) {
-        throw new Error(
-          datos.mensaje || "No se pudo actualizar el profesor"
-        );
-      }
-
-      setProfesorEditando(null);
-      setMensaje("✅ Profesor actualizado correctamente.");
-
-      await cargarProfesores();
-    } catch (error) {
-      console.error(error);
-      setMensaje(`❌ ${error.message}`);
-    } finally {
-      setGuardando(false);
-    }
-  }
-
-  function cambiarProfesorHorario(id) {
-    setNuevoHorario((actual) => {
-      const existe = actual.profesorIds.includes(id);
-
-      return {
-        ...actual,
-        profesorIds: existe
-          ? actual.profesorIds.filter(
-              (profesorId) => profesorId !== id
-            )
-          : [...actual.profesorIds, id],
-      };
-    });
-  }
-
-  function cambiarProfesorHorarioEdicion(id) {
-    setHorarioEditando((actual) => {
-      if (!actual) return actual;
-
-      const existe = actual.profesorIds.includes(id);
-
-      return {
-        ...actual,
-        profesorIds: existe
-          ? actual.profesorIds.filter(
-              (profesorId) => profesorId !== id
-            )
-          : [...actual.profesorIds, id],
-      };
-    });
-  }
-
-  async function agregarHorario(event) {
-    event.preventDefault();
-
-    if (!nuevoHorario.actividadId) {
-      setMensaje("⚠️ Selecciona una actividad.");
-      return;
-    }
-
-    if (!nuevoHorario.horaInicio || !nuevoHorario.horaFin) {
-      setMensaje("⚠️ Indica la hora de inicio y de fin.");
-      return;
-    }
-
-    if (nuevoHorario.profesorIds.length === 0) {
-      setMensaje("⚠️ Selecciona al menos un profesor.");
-      return;
-    }
-
-    setGuardando(true);
-    setMensaje("");
-
-    try {
-      const respuesta = await fetch("/api/horarios", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(nuevoHorario),
-      });
-
-      const datos = await respuesta.json();
-
-      if (!respuesta.ok || !datos.correcto) {
-        throw new Error(
-          datos.mensaje || "No se pudo crear el horario"
-        );
-      }
-
-      setNuevoHorario({
-        actividadId: "",
-        dia: "Lunes",
-        horaInicio: "",
-        horaFin: "",
-        nivel: "",
-        profesorIds: [],
-        orden: horarios.length,
-      });
-
-      setMensaje("✅ Horario creado correctamente.");
-
-      await cargarHorarios();
-    } catch (error) {
-      console.error(error);
-      setMensaje(`❌ ${error.message}`);
-    } finally {
-      setGuardando(false);
-    }
-  }
-
-  function comenzarEdicionHorario(horario) {
-    setMensaje("");
-
-    setHorarioEditando({
-      id: horario.id,
-      actividadId: horario.actividad_id,
-      dia: horario.dia,
-      horaInicio: horario.hora_inicio
-        ? String(horario.hora_inicio).slice(0, 5)
-        : "",
-      horaFin: horario.hora_fin
-        ? String(horario.hora_fin).slice(0, 5)
-        : "",
-      nivel: horario.nivel || "",
-      profesorIds: horario.profesor_ids || [],
-      activa: horario.activa,
-      orden: horario.orden || 0,
-    });
-  }
-
-  function cancelarEdicionHorario() {
-    setHorarioEditando(null);
-  }
-
-  async function guardarHorario() {
-    if (!horarioEditando) return;
-
-    if (!horarioEditando.actividadId) {
-      setMensaje("⚠️ Selecciona una actividad.");
-      return;
-    }
-
-    if (
-      !horarioEditando.horaInicio ||
-      !horarioEditando.horaFin
-    ) {
-      setMensaje("⚠️ Indica la hora de inicio y de fin.");
-      return;
-    }
-
-    if (horarioEditando.profesorIds.length === 0) {
-      setMensaje("⚠️ Selecciona al menos un profesor.");
-      return;
-    }
-
-    setGuardando(true);
-    setMensaje("");
-
-    try {
-      const respuesta = await fetch("/api/horarios", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(horarioEditando),
-      });
-
-      const datos = await respuesta.json();
-
-      if (!respuesta.ok || !datos.correcto) {
-        throw new Error(
-          datos.mensaje || "No se pudo actualizar el horario"
-        );
-      }
-
-      setHorarioEditando(null);
-      setMensaje("✅ Horario actualizado correctamente.");
-
-      await cargarHorarios();
-    } catch (error) {
-      console.error(error);
-      setMensaje(`❌ ${error.message}`);
-    } finally {
-      setGuardando(false);
-    }
-  }
-
-  async function eliminarHorario(id) {
-    const confirmar = window.confirm(
-      "¿Seguro que quieres eliminar este horario?"
-    );
-
-    if (!confirmar) return;
-
-    setGuardando(true);
-    setMensaje("");
-
-    try {
-      const respuesta = await fetch("/api/horarios", {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ id }),
-      });
-
-      const datos = await respuesta.json();
-
-      if (!respuesta.ok || !datos.correcto) {
-        throw new Error(
-          datos.mensaje || "No se pudo eliminar el horario"
-        );
-      }
-
-      setMensaje("✅ Horario eliminado correctamente.");
-
-      await cargarHorarios();
-    } catch (error) {
-      console.error(error);
-      setMensaje(`❌ ${error.message}`);
-    } finally {
-      setGuardando(false);
-    }
-  }
+  const menu = [
+    {
+      id: "inicio",
+      nombre: "Inicio",
+      icono: "🏠",
+    },
+    {
+      id: "actividades",
+      nombre: "Actividades",
+      icono: "💃",
+    },
+    {
+      id: "profesores",
+      nombre: "Profesores",
+      icono: "👥",
+    },
+    {
+      id: "horarios",
+      nombre: "Horarios",
+      icono: "🕐",
+    },
+    {
+      id: "eventos",
+      nombre: "Eventos",
+      icono: "📅",
+    },
+    {
+      id: "galeria",
+      nombre: "Galería",
+      icono: "🖼️",
+    },
+    {
+      id: "mensajes",
+      nombre: "Mensajes",
+      icono: "💌",
+    },
+  ];
 
   function cambiarSeccion(id) {
-    setSeccion(id);
-    setMensaje("");
-    setProfesorEditando(null);
-    setHorarioEditando(null);
-  }
-
-  function nombreProfesor(id) {
-    const profesor = profesores.find(
-      (item) => item.id === id
-    );
-
-    return profesor ? profesor.nombre : "";
+    setSeccionActiva(id);
   }
 
   return (
-    <main style={estilos.contenedor}>
+    <main style={estilos.pagina}>
+      {/* MENÚ LATERAL */}
       <aside style={estilos.menu}>
-        <div style={estilos.logo}>
-          <span style={estilos.logoMarca}>LB</span>
+        <div style={estilos.logoArea}>
+          <div style={estilos.logo}>LB</div>
 
           <div>
-            <strong>Lucena Baila</strong>
-            <small style={{ display: "block", color: "#777" }}>
-              Administración
-            </small>
+            <div style={estilos.nombreEscuela}>Lucena</div>
+            <div style={estilos.nombreEscuela}>Baila</div>
+            <div style={estilos.administracion}>Administración</div>
           </div>
         </div>
 
-        <nav>
-<nav style={estilos.navegacion}>
-  {secciones.map((item) => (
+        <nav style={estilos.navegacion}>
+          {menu.map((item) => (
             <button
               key={item.id}
+              type="button"
               onClick={() => cambiarSeccion(item.id)}
               style={{
                 ...estilos.botonMenu,
-                ...(seccion === item.id
-                  ? estilos.botonActivo
+                ...(seccionActiva === item.id
+                  ? estilos.botonMenuActivo
                   : {}),
               }}
             >
-              <span>{item.icono}</span>
-              {item.nombre}
+              <span style={estilos.iconoMenu}>{item.icono}</span>
+              <span>{item.nombre}</span>
             </button>
           ))}
         </nav>
 
-        <div style={estilos.pieMenu}>
-          🟢 Web en pruebas
+        <div style={estilos.estadoWeb}>
+          <span style={estilos.puntoVerde}></span>
+          <span>Web en pruebas</span>
         </div>
       </aside>
 
+      {/* CONTENIDO PRINCIPAL */}
       <section style={estilos.contenido}>
         <header style={estilos.cabecera}>
           <div>
-            <p style={estilos.eyebrow}>
+            <div style={estilos.tituloPequeno}>
               PANEL DE ADMINISTRACIÓN
-            </p>
+            </div>
 
-            <h1 style={estilos.titulo}>Hola 👋</h1>
+            <h1 style={estilos.titulo}>
+              Hola 👋
+            </h1>
 
             <p style={estilos.subtitulo}>
-              Gestiona fácilmente el contenido de Lucena Baila.
+              Gestiona fácilmente el contenido de la escuela.
             </p>
           </div>
-
-          <a href="/" style={estilos.verWeb}>
-            Ver web →
-          </a>
         </header>
 
-        {mensaje && (
-          <div
-            style={{
-              ...estilos.mensaje,
-              ...(mensaje.startsWith("❌")
-                ? estilos.mensajeError
-                : estilos.mensajeCorrecto),
-            }}
-          >
-            {mensaje}
-          </div>
+        {seccionActiva === "inicio" && (
+          <Inicio
+            profesores={profesores}
+            actividades={actividades}
+            cargando={cargando}
+          />
         )}
 
-        {/* ================= ACTIVIDADES ================= */}
-
-        {seccion === "actividades" && (
-          <section>
-            <div style={estilos.tituloSeccion}>
-              <div>
-                <p style={estilos.eyebrow}>
-                  CONTENIDO DE LA ESCUELA
-                </p>
-
-                <h2 style={estilos.tituloH2}>
-                  Actividades
-                </h2>
-
-                <p style={estilos.descripcionSeccion}>
-                  Añade y gestiona las disciplinas de la escuela.
-                </p>
-              </div>
-
-              <span style={estilos.contador}>
-                {actividades.length} actividades
-              </span>
-            </div>
-
-            <div style={estilos.tarjeta}>
-              {cargando ? (
-                <div style={estilos.cargando}>
-                  Cargando actividades...
-                </div>
-              ) : (
-                actividades.map((actividad, index) => (
-                  <div
-                    key={actividad.id}
-                    style={estilos.fila}
-                  >
-                    <div style={estilos.numero}>
-                      {String(index + 1).padStart(2, "0")}
-                    </div>
-
-                    <div style={estilos.nombreActividad}>
-                      <strong>{actividad.nombre}</strong>
-
-                      <span>
-                        {actividad.activa
-                          ? "Actividad activa"
-                          : "Actividad oculta"}
-                      </span>
-                    </div>
-
-                    <span
-                      style={{
-                        ...estilos.estado,
-                        ...(actividad.activa
-                          ? estilos.estadoActivo
-                          : estilos.estadoInactivo),
-                      }}
-                    >
-                      {actividad.activa
-                        ? "ACTIVA"
-                        : "OCULTA"}
-                    </span>
-                  </div>
-                ))
-              )}
-            </div>
-
-            <div style={estilos.anadir}>
-              <p style={estilos.eyebrow}>
-                NUEVA DISCIPLINA
-              </p>
-
-              <h3 style={estilos.tituloAnadir}>
-                + Añadir actividad
-              </h3>
-
-              <form
-                onSubmit={agregarActividad}
-                style={estilos.formulario}
-              >
-                <input
-                  value={nuevaActividad}
-                  onChange={(event) =>
-                    setNuevaActividad(event.target.value)
-                  }
-                  placeholder="Ej.: Flamenco"
-                  style={estilos.input}
-                  disabled={guardando}
-                />
-
-                <button
-                  type="submit"
-                  style={estilos.botonAnadir}
-                  disabled={guardando}
-                >
-                  {guardando ? "Guardando..." : "Añadir"}
-                </button>
-              </form>
-            </div>
-          </section>
+        {seccionActiva === "actividades" && (
+          <Actividades
+            actividades={actividades}
+            recargar={cargarDatos}
+          />
         )}
 
-        {/* ================= PROFESORES ================= */}
-
-        {seccion === "profesores" && (
-          <section>
-            <div style={estilos.tituloSeccion}>
-              <div>
-                <p style={estilos.eyebrow}>
-                  EQUIPO DOCENTE
-                </p>
-
-                <h2 style={estilos.tituloH2}>
-                  Profesores
-                </h2>
-
-                <p style={estilos.descripcionSeccion}>
-                  Gestiona los profesores y las disciplinas que imparten.
-                </p>
-              </div>
-
-              <span style={estilos.contador}>
-                {profesores.length} profesores
-              </span>
-            </div>
-
-            <div style={estilos.tarjeta}>
-              {profesores.map((profesor, index) => {
-                const nombresActividades =
-                  (profesor.actividad_ids || [])
-                    .map((id) => {
-                      const actividad = actividades.find(
-                        (item) => item.id === id
-                      );
-
-                      return actividad
-                        ? actividad.nombre
-                        : null;
-                    })
-                    .filter(Boolean);
-
-                const editando =
-                  profesorEditando?.id === profesor.id;
-
-                if (editando) {
-                  return (
-                    <div
-                      key={profesor.id}
-                      style={estilos.edicion}
-                    >
-                      <p style={estilos.eyebrow}>
-                        EDITANDO PROFESOR
-                      </p>
-
-                      <h3 style={estilos.tituloEdicion}>
-                        {profesor.nombre}
-                      </h3>
-
-                      <div style={estilos.formularioVertical}>
-                        <input
-                          value={profesorEditando.nombre}
-                          onChange={(event) =>
-                            setProfesorEditando({
-                              ...profesorEditando,
-                              nombre: event.target.value,
-                            })
-                          }
-                          placeholder="Nombre"
-                          style={estilos.input}
-                          disabled={guardando}
-                        />
-
-                        <textarea
-                          value={
-                            profesorEditando.descripcion
-                          }
-                          onChange={(event) =>
-                            setProfesorEditando({
-                              ...profesorEditando,
-                              descripcion:
-                                event.target.value,
-                            })
-                          }
-                          placeholder="Descripción"
-                          style={estilos.textarea}
-                          rows={3}
-                          disabled={guardando}
-                        />
-
-                        <div>
-                          <p style={estilos.etiqueta}>
-                            ACTIVIDADES QUE IMPARTE
-                          </p>
-
-                          <div style={estilos.checkGrid}>
-                            {actividades.map(
-                              (actividad) => {
-                                const seleccionada =
-                                  profesorEditando.actividadIds.includes(
-                                    actividad.id
-                                  );
-
-                                return (
-                                  <label
-                                    key={actividad.id}
-                                    style={{
-                                      ...estilos.checkbox,
-                                      ...(seleccionada
-                                        ? estilos.checkboxSeleccionada
-                                        : {}),
-                                    }}
-                                  >
-                                    <input
-                                      type="checkbox"
-                                      checked={
-                                        seleccionada
-                                      }
-                                      onChange={() =>
-                                        cambiarActividadEdicion(
-                                          actividad.id
-                                        )
-                                      }
-                                    />
-
-                                    {actividad.nombre}
-                                  </label>
-                                );
-                              }
-                            )}
-                          </div>
-                        </div>
-
-                        <div style={estilos.botonesEdicion}>
-                          <button
-                            type="button"
-                            onClick={guardarProfesor}
-                            style={estilos.botonAnadir}
-                            disabled={guardando}
-                          >
-                            {guardando
-                              ? "Guardando..."
-                              : "Guardar cambios"}
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={cancelarEdicion}
-                            style={estilos.botonCancelar}
-                            disabled={guardando}
-                          >
-                            Cancelar
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                }
-
-                return (
-                  <div
-                    key={profesor.id}
-                    style={estilos.filaProfesor}
-                  >
-                    <div style={estilos.numero}>
-                      {String(index + 1).padStart(2, "0")}
-                    </div>
-
-                    <div style={estilos.nombreActividad}>
-                      <strong>{profesor.nombre}</strong>
-
-                      <span>
-                        {nombresActividades.length > 0
-                          ? nombresActividades.join(" · ")
-                          : "Sin actividades asignadas"}
-                      </span>
-
-                      {profesor.descripcion && (
-                        <small style={{ color: "#777" }}>
-                          {profesor.descripcion}
-                        </small>
-                      )}
-                    </div>
-
-                    <span
-                      style={{
-                        ...estilos.estado,
-                        ...(profesor.activa
-                          ? estilos.estadoActivo
-                          : estilos.estadoInactivo),
-                      }}
-                    >
-                      {profesor.activa
-                        ? "ACTIVO"
-                        : "OCULTO"}
-                    </span>
-
-                    <button
-                      type="button"
-                      onClick={() =>
-                        comenzarEdicion(profesor)
-                      }
-                      style={estilos.botonEditar}
-                    >
-                      ✏️ Editar
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-
-            <div style={estilos.anadir}>
-              <p style={estilos.eyebrow}>
-                NUEVO PROFESOR
-              </p>
-
-              <h3 style={estilos.tituloAnadir}>
-                + Añadir profesor
-              </h3>
-
-              <form
-                onSubmit={agregarProfesor}
-                style={estilos.formularioVertical}
-              >
-                <input
-                  value={nuevoProfesor.nombre}
-                  onChange={(event) =>
-                    setNuevoProfesor({
-                      ...nuevoProfesor,
-                      nombre: event.target.value,
-                    })
-                  }
-                  placeholder="Nombre del profesor"
-                  style={estilos.input}
-                  disabled={guardando}
-                />
-
-                <textarea
-                  value={nuevoProfesor.descripcion}
-                  onChange={(event) =>
-                    setNuevoProfesor({
-                      ...nuevoProfesor,
-                      descripcion: event.target.value,
-                    })
-                  }
-                  placeholder="Descripción"
-                  style={estilos.textarea}
-                  rows={3}
-                  disabled={guardando}
-                />
-
-                <div>
-                  <p style={estilos.etiqueta}>
-                    ACTIVIDADES QUE IMPARTE
-                  </p>
-
-                  <div style={estilos.checkGrid}>
-                    {actividades.map((actividad) => {
-                      const seleccionada =
-                        nuevoProfesor.actividadIds.includes(
-                          actividad.id
-                        );
-
-                      return (
-                        <label
-                          key={actividad.id}
-                          style={{
-                            ...estilos.checkbox,
-                            ...(seleccionada
-                              ? estilos.checkboxSeleccionada
-                              : {}),
-                          }}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={seleccionada}
-                            onChange={() =>
-                              cambiarActividadProfesor(
-                                actividad.id
-                              )
-                            }
-                          />
-
-                          {actividad.nombre}
-                        </label>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  style={estilos.botonAnadir}
-                  disabled={guardando}
-                >
-                  {guardando
-                    ? "Guardando..."
-                    : "Añadir profesor"}
-                </button>
-              </form>
-            </div>
-          </section>
+        {seccionActiva === "profesores" && (
+          <Profesores
+            profesores={profesores}
+            actividades={actividades}
+            recargar={cargarDatos}
+          />
         )}
 
-        {/* ================= HORARIOS ================= */}
+        {seccionActiva === "horarios" && <SeccionProximamente titulo="Horarios" />}
 
-        {seccion === "horarios" && (
-          <section>
-            <div style={estilos.tituloSeccion}>
-              <div>
-                <p style={estilos.eyebrow}>
-                  ORGANIZACIÓN DE LAS CLASES
-                </p>
+        {seccionActiva === "eventos" && <SeccionProximamente titulo="Eventos" />}
 
-                <h2 style={estilos.tituloH2}>
-                  Horarios
-                </h2>
+        {seccionActiva === "galeria" && <SeccionProximamente titulo="Galería" />}
 
-                <p style={estilos.descripcionSeccion}>
-                  Crea y gestiona los horarios de todas las actividades.
-                </p>
-              </div>
-
-              <span style={estilos.contador}>
-                {horarios.length} horarios
-              </span>
-            </div>
-
-            <div style={estilos.tarjeta}>
-              {horarios.length === 0 ? (
-                <div style={estilos.vacio}>
-                  <div style={estilos.iconoVacio}>
-                    🕐
-                  </div>
-
-                  <h3>
-                    No hay horarios todavía
-                  </h3>
-
-                  <p>
-                    Añade el primer horario de la escuela.
-                  </p>
-                </div>
-              ) : (
-                horarios.map((horario, index) => {
-                  const profesoresHorario =
-                    horario.profesor_ids || [];
-
-                  const nombresProfesores =
-                    profesoresHorario
-                      .map(nombreProfesor)
-                      .filter(Boolean);
-
-                  return (
-                    <div
-                      key={horario.id}
-                      style={estilos.filaHorario}
-                    >
-                      <div style={estilos.numero}>
-                        {String(index + 1).padStart(2, "0")}
-                      </div>
-
-                      <div style={estilos.horaHorario}>
-                        <strong>
-                          {String(
-                            horario.hora_inicio
-                          ).slice(0, 5)}
-                          {" - "}
-                          {String(
-                            horario.hora_fin
-                          ).slice(0, 5)}
-                        </strong>
-
-                        <span>
-                          {horario.dia}
-                        </span>
-                      </div>
-
-                      <div style={estilos.infoHorario}>
-                        <strong>
-                          {horario.actividad_nombre}
-                        </strong>
-
-                        <span>
-                          {horario.nivel ||
-                            "Nivel general"}
-                        </span>
-
-                        <small>
-                          👤{" "}
-                          {nombresProfesores.length > 0
-                            ? nombresProfesores.join(" · ")
-                            : "Sin profesor asignado"}
-                        </small>
-                      </div>
-
-                      <span
-                        style={{
-                          ...estilos.estado,
-                          ...(horario.activa
-                            ? estilos.estadoActivo
-                            : estilos.estadoInactivo),
-                        }}
-                      >
-                        {horario.activa
-                          ? "ACTIVO"
-                          : "OCULTO"}
-                      </span>
-
-                      <button
-                        type="button"
-                        onClick={() =>
-                          comenzarEdicionHorario(
-                            horario
-                          )
-                        }
-                        style={estilos.botonEditar}
-                      >
-                        ✏️ Editar
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() =>
-                          eliminarHorario(horario.id)
-                        }
-                        style={estilos.botonEliminar}
-                        disabled={guardando}
-                      >
-                        🗑️
-                      </button>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-
-            {/* FORMULARIO NUEVO HORARIO */}
-
-            <div style={estilos.anadir}>
-              <p style={estilos.eyebrow}>
-                NUEVO HORARIO
-              </p>
-
-              <h3 style={estilos.tituloAnadir}>
-                + Añadir horario
-              </h3>
-
-              <form
-                onSubmit={agregarHorario}
-                style={estilos.formularioVertical}
-              >
-                <div style={estilos.gridFormulario}>
-                  <div>
-                    <label style={estilos.label}>
-                      ACTIVIDAD
-                    </label>
-
-                    <select
-                      value={nuevoHorario.actividadId}
-                      onChange={(event) =>
-                        setNuevoHorario({
-                          ...nuevoHorario,
-                          actividadId:
-                            Number(event.target.value),
-                        })
-                      }
-                      style={estilos.input}
-                      disabled={guardando}
-                    >
-                      <option value="">
-                        Selecciona una actividad
-                      </option>
-
-                      {actividades.map(
-                        (actividad) => (
-                          <option
-                            key={actividad.id}
-                            value={actividad.id}
-                          >
-                            {actividad.nombre}
-                          </option>
-                        )
-                      )}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label style={estilos.label}>
-                      DÍA
-                    </label>
-
-                    <select
-                      value={nuevoHorario.dia}
-                      onChange={(event) =>
-                        setNuevoHorario({
-                          ...nuevoHorario,
-                          dia: event.target.value,
-                        })
-                      }
-                      style={estilos.input}
-                      disabled={guardando}
-                    >
-                      {diasSemana.map((dia) => (
-                        <option
-                          key={dia}
-                          value={dia}
-                        >
-                          {dia}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <div style={estilos.gridFormulario}>
-                  <div>
-                    <label style={estilos.label}>
-                      HORA DE INICIO
-                    </label>
-
-                    <input
-                      type="time"
-                      value={nuevoHorario.horaInicio}
-                      onChange={(event) =>
-                        setNuevoHorario({
-                          ...nuevoHorario,
-                          horaInicio:
-                            event.target.value,
-                        })
-                      }
-                      style={estilos.input}
-                      disabled={guardando}
-                    />
-                  </div>
-
-                  <div>
-                    <label style={estilos.label}>
-                      HORA DE FIN
-                    </label>
-
-                    <input
-                      type="time"
-                      value={nuevoHorario.horaFin}
-                      onChange={(event) =>
-                        setNuevoHorario({
-                          ...nuevoHorario,
-                          horaFin:
-                            event.target.value,
-                        })
-                      }
-                      style={estilos.input}
-                      disabled={guardando}
-                    />
-                  </div>
-
-                  <div>
-                    <label style={estilos.label}>
-                      NIVEL
-                    </label>
-
-                    <input
-                      type="text"
-                      value={nuevoHorario.nivel}
-                      onChange={(event) =>
-                        setNuevoHorario({
-                          ...nuevoHorario,
-                          nivel: event.target.value,
-                        })
-                      }
-                      placeholder="Ej.: Inicial"
-                      style={estilos.input}
-                      disabled={guardando}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <p style={estilos.etiqueta}>
-                    PROFESORES QUE IMPARTEN ESTA CLASE
-                  </p>
-
-                  <div style={estilos.checkGrid}>
-                    {profesores.map((profesor) => {
-                      const seleccionado =
-                        nuevoHorario.profesorIds.includes(
-                          profesor.id
-                        );
-
-                      return (
-                        <label
-                          key={profesor.id}
-                          style={{
-                            ...estilos.checkbox,
-                            ...(seleccionado
-                              ? estilos.checkboxSeleccionada
-                              : {}),
-                          }}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={seleccionado}
-                            onChange={() =>
-                              cambiarProfesorHorario(
-                                profesor.id
-                              )
-                            }
-                          />
-
-                          {profesor.nombre}
-                        </label>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  style={estilos.botonAnadir}
-                  disabled={guardando}
-                >
-                  {guardando
-                    ? "Guardando..."
-                    : "Añadir horario"}
-                </button>
-              </form>
-            </div>
-
-            {/* EDICIÓN DE HORARIO */}
-
-            {horarioEditando && (
-              <div style={estilos.anadir}>
-                <p style={estilos.eyebrow}>
-                  EDITANDO HORARIO
-                </p>
-
-                <h3 style={estilos.tituloAnadir}>
-                  Modificar horario
-                </h3>
-
-                <div style={estilos.formularioVertical}>
-                  <div style={estilos.gridFormulario}>
-                    <div>
-                      <label style={estilos.label}>
-                        ACTIVIDAD
-                      </label>
-
-                      <select
-                        value={
-                          horarioEditando.actividadId
-                        }
-                        onChange={(event) =>
-                          setHorarioEditando({
-                            ...horarioEditando,
-                            actividadId:
-                              Number(
-                                event.target.value
-                              ),
-                          })
-                        }
-                        style={estilos.input}
-                        disabled={guardando}
-                      >
-                        <option value="">
-                          Selecciona una actividad
-                        </option>
-
-                        {actividades.map(
-                          (actividad) => (
-                            <option
-                              key={actividad.id}
-                              value={actividad.id}
-                            >
-                              {actividad.nombre}
-                            </option>
-                          )
-                        )}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label style={estilos.label}>
-                        DÍA
-                      </label>
-
-                      <select
-                        value={horarioEditando.dia}
-                        onChange={(event) =>
-                          setHorarioEditando({
-                            ...horarioEditando,
-                            dia: event.target.value,
-                          })
-                        }
-                        style={estilos.input}
-                        disabled={guardando}
-                      >
-                        {diasSemana.map((dia) => (
-                          <option
-                            key={dia}
-                            value={dia}
-                          >
-                            {dia}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  <div style={estilos.gridFormulario}>
-                    <div>
-                      <label style={estilos.label}>
-                        HORA DE INICIO
-                      </label>
-
-                      <input
-                        type="time"
-                        value={
-                          horarioEditando.horaInicio
-                        }
-                        onChange={(event) =>
-                          setHorarioEditando({
-                            ...horarioEditando,
-                            horaInicio:
-                              event.target.value,
-                          })
-                        }
-                        style={estilos.input}
-                        disabled={guardando}
-                      />
-                    </div>
-
-                    <div>
-                      <label style={estilos.label}>
-                        HORA DE FIN
-                      </label>
-
-                      <input
-                        type="time"
-                        value={
-                          horarioEditando.horaFin
-                        }
-                        onChange={(event) =>
-                          setHorarioEditando({
-                            ...horarioEditando,
-                            horaFin:
-                              event.target.value,
-                          })
-                        }
-                        style={estilos.input}
-                        disabled={guardando}
-                      />
-                    </div>
-
-                    <div>
-                      <label style={estilos.label}>
-                        NIVEL
-                      </label>
-
-                      <input
-                        type="text"
-                        value={horarioEditando.nivel}
-                        onChange={(event) =>
-                          setHorarioEditando({
-                            ...horarioEditando,
-                            nivel: event.target.value,
-                          })
-                        }
-                        placeholder="Ej.: Inicial"
-                        style={estilos.input}
-                        disabled={guardando}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <p style={estilos.etiqueta}>
-                      PROFESORES
-                    </p>
-
-                    <div style={estilos.checkGrid}>
-                      {profesores.map((profesor) => {
-                        const seleccionado =
-                          horarioEditando.profesorIds.includes(
-                            profesor.id
-                          );
-
-                        return (
-                          <label
-                            key={profesor.id}
-                            style={{
-                              ...estilos.checkbox,
-                              ...(seleccionado
-                                ? estilos.checkboxSeleccionada
-                                : {}),
-                            }}
-                          >
-                            <input
-                              type="checkbox"
-                              checked={seleccionado}
-                              onChange={() =>
-                                cambiarProfesorHorarioEdicion(
-                                  profesor.id
-                                )
-                              }
-                            />
-
-                            {profesor.nombre}
-                          </label>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  <div style={estilos.botonesEdicion}>
-                    <button
-                      type="button"
-                      onClick={guardarHorario}
-                      style={estilos.botonAnadir}
-                      disabled={guardando}
-                    >
-                      {guardando
-                        ? "Guardando..."
-                        : "Guardar cambios"}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={cancelarEdicionHorario}
-                      style={estilos.botonCancelar}
-                      disabled={guardando}
-                    >
-                      Cancelar
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </section>
+        {seccionActiva === "mensajes" && (
+          <SeccionProximamente titulo="Mensajes" />
         )}
-
-        {/* ================= RESTO ================= */}
-
-        {seccion !== "actividades" &&
-          seccion !== "profesores" &&
-          seccion !== "horarios" && (
-            <section style={estilos.proximamente}>
-              <div style={estilos.iconoGrande}>
-                {
-                  secciones.find(
-                    (item) => item.id === seccion
-                  )?.icono
-                }
-              </div>
-
-              <p style={estilos.eyebrow}>
-                PRÓXIMAMENTE
-              </p>
-
-              <h2 style={estilos.tituloH2}>
-                {
-                  secciones.find(
-                    (item) => item.id === seccion
-                  )?.nombre
-                }
-              </h2>
-
-              <p>
-                Este apartado lo construiremos y conectaremos
-                con la base de datos.
-              </p>
-            </section>
-          )}
       </section>
     </main>
   );
 }
 
+
+/* =========================================================
+   INICIO
+========================================================= */
+
+function Inicio({ profesores, actividades, cargando }) {
+  return (
+    <div>
+      <div style={estilos.etiquetaSeccion}>RESUMEN</div>
+
+      <h2 style={estilos.tituloSeccion}>
+        Panel de administración
+      </h2>
+
+      <p style={estilos.descripcionSeccion}>
+        Desde aquí puedes gestionar profesores, actividades y
+        próximamente todos los contenidos de la escuela.
+      </p>
+
+      <div style={estilos.tarjetas}>
+        <div style={estilos.tarjeta}>
+          <div style={estilos.tarjetaIcono}>💃</div>
+          <div style={estilos.tarjetaNumero}>
+            {cargando ? "..." : actividades.length}
+          </div>
+          <div style={estilos.tarjetaTexto}>
+            Actividades
+          </div>
+        </div>
+
+        <div style={estilos.tarjeta}>
+          <div style={estilos.tarjetaIcono}>👥</div>
+          <div style={estilos.tarjetaNumero}>
+            {cargando ? "..." : profesores.length}
+          </div>
+          <div style={estilos.tarjetaTexto}>
+            Profesores
+          </div>
+        </div>
+
+        <div style={estilos.tarjeta}>
+          <div style={estilos.tarjetaIcono}>🕐</div>
+          <div style={estilos.tarjetaNumero}>
+            Próximamente
+          </div>
+          <div style={estilos.tarjetaTexto}>
+            Horarios
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+/* =========================================================
+   ACTIVIDADES
+========================================================= */
+
+function Actividades({ actividades, recargar }) {
+  return (
+    <div>
+      <div style={estilos.etiquetaSeccion}>
+        GESTIÓN
+      </div>
+
+      <h2 style={estilos.tituloSeccion}>
+        Actividades
+      </h2>
+
+      <p style={estilos.descripcionSeccion}>
+        Gestiona las disciplinas que ofrece la escuela.
+      </p>
+
+      <div style={estilos.lista}>
+        {actividades.length === 0 ? (
+          <div style={estilos.vacio}>
+            No hay actividades creadas.
+          </div>
+        ) : (
+          actividades.map((actividad, indice) => (
+            <div
+              key={actividad.id}
+              style={estilos.fila}
+            >
+              <div style={estilos.numero}>
+                {String(indice + 1).padStart(2, "0")}
+              </div>
+
+              <div style={estilos.filaContenido}>
+                <div style={estilos.filaTitulo}>
+                  {actividad.nombre}
+                </div>
+
+                {actividad.descripcion && (
+                  <div style={estilos.filaDescripcion}>
+                    {actividad.descripcion}
+                  </div>
+                )}
+              </div>
+
+              <div style={estilos.estadoActivo}>
+                ACTIVA
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+
+/* =========================================================
+   PROFESORES
+========================================================= */
+
+function Profesores({
+  profesores,
+  actividades,
+  recargar,
+}) {
+  return (
+    <div>
+      <div style={estilos.etiquetaSeccion}>
+        EQUIPO DOCENTE
+      </div>
+
+      <h2 style={estilos.tituloSeccion}>
+        Profesores
+      </h2>
+
+      <p style={estilos.descripcionSeccion}>
+        Gestiona los profesores y las disciplinas que imparten.
+      </p>
+
+      <div style={estilos.lista}>
+        {profesores.length === 0 ? (
+          <div style={estilos.vacio}>
+            No hay profesores creados.
+          </div>
+        ) : (
+          profesores.map((profesor, indice) => (
+            <ProfesorFila
+              key={profesor.id}
+              profesor={profesor}
+              indice={indice}
+              actividades={actividades}
+              recargar={recargar}
+            />
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+
+/* =========================================================
+   FILA DE PROFESOR
+========================================================= */
+
+function ProfesorFila({
+  profesor,
+  indice,
+  actividades,
+  recargar,
+}) {
+  const [editando, setEditando] = useState(false);
+  const [guardando, setGuardando] = useState(false);
+
+  const [nombre, setNombre] = useState(profesor.nombre || "");
+  const [descripcion, setDescripcion] = useState(
+    profesor.descripcion || ""
+  );
+
+  const [actividadesSeleccionadas, setActividadesSeleccionadas] =
+    useState(profesor.actividad_ids || []);
+
+  function cambiarActividad(id) {
+    setActividadesSeleccionadas((actuales) => {
+      if (actuales.includes(id)) {
+        return actuales.filter((item) => item !== id);
+      }
+
+      return [...actuales, id];
+    });
+  }
+
+  async function guardarCambios() {
+    try {
+      setGuardando(true);
+
+      const respuesta = await fetch(
+        `/api/profesores/${profesor.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            nombre,
+            descripcion,
+            actividadIds: actividadesSeleccionadas,
+          }),
+        }
+      );
+
+      const datos = await respuesta.json();
+
+      if (!respuesta.ok || !datos.correcto) {
+        alert(
+          datos.mensaje ||
+            "No se han podido guardar los cambios."
+        );
+        return;
+      }
+
+      setEditando(false);
+      await recargar();
+    } catch (error) {
+      console.error(error);
+
+      alert(
+        "Ha ocurrido un error al guardar el profesor."
+      );
+    } finally {
+      setGuardando(false);
+    }
+  }
+
+  if (editando) {
+    return (
+      <div style={estilos.editor}>
+        <div style={estilos.editorCabecera}>
+          <div style={estilos.numero}>
+            {String(indice + 1).padStart(2, "0")}
+          </div>
+
+          <div style={estilos.editorTitulo}>
+            Editar profesor
+          </div>
+        </div>
+
+        <label style={estilos.label}>
+          Nombre
+        </label>
+
+        <input
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value)}
+          style={estilos.input}
+        />
+
+        <label style={estilos.label}>
+          Descripción
+        </label>
+
+        <textarea
+          value={descripcion}
+          onChange={(e) =>
+            setDescripcion(e.target.value)
+          }
+          style={estilos.textarea}
+          rows={3}
+        />
+
+        <label style={estilos.label}>
+          Actividades que imparte
+        </label>
+
+        <div style={estilos.actividadesChecks}>
+          {actividades.map((actividad) => {
+            const seleccionada =
+              actividadesSeleccionadas.includes(
+                actividad.id
+              );
+
+            return (
+              <label
+                key={actividad.id}
+                style={{
+                  ...estilos.check,
+                  ...(seleccionada
+                    ? estilos.checkActivo
+                    : {}),
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={seleccionada}
+                  onChange={() =>
+                    cambiarActividad(actividad.id)
+                  }
+                />
+
+                <span>
+                  {actividad.nombre}
+                </span>
+              </label>
+            );
+          })}
+        </div>
+
+        <div style={estilos.botonesEditor}>
+          <button
+            type="button"
+            onClick={() => setEditando(false)}
+            style={estilos.botonCancelar}
+            disabled={guardando}
+          >
+            Cancelar
+          </button>
+
+          <button
+            type="button"
+            onClick={guardarCambios}
+            style={estilos.botonGuardar}
+            disabled={guardando}
+          >
+            {guardando
+              ? "Guardando..."
+              : "Guardar cambios"}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={estilos.fila}>
+      <div style={estilos.numero}>
+        {String(indice + 1).padStart(2, "0")}
+      </div>
+
+      <div style={estilos.filaContenido}>
+        <div style={estilos.filaTitulo}>
+          {profesor.nombre}
+        </div>
+
+        <div style={estilos.filaDescripcion}>
+          {profesor.descripcion ||
+            "Sin descripción"}
+        </div>
+
+        <div style={estilos.chips}>
+          {profesor.actividad_ids &&
+          profesor.actividad_ids.length > 0 ? (
+            profesor.actividad_ids.map((actividadId) => {
+              const actividad = actividades.find(
+                (item) => item.id === actividadId
+              );
+
+              if (!actividad) {
+                return null;
+              }
+
+              return (
+                <span
+                  key={actividadId}
+                  style={estilos.chip}
+                >
+                  {actividad.nombre}
+                </span>
+              );
+            })
+          ) : (
+            <span style={estilos.sinActividades}>
+              Sin actividades asignadas
+            </span>
+          )}
+        </div>
+      </div>
+
+      <div style={estilos.filaAcciones}>
+        <span style={estilos.estadoActivo}>
+          ACTIVO
+        </span>
+
+        <button
+          type="button"
+          onClick={() => setEditando(true)}
+          style={estilos.botonEditar}
+        >
+          Editar
+        </button>
+      </div>
+    </div>
+  );
+}
+
+
+/* =========================================================
+   SECCIONES FUTURAS
+========================================================= */
+
+function SeccionProximamente({ titulo }) {
+  return (
+    <div>
+      <div style={estilos.etiquetaSeccion}>
+        PRÓXIMAMENTE
+      </div>
+
+      <h2 style={estilos.tituloSeccion}>
+        {titulo}
+      </h2>
+
+      <div style={estilos.vacio}>
+        <div style={estilos.vacioIcono}>
+          ✨
+        </div>
+
+        <div style={estilos.vacioTitulo}>
+          Esta sección la prepararemos ahora.
+        </div>
+
+        <div style={estilos.vacioTexto}>
+          La estructura ya está preparada para añadir
+          este apartado al panel.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+/* =========================================================
+   ESTILOS
+========================================================= */
+
 const estilos = {
-  contenedor: {
+  pagina: {
     minHeight: "100vh",
+    width: "100%",
     display: "flex",
-    background: "#09090b",
-    color: "#fff",
-    fontFamily: "Arial, Helvetica, sans-serif",
+    background: "#111114",
+    color: "#ffffff",
+    fontFamily:
+      "Arial, Helvetica, sans-serif",
+    boxSizing: "border-box",
   },
 
   menu: {
@@ -1587,34 +629,102 @@ const estilos = {
     boxSizing: "border-box",
     flexShrink: 0,
   },
-   navegacion: {
-    display: "flex",
-    flexDirection: "column",
-    width: "100%",
-    gap: "5px",
-    alignItems: "stretch",
-  },
 
-  logo: {
+  logoArea: {
     display: "flex",
     alignItems: "center",
     gap: "12px",
-    padding: "4px 10px 32px",
+    marginBottom: "35px",
+    paddingLeft: "5px",
   },
 
-  logoMarca: {
-    width: "38px",
-    height: "38px",
-    display: "grid",
-    placeItems: "center",
-    background: "#ff3cac",
+  logo: {
+    width: "50px",
+    height: "50px",
+    borderRadius: "15px",
+    background:
+      "linear-gradient(135deg, #ff7b88, #ff9eaa)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
     color: "#fff",
     fontWeight: "800",
-    fontSize: "12px",
-    borderRadius: "9px",
+    fontSize: "17px",
+    flexShrink: 0,
   },
 
-    contenido: {
+  nombreEscuela: {
+    fontSize: "17px",
+    fontWeight: "700",
+    lineHeight: "19px",
+  },
+
+  administracion: {
+    fontSize: "11px",
+    marginTop: "3px",
+    color: "#ff8794",
+    fontWeight: "700",
+  },
+
+  navegacion: {
+    display: "flex",
+    flexDirection: "column",
+    width: "100%",
+    gap: "7px",
+    alignItems: "stretch",
+    boxSizing: "border-box",
+  },
+
+  botonMenu: {
+    width: "100%",
+    minHeight: "50px",
+    border: "0",
+    borderRadius: "14px",
+    background: "transparent",
+    color: "#d7d7dc",
+    display: "flex",
+    alignItems: "center",
+    gap: "13px",
+    padding: "0 16px",
+    fontSize: "15px",
+    fontWeight: "600",
+    cursor: "pointer",
+    textAlign: "left",
+    boxSizing: "border-box",
+  },
+
+  botonMenuActivo: {
+    background:
+      "linear-gradient(135deg, #ff7d8b, #ff9aaa)",
+    color: "#ffffff",
+  },
+
+  iconoMenu: {
+    width: "24px",
+    textAlign: "center",
+    fontSize: "18px",
+    flexShrink: 0,
+  },
+
+  estadoWeb: {
+    marginTop: "auto",
+    padding: "15px 10px 5px",
+    color: "#a8a8af",
+    fontSize: "12px",
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+  },
+
+  puntoVerde: {
+    width: "8px",
+    height: "8px",
+    borderRadius: "50%",
+    background: "#8ee35f",
+    display: "inline-block",
+  },
+
+  contenido: {
     flex: 1,
     minWidth: 0,
     padding: "50px",
@@ -1623,379 +733,322 @@ const estilos = {
   },
 
   cabecera: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
     marginBottom: "55px",
   },
 
-  eyebrow: {
-    margin: 0,
-    color: "#ff3cac",
-    fontSize: "11px",
+  tituloPequeno: {
+    color: "#ff8995",
+    fontSize: "13px",
     fontWeight: "800",
-    letterSpacing: "2px",
+    letterSpacing: "3px",
+    marginBottom: "12px",
   },
 
   titulo: {
-    fontSize: "46px",
-    margin: "10px 0 5px",
-  },
-
-  tituloH2: {
-    fontSize: "34px",
-    margin: "8px 0",
+    fontFamily:
+      "Georgia, 'Times New Roman', serif",
+    fontSize: "58px",
+    lineHeight: "1",
+    margin: "0",
+    color: "#fff5d7",
+    fontWeight: "500",
   },
 
   subtitulo: {
-    color: "#9b9ba3",
-    margin: 0,
+    marginTop: "15px",
+    marginBottom: "0",
+    color: "#bdbdc4",
     fontSize: "16px",
   },
 
-  verWeb: {
-    color: "#fff",
-    textDecoration: "none",
-    border: "1px solid #44444b",
-    padding: "12px 18px",
-    borderRadius: "10px",
-    fontSize: "13px",
-  },
-
-  botonMenu: {
-    width: "100%",
-    border: "0",
-    background: "transparent",
-    color: "#aaa",
-    padding: "14px 15px",
-    marginBottom: "5px",
-    borderRadius: "10px",
-    textAlign: "left",
-    cursor: "pointer",
-    fontSize: "15px",
-    display: "flex",
-    gap: "12px",
-    alignItems: "center",
-  },
-
-  botonActivo: {
-    background: "#ff3cac",
-    color: "#fff",
-    fontWeight: "700",
-  },
-
-  pieMenu: {
-    marginTop: "auto",
-    color: "#777",
+  etiquetaSeccion: {
+    color: "#ff8995",
     fontSize: "12px",
-    padding: "15px 10px",
+    fontWeight: "800",
+    letterSpacing: "3px",
+    marginBottom: "10px",
   },
 
   tituloSeccion: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "flex-end",
-    marginBottom: "25px",
+    fontFamily:
+      "Georgia, 'Times New Roman', serif",
+    fontSize: "42px",
+    fontWeight: "500",
+    color: "#fff5d7",
+    margin: "0 0 10px",
   },
 
   descripcionSeccion: {
-    color: "#888891",
-    margin: "5px 0 0",
-    fontSize: "14px",
+    color: "#a9a9b1",
+    fontSize: "15px",
+    marginTop: "0",
+    marginBottom: "30px",
   },
 
-  contador: {
-    background: "#222228",
-    color: "#ccc",
-    padding: "8px 13px",
-    borderRadius: "20px",
-    fontSize: "13px",
+  tarjetas: {
+    display: "grid",
+    gridTemplateColumns:
+      "repeat(auto-fit, minmax(190px, 1fr))",
+    gap: "18px",
   },
 
   tarjeta: {
-    background: "#111114",
+    background: "#18181d",
     border: "1px solid #29292f",
-    borderRadius: "16px",
-    overflow: "hidden",
+    borderRadius: "20px",
+    padding: "25px",
+    minHeight: "130px",
+    boxSizing: "border-box",
+  },
+
+  tarjetaIcono: {
+    fontSize: "25px",
+    marginBottom: "15px",
+  },
+
+  tarjetaNumero: {
+    color: "#fff5d7",
+    fontSize: "28px",
+    fontWeight: "700",
+  },
+
+  tarjetaTexto: {
+    color: "#92929a",
+    fontSize: "13px",
+    marginTop: "4px",
+  },
+
+  lista: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "12px",
   },
 
   fila: {
+    width: "100%",
+    background: "#18181d",
+    border: "1px solid #29292f",
+    borderRadius: "18px",
+    padding: "22px",
     display: "flex",
     alignItems: "center",
-    padding: "18px 22px",
-    borderBottom: "1px solid #29292f",
-  },
-
-  filaProfesor: {
-    display: "flex",
-    alignItems: "center",
-    padding: "20px 22px",
-    borderBottom: "1px solid #29292f",
-    gap: "15px",
-  },
-
-  filaHorario: {
-    display: "flex",
-    alignItems: "center",
-    padding: "20px 22px",
-    borderBottom: "1px solid #29292f",
-    gap: "15px",
+    gap: "20px",
+    boxSizing: "border-box",
   },
 
   numero: {
-    width: "45px",
-    color: "#ff3cac",
+    color: "#ff7f8c",
+    fontSize: "14px",
     fontWeight: "800",
+    width: "35px",
+    flexShrink: 0,
+  },
+
+  filaContenido: {
+    flex: 1,
+    minWidth: 0,
+  },
+
+  filaTitulo: {
+    color: "#fff5d7",
+    fontSize: "19px",
+    fontWeight: "700",
+    marginBottom: "6px",
+  },
+
+  filaDescripcion: {
+    color: "#aaaab2",
     fontSize: "13px",
-    flexShrink: 0,
+    lineHeight: "1.5",
   },
 
-  nombreActividad: {
-    flex: 1,
+  filaAcciones: {
     display: "flex",
-    flexDirection: "column",
-    gap: "5px",
-  },
-
-  horaHorario: {
-    width: "125px",
-    display: "flex",
-    flexDirection: "column",
-    gap: "4px",
-    flexShrink: 0,
-  },
-
-  infoHorario: {
-    flex: 1,
-    display: "flex",
-    flexDirection: "column",
-    gap: "5px",
-  },
-
-  estado: {
-    padding: "6px 10px",
-    borderRadius: "20px",
-    fontSize: "10px",
-    fontWeight: "800",
-    marginRight: "5px",
+    alignItems: "center",
+    gap: "12px",
     flexShrink: 0,
   },
 
   estadoActivo: {
-    background: "#143d2a",
-    color: "#54e59a",
-  },
-
-  estadoInactivo: {
-    background: "#3d2020",
-    color: "#ff8585",
+    background: "rgba(128, 220, 83, 0.12)",
+    color: "#9bea6b",
+    borderRadius: "30px",
+    padding: "7px 12px",
+    fontSize: "10px",
+    fontWeight: "800",
+    letterSpacing: "1px",
+    whiteSpace: "nowrap",
   },
 
   botonEditar: {
-    background: "#25252b",
-    color: "#fff",
-    border: "1px solid #55555e",
-    borderRadius: "8px",
-    padding: "10px 14px",
+    border: "1px solid #45454d",
+    background: "#222228",
+    color: "#ffffff",
+    borderRadius: "10px",
+    padding: "9px 14px",
     cursor: "pointer",
     fontSize: "12px",
     fontWeight: "700",
-    whiteSpace: "nowrap",
-    flexShrink: 0,
   },
 
-  botonEliminar: {
-    background: "#3b2025",
-    color: "#ff8585",
-    border: "1px solid #63343d",
-    borderRadius: "8px",
-    padding: "10px 12px",
-    cursor: "pointer",
+  chips: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "6px",
+    marginTop: "10px",
+  },
+
+  chip: {
+    background: "rgba(255, 128, 143, 0.12)",
+    color: "#ff9aa5",
+    borderRadius: "20px",
+    padding: "5px 9px",
+    fontSize: "11px",
+    fontWeight: "600",
+  },
+
+  sinActividades: {
+    display: "inline-block",
+    marginTop: "9px",
+    color: "#8d8d95",
     fontSize: "12px",
-    flexShrink: 0,
+    fontStyle: "italic",
   },
 
-  edicion: {
-    padding: "25px",
-    borderBottom: "1px solid #29292f",
-    background: "#151519",
-  },
-
-  tituloEdicion: {
-    margin: "8px 0 20px",
-    fontSize: "22px",
-  },
-
-  anadir: {
-    marginTop: "25px",
-    padding: "25px",
-    background: "#151519",
-    borderRadius: "16px",
+  vacio: {
+    background: "#18181d",
     border: "1px solid #29292f",
+    borderRadius: "20px",
+    padding: "45px 30px",
+    textAlign: "center",
+    color: "#92929a",
   },
 
-  tituloAnadir: {
-    margin: "8px 0 20px",
-    fontSize: "22px",
+  vacioIcono: {
+    fontSize: "32px",
+    marginBottom: "12px",
   },
 
-  formulario: {
+  vacioTitulo: {
+    color: "#fff5d7",
+    fontSize: "18px",
+    fontWeight: "700",
+    marginBottom: "7px",
+  },
+
+  vacioTexto: {
+    fontSize: "13px",
+    color: "#85858d",
+  },
+
+  editor: {
+    background: "#18181d",
+    border: "1px solid #393941",
+    borderRadius: "20px",
+    padding: "25px",
+    boxSizing: "border-box",
+  },
+
+  editorCabecera: {
     display: "flex",
+    alignItems: "center",
     gap: "10px",
+    marginBottom: "25px",
   },
 
-  formularioVertical: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "16px",
-    maxWidth: "800px",
-  },
-
-  gridFormulario: {
-    display: "grid",
-    gridTemplateColumns:
-      "repeat(auto-fit, minmax(200px, 1fr))",
-    gap: "15px",
+  editorTitulo: {
+    color: "#fff5d7",
+    fontSize: "20px",
+    fontWeight: "700",
   },
 
   label: {
     display: "block",
-    color: "#aaa",
-    fontSize: "10px",
-    fontWeight: "800",
-    letterSpacing: "1.5px",
+    color: "#c7c7cd",
+    fontSize: "12px",
+    fontWeight: "700",
     marginBottom: "7px",
+    marginTop: "15px",
   },
 
   input: {
     width: "100%",
     boxSizing: "border-box",
-    background: "#09090b",
-    color: "#fff",
-    border: "1px solid #3a3a42",
-    borderRadius: "9px",
-    padding: "13px",
-    fontSize: "15px",
+    background: "#101014",
+    border: "1px solid #393941",
+    borderRadius: "10px",
+    padding: "12px",
+    color: "#ffffff",
     outline: "none",
+    fontSize: "14px",
   },
 
   textarea: {
     width: "100%",
     boxSizing: "border-box",
-    background: "#09090b",
-    color: "#fff",
-    border: "1px solid #3a3a42",
-    borderRadius: "9px",
-    padding: "13px",
-    fontSize: "15px",
-    resize: "vertical",
+    background: "#101014",
+    border: "1px solid #393941",
+    borderRadius: "10px",
+    padding: "12px",
+    color: "#ffffff",
     outline: "none",
+    fontSize: "14px",
+    resize: "vertical",
+    fontFamily: "Arial, Helvetica, sans-serif",
   },
 
-  etiqueta: {
-    color: "#aaa",
-    fontSize: "11px",
-    fontWeight: "800",
-    letterSpacing: "1px",
-    marginBottom: "10px",
+  actividadesChecks: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "8px",
+    marginTop: "10px",
   },
 
-  checkGrid: {
-    display: "grid",
-    gridTemplateColumns:
-      "repeat(auto-fit, minmax(190px, 1fr))",
-    gap: "9px",
-  },
-
-  checkbox: {
+  check: {
     display: "flex",
     alignItems: "center",
-    gap: "9px",
-    padding: "12px",
-    border: "1px solid #34343b",
-    borderRadius: "9px",
-    color: "#aaa",
+    gap: "7px",
+    padding: "9px 12px",
+    borderRadius: "10px",
+    border: "1px solid #393941",
+    background: "#101014",
+    color: "#bdbdc4",
+    fontSize: "12px",
     cursor: "pointer",
-    fontSize: "13px",
   },
 
-  checkboxSeleccionada: {
-    border: "1px solid #ff3cac",
-    background: "#261322",
-    color: "#fff",
+  checkActivo: {
+    borderColor: "#ff8794",
+    color: "#ffffff",
+    background:
+      "rgba(255, 127, 140, 0.12)",
   },
 
-  botonAnadir: {
-    background: "#ff3cac",
-    color: "#fff",
-    border: "0",
-    borderRadius: "9px",
-    padding: "13px 22px",
-    fontWeight: "700",
-    cursor: "pointer",
-    alignSelf: "flex-start",
-  },
-
-  botonesEdicion: {
+  botonesEditor: {
     display: "flex",
+    justifyContent: "flex-end",
     gap: "10px",
+    marginTop: "25px",
   },
 
   botonCancelar: {
+    border: "1px solid #45454d",
     background: "transparent",
-    color: "#aaa",
-    border: "1px solid #414149",
-    borderRadius: "9px",
-    padding: "13px 22px",
-    fontWeight: "700",
-    cursor: "pointer",
-  },
-
-  mensaje: {
-    padding: "13px 16px",
+    color: "#c4c4ca",
     borderRadius: "10px",
-    marginBottom: "20px",
-    fontSize: "13px",
+    padding: "11px 18px",
+    cursor: "pointer",
+    fontWeight: "600",
   },
 
-  mensajeCorrecto: {
-    background: "#143d2a",
-    color: "#54e59a",
-  },
-
-  mensajeError: {
-    background: "#3d2020",
-    color: "#ff8585",
-  },
-
-  cargando: {
-    padding: "45px",
-    textAlign: "center",
-    color: "#888891",
-  },
-
-  vacio: {
-    padding: "55px 25px",
-    textAlign: "center",
-    color: "#888891",
-  },
-
-  iconoVacio: {
-    fontSize: "45px",
-    marginBottom: "10px",
-  },
-
-  proximamente: {
-    textAlign: "center",
-    padding: "100px 20px",
-    background: "#111114",
-    borderRadius: "20px",
-    border: "1px solid #29292f",
-    color: "#888891",
-  },
-
-  iconoGrande: {
-    fontSize: "55px",
-    marginBottom: "15px",
+  botonGuardar: {
+    border: "0",
+    background:
+      "linear-gradient(135deg, #ff7d8b, #ff9aaa)",
+    color: "#ffffff",
+    borderRadius: "10px",
+    padding: "11px 20px",
+    cursor: "pointer",
+    fontWeight: "700",
   },
 };
