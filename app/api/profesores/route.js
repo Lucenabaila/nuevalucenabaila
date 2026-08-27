@@ -231,9 +231,39 @@ export async function POST(request) {
     );
 
 
-  } catch (error) {
+ } catch (error) {
 
+  try {
     await connection.rollback();
+  } catch (rollbackError) {
+    console.error(
+      "Error haciendo rollback:",
+      rollbackError
+    );
+  }
+
+  connection.release();
+
+  console.error(
+    "ERROR REAL ACTUALIZANDO PROFESOR:",
+    error
+  );
+
+  return Response.json(
+    {
+      correcto: false,
+      mensaje:
+        "Error actualizando profesor",
+      error: error.message,
+      codigo: error.code || null,
+      errno: error.errno || null,
+      sqlMessage: error.sqlMessage || null,
+    },
+    {
+      status: 500,
+    }
+  );
+}
 
     connection.release();
 
