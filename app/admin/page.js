@@ -756,6 +756,829 @@ function ProfesorFila({
   );
 }
 
+function Horarios({
+  actividades,
+  profesores,
+}) {
+  const [horarios, setHorarios] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [guardando, setGuardando] = useState(false);
+  const [editando, setEditando] = useState(null);
+
+  const horarioInicial = {
+    actividadId: "",
+    dia: "Lunes",
+    horaInicio: "",
+    horaFin: "",
+    nivel: "",
+    profesorIds: [],
+    orden: 0,
+  };
+
+  const [formulario, setFormulario] =
+    useState(horarioInicial);
+
+  const dias = [
+    "Lunes",
+    "Martes",
+    "Miércoles",
+    "Jueves",
+    "Viernes",
+    "Sábado",
+    "Domingo",
+  ];
+
+
+  async function cargarHorarios() {
+    try {
+      setCargando(true);
+
+      const respuesta = await fetch(
+        "/api/horarios",
+        {
+          cache: "no-store",
+        }
+      );
+
+      const datos =
+        await respuesta.json();
+
+      if (datos.correcto) {
+        setHorarios(
+          datos.horarios || []
+        );
+      } else {
+        alert(
+          datos.mensaje ||
+          "No se pudieron cargar los horarios."
+        );
+      }
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert(
+        "Error cargando los horarios."
+      );
+
+    } finally {
+
+      setCargando(false);
+
+    }
+  }
+
+
+  useEffect(() => {
+    cargarHorarios();
+  }, []);
+
+
+  function cambiarProfesor(id) {
+
+    setFormulario((actual) => {
+
+      const existe =
+        actual.profesorIds.includes(id);
+
+      return {
+        ...actual,
+
+        profesorIds: existe
+          ? actual.profesorIds.filter(
+              (profesorId) =>
+                profesorId !== id
+            )
+          : [
+              ...actual.profesorIds,
+              id,
+            ],
+      };
+
+    });
+
+  }
+
+
+  async function guardarHorario(event) {
+
+    event.preventDefault();
+
+    if (!formulario.actividadId) {
+      alert(
+        "Selecciona una actividad."
+      );
+      return;
+    }
+
+    if (
+      !formulario.horaInicio ||
+      !formulario.horaFin
+    ) {
+      alert(
+        "Indica la hora de inicio y de fin."
+      );
+      return;
+    }
+
+    try {
+
+      setGuardando(true);
+
+      const metodo =
+        editando ? "PUT" : "POST";
+
+      const cuerpo = {
+        ...formulario,
+        ...(editando
+          ? { id: editando.id }
+          : {}),
+      };
+
+      const respuesta =
+        await fetch(
+          "/api/horarios",
+          {
+            method: metodo,
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+            body:
+              JSON.stringify(cuerpo),
+          }
+        );
+
+      const datos =
+        await respuesta.json();
+
+      if (
+        !respuesta.ok ||
+        !datos.correcto
+      ) {
+
+        alert(
+          datos.mensaje ||
+          "No se pudo guardar el horario."
+        );
+
+        return;
+      }
+
+      setFormulario(
+        horarioInicial
+      );
+
+      setEditando(null);
+
+      await cargarHorarios();
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert(
+        "Error guardando el horario."
+      );
+
+    } finally {
+
+      setGuardando(false);
+
+    }
+
+  }
+
+
+  function editarHorario(horario) {
+
+    setEditando(horario);
+
+    setFormulario({
+      actividadId:
+        horario.actividad_id,
+      dia:
+        horario.dia,
+      horaInicio:
+        String(
+          horario.hora_inicio
+        ).slice(0, 5),
+      horaFin:
+        String(
+          horario.hora_fin
+        ).slice(0, 5),
+      nivel:
+        horario.nivel || "",
+      profesorIds:
+        horario.profesor_ids || [],
+      orden:
+        horario.orden || 0,
+    });
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+
+  }
+
+
+  async function eliminarHorario(id) {
+
+    const confirmar =
+      window.confirm(
+        "¿Seguro que quieres eliminar este horario?"
+      );
+
+    if (!confirmar) {
+      return;
+    }
+
+    try {
+
+      setGuardando(true);
+
+      const respuesta =
+        await fetch(
+          "/api/horarios",
+          {
+            method: "DELETE",
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+            body:
+              JSON.stringify({ id }),
+          }
+        );
+
+      const datos =
+        await respuesta.json();
+
+      if (
+        !respuesta.ok ||
+        !datos.correcto
+      ) {
+
+        alert(
+          datos.mensaje ||
+          "No se pudo eliminar."
+        );
+
+        return;
+      }
+
+      await cargarHorarios();
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert(
+        "Error eliminando el horario."
+      );
+
+    } finally {
+
+      setGuardando(false);
+
+    }
+
+  }
+
+
+  function cancelarEdicion() {
+
+    setEditando(null);
+
+    setFormulario(
+      horarioInicial
+    );
+
+  }
+
+
+  function nombreActividad(id) {
+
+    const actividad =
+      actividades.find(
+        (item) =>
+          item.id === id
+      );
+
+    return actividad
+      ? actividad.nombre
+      : "Actividad";
+  }
+
+
+  function nombresProfesores(ids) {
+
+    return ids
+      .map((id) => {
+
+        const profesor =
+          profesores.find(
+            (item) =>
+              item.id === id
+          );
+
+        return profesor
+          ? profesor.nombre
+          : null;
+
+      })
+      .filter(Boolean)
+      .join(" · ");
+
+  }
+
+
+  return (
+    <div>
+
+      <div style={estilos.etiquetaSeccion}>
+        HORARIOS
+      </div>
+
+      <h2 style={estilos.tituloSeccion}>
+        Horarios
+      </h2>
+
+      <p style={estilos.descripcionSeccion}>
+        Organiza las clases semanales de la escuela.
+      </p>
+
+
+      {/* =================================================
+          FORMULARIO
+      ================================================= */}
+
+      <div style={estilos.editor}>
+
+        <div style={estilos.editorTitulo}>
+          {editando
+            ? "Editar horario"
+            : "Añadir nuevo horario"}
+        </div>
+
+
+        <form
+          onSubmit={guardarHorario}
+        >
+
+          <label style={estilos.label}>
+            Actividad
+          </label>
+
+          <select
+            value={
+              formulario.actividadId
+            }
+            onChange={(event) =>
+              setFormulario({
+                ...formulario,
+                actividadId:
+                  Number(
+                    event.target.value
+                  ),
+              })
+            }
+            style={estilos.input}
+            disabled={guardando}
+          >
+
+            <option value="">
+              Selecciona una actividad
+            </option>
+
+            {actividades.map(
+              (actividad) => (
+
+                <option
+                  key={actividad.id}
+                  value={actividad.id}
+                >
+                  {actividad.nombre}
+                </option>
+
+              )
+            )}
+
+          </select>
+
+
+          <label style={estilos.label}>
+            Día
+          </label>
+
+          <select
+            value={formulario.dia}
+            onChange={(event) =>
+              setFormulario({
+                ...formulario,
+                dia:
+                  event.target.value,
+              })
+            }
+            style={estilos.input}
+            disabled={guardando}
+          >
+
+            {dias.map((dia) => (
+
+              <option
+                key={dia}
+                value={dia}
+              >
+                {dia}
+              </option>
+
+            ))}
+
+          </select>
+
+
+          <label style={estilos.label}>
+            Hora de inicio
+          </label>
+
+          <input
+            type="time"
+            value={
+              formulario.horaInicio
+            }
+            onChange={(event) =>
+              setFormulario({
+                ...formulario,
+                horaInicio:
+                  event.target.value,
+              })
+            }
+            style={estilos.input}
+            disabled={guardando}
+          />
+
+
+          <label style={estilos.label}>
+            Hora de fin
+          </label>
+
+          <input
+            type="time"
+            value={
+              formulario.horaFin
+            }
+            onChange={(event) =>
+              setFormulario({
+                ...formulario,
+                horaFin:
+                  event.target.value,
+              })
+            }
+            style={estilos.input}
+            disabled={guardando}
+          />
+
+
+          <label style={estilos.label}>
+            Nivel / grupo
+          </label>
+
+          <input
+            type="text"
+            value={
+              formulario.nivel
+            }
+            onChange={(event) =>
+              setFormulario({
+                ...formulario,
+                nivel:
+                  event.target.value,
+              })
+            }
+            placeholder="Ej.: Inicial"
+            style={estilos.input}
+            disabled={guardando}
+          />
+
+
+          <label style={estilos.label}>
+            Profesores
+          </label>
+
+          <div
+            style={
+              estilos.actividadesChecks
+            }
+          >
+
+            {profesores.map(
+              (profesor) => {
+
+                const seleccionado =
+                  formulario.profesorIds.includes(
+                    profesor.id
+                  );
+
+                return (
+
+                  <label
+                    key={profesor.id}
+                    style={{
+                      ...estilos.check,
+                      ...(seleccionado
+                        ? estilos.checkActivo
+                        : {}),
+                    }}
+                  >
+
+                    <input
+                      type="checkbox"
+                      checked={
+                        seleccionado
+                      }
+                      onChange={() =>
+                        cambiarProfesor(
+                          profesor.id
+                        )
+                      }
+                    />
+
+                    {profesor.nombre}
+
+                  </label>
+
+                );
+
+              }
+            )}
+
+          </div>
+
+
+          <div
+            style={
+              estilos.botonesEditor
+            }
+          >
+
+            {editando && (
+
+              <button
+                type="button"
+                onClick={
+                  cancelarEdicion
+                }
+                style={
+                  estilos.botonCancelar
+                }
+                disabled={guardando}
+              >
+                Cancelar
+              </button>
+
+            )}
+
+
+            <button
+              type="submit"
+              style={
+                estilos.botonGuardar
+              }
+              disabled={guardando}
+            >
+              {guardando
+                ? "Guardando..."
+                : editando
+                ? "Guardar cambios"
+                : "Añadir horario"}
+            </button>
+
+          </div>
+
+        </form>
+
+      </div>
+
+
+      {/* =================================================
+          LISTADO
+      ================================================= */}
+
+      <div
+        style={{
+          marginTop: "30px",
+        }}
+      >
+
+        <div style={estilos.etiquetaSeccion}>
+          HORARIOS CREADOS
+        </div>
+
+
+        {cargando ? (
+
+          <div style={estilos.vacio}>
+            Cargando horarios...
+          </div>
+
+        ) : horarios.length === 0 ? (
+
+          <div style={estilos.vacio}>
+
+            <div
+              style={
+                estilos.vacioIcono
+              }
+            >
+              🕐
+            </div>
+
+            <div
+              style={
+                estilos.vacioTitulo
+              }
+            >
+              No hay horarios todavía.
+            </div>
+
+            <div
+              style={
+                estilos.vacioTexto
+              }
+            >
+              Añade el primer horario
+              utilizando el formulario.
+            </div>
+
+          </div>
+
+        ) : (
+
+          <div style={estilos.lista}>
+
+            {horarios.map(
+              (horario, indice) => (
+
+                <div
+                  key={horario.id}
+                  style={estilos.fila}
+                >
+
+                  <div
+                    style={
+                      estilos.numero
+                    }
+                  >
+                    {String(
+                      indice + 1
+                    ).padStart(
+                      2,
+                      "0"
+                    )}
+                  </div>
+
+
+                  <div
+                    style={
+                      estilos.filaContenido
+                    }
+                  >
+
+                    <div
+                      style={
+                        estilos.filaTitulo
+                      }
+                    >
+                      {horario.dia}
+                      {" · "}
+                      {String(
+                        horario.hora_inicio
+                      ).slice(0, 5)}
+                      {" - "}
+                      {String(
+                        horario.hora_fin
+                      ).slice(0, 5)}
+                    </div>
+
+
+                    <div
+                      style={
+                        estilos.filaDescripcion
+                      }
+                    >
+                      {nombreActividad(
+                        horario.actividad_id
+                      )}
+
+                      {horario.nivel
+                        ? ` · ${horario.nivel}`
+                        : ""}
+                    </div>
+
+
+                    <div
+                      style={
+                        estilos.chips
+                      }
+                    >
+
+                      {horario.profesor_ids &&
+                      horario.profesor_ids.length >
+                        0 ? (
+
+                        <span
+                          style={
+                            estilos.chip
+                          }
+                        >
+                          👤{" "}
+                          {nombresProfesores(
+                            horario.profesor_ids
+                          )}
+                        </span>
+
+                      ) : (
+
+                        <span
+                          style={
+                            estilos.sinActividades
+                          }
+                        >
+                          Sin profesor asignado
+                        </span>
+
+                      )}
+
+                    </div>
+
+                  </div>
+
+
+                  <div
+                    style={
+                      estilos.filaAcciones
+                    }
+                  >
+
+                    <span
+                      style={
+                        estilos.estadoActivo
+                      }
+                    >
+                      ACTIVO
+                    </span>
+
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        editarHorario(
+                          horario
+                        )
+                      }
+                      style={
+                        estilos.botonEditar
+                      }
+                    >
+                      Editar
+                    </button>
+
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        eliminarHorario(
+                          horario.id
+                        )
+                      }
+                      style={{
+                        ...estilos.botonEditar,
+                        color: "#ff8995",
+                      }}
+                      disabled={guardando}
+                    >
+                      Eliminar
+                    </button>
+
+                  </div>
+
+                </div>
+
+              )
+            )}
+
+          </div>
+
+        )}
+
+      </div>
+
+    </div>
+  );
+}
 
 /* =========================================================
    SECCIONES FUTURAS
