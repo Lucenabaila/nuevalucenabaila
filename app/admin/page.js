@@ -1899,6 +1899,24 @@ function ProfesorFila({
       profesor.descripcion || ""
     );
 
+  // =======================================================
+  // FOTO
+  // =======================================================
+
+  const [foto, setFoto] =
+    useState(
+      profesor.foto || ""
+    );
+
+  const [vistaPrevia, setVistaPrevia] =
+    useState(
+      profesor.foto || ""
+    );
+
+  const [subiendoFoto, setSubiendoFoto] =
+    useState(false);
+
+
   const [
     actividadesSeleccionadas,
     setActividadesSeleccionadas,
@@ -1906,6 +1924,10 @@ function ProfesorFila({
     profesor.actividad_ids || []
   );
 
+
+  // =======================================================
+  // CAMBIAR ACTIVIDAD
+  // =======================================================
 
   function cambiarActividad(id) {
 
@@ -1935,7 +1957,201 @@ function ProfesorFila({
   }
 
 
+  // =======================================================
+  // SUBIR FOTO
+  // =======================================================
+
+  async function subirFoto(event) {
+
+    const archivo =
+      event.target.files?.[0];
+
+
+    if (!archivo) {
+      return;
+    }
+
+
+    const tiposPermitidos = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/gif",
+    ];
+
+
+    if (
+      !tiposPermitidos.includes(
+        archivo.type
+      )
+    ) {
+
+      alert(
+        "La fotografía debe ser JPG, PNG, WEBP o GIF."
+      );
+
+      event.target.value = "";
+
+      return;
+
+    }
+
+
+    if (
+      archivo.size >
+      10 * 1024 * 1024
+    ) {
+
+      alert(
+        "La fotografía no puede superar los 10 MB."
+      );
+
+      event.target.value = "";
+
+      return;
+
+    }
+
+
+    const preview =
+      URL.createObjectURL(
+        archivo
+      );
+
+
+    setVistaPrevia(
+      preview
+    );
+
+
+    try {
+
+      setSubiendoFoto(true);
+
+
+      const formData =
+        new FormData();
+
+
+      formData.append(
+        "foto",
+        archivo
+      );
+
+
+      const respuesta =
+        await fetch(
+          "/api/profesores-imagen",
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+
+
+      const datos =
+        await respuesta.json();
+
+
+      if (
+        !respuesta.ok ||
+        !datos.correcto
+      ) {
+
+        console.error(
+          "Error subiendo fotografía:",
+          datos
+        );
+
+
+        setVistaPrevia(
+          foto || ""
+        );
+
+
+        alert(
+          datos.mensaje ||
+          "No se pudo subir la fotografía."
+        );
+
+
+        return;
+
+      }
+
+
+      const nuevaFoto =
+        datos.ruta ||
+        datos.foto ||
+        "";
+
+
+      setFoto(
+        nuevaFoto
+      );
+
+      setVistaPrevia(
+        nuevaFoto
+      );
+
+
+    } catch (error) {
+
+      console.error(
+        "Error subiendo fotografía:",
+        error
+      );
+
+
+      setVistaPrevia(
+        foto || ""
+      );
+
+
+      alert(
+        "Ha ocurrido un error al subir la fotografía."
+      );
+
+
+    } finally {
+
+      setSubiendoFoto(false);
+
+      event.target.value = "";
+
+    }
+
+  }
+
+
+  // =======================================================
+  // QUITAR FOTO
+  // =======================================================
+
+  function quitarFoto() {
+
+    setFoto("");
+    setVistaPrevia("");
+
+  }
+
+
+  // =======================================================
+  // GUARDAR CAMBIOS
+  // =======================================================
+
   async function guardarCambios() {
+
+    if (subiendoFoto) {
+
+      alert(
+        "Espera a que termine de subir la fotografía."
+      );
+
+      return;
+
+    }
+
 
     try {
 
@@ -1964,6 +2180,9 @@ function ProfesorFila({
 
                 descripcion:
                   descripcion.trim(),
+
+                foto:
+                  foto || null,
 
                 actividadIds:
                   actividadesSeleccionadas,
@@ -2047,6 +2266,10 @@ function ProfesorFila({
   }
 
 
+  // =======================================================
+  // CAMBIAR ESTADO
+  // =======================================================
+
   async function cambiarEstadoProfesor() {
 
     try {
@@ -2076,6 +2299,9 @@ function ProfesorFila({
 
                 descripcion:
                   profesor.descripcion || "",
+
+                foto:
+                  profesor.foto || null,
 
                 actividadIds:
                   profesor.actividad_ids || [],
@@ -2139,6 +2365,10 @@ function ProfesorFila({
 
   }
 
+
+  // =======================================================
+  // ELIMINAR PROFESOR
+  // =======================================================
 
   async function eliminarProfesor() {
 
@@ -2225,6 +2455,10 @@ function ProfesorFila({
   }
 
 
+  // =======================================================
+  // MODO EDICIÓN
+  // =======================================================
+
   if (editando) {
 
     return (
@@ -2250,6 +2484,10 @@ function ProfesorFila({
         </div>
 
 
+        {/* ===============================================
+            NOMBRE
+        =============================================== */}
+
         <label style={estilos.label}>
           Nombre
         </label>
@@ -2263,8 +2501,16 @@ function ProfesorFila({
             )
           }
           style={estilos.input}
+          disabled={
+            guardando ||
+            subiendoFoto
+          }
         />
 
+
+        {/* ===============================================
+            DESCRIPCIÓN
+        =============================================== */}
 
         <label style={estilos.label}>
           Descripción
@@ -2280,8 +2526,248 @@ function ProfesorFila({
           }
           style={estilos.textarea}
           rows={3}
+          disabled={
+            guardando ||
+            subiendoFoto
+          }
         />
 
+
+        {/* ===============================================
+            FOTO
+        =============================================== */}
+
+        <label style={estilos.label}>
+          Fotografía del profesor
+        </label>
+
+
+        <div
+          style={{
+            border:
+              "1px dashed rgba(255,255,255,0.18)",
+            borderRadius:
+              "16px",
+            padding:
+              "18px",
+            marginBottom:
+              "20px",
+          }}
+        >
+
+          {vistaPrevia ? (
+
+            <div
+              style={{
+                display:
+                  "flex",
+                alignItems:
+                  "center",
+                gap:
+                  "18px",
+                flexWrap:
+                  "wrap",
+              }}
+            >
+
+              <img
+                src={vistaPrevia}
+                alt={
+                  `Foto de ${nombre}`
+                }
+                style={{
+                  width:
+                    "130px",
+                  height:
+                    "130px",
+                  objectFit:
+                    "cover",
+                  borderRadius:
+                    "16px",
+                  display:
+                    "block",
+                }}
+              />
+
+
+              <div>
+
+                <div
+                  style={{
+                    color:
+                      "#ffffff",
+                    fontWeight:
+                      "700",
+                    marginBottom:
+                      "8px",
+                  }}
+                >
+                  Fotografía del profesor
+                </div>
+
+
+                {subiendoFoto && (
+
+                  <div
+                    style={{
+                      color:
+                        "#ff9aa5",
+                      fontSize:
+                        "13px",
+                      marginBottom:
+                        "12px",
+                    }}
+                  >
+                    📤 Subiendo fotografía...
+                  </div>
+
+                )}
+
+
+                {!subiendoFoto && (
+
+                  <div
+                    style={{
+                      color:
+                        "#9ff0b2",
+                      fontSize:
+                        "13px",
+                      marginBottom:
+                        "12px",
+                    }}
+                  >
+                    ✓ Fotografía lista
+                  </div>
+
+                )}
+
+
+                <div
+                  style={{
+                    display:
+                      "flex",
+                    gap:
+                      "10px",
+                    flexWrap:
+                      "wrap",
+                  }}
+                >
+
+                  <label
+                    style={{
+                      ...estilos.botonNuevo,
+                      display:
+                        "inline-flex",
+                      cursor:
+                        "pointer",
+                      fontSize:
+                        "12px",
+                    }}
+                  >
+
+                    Cambiar fotografía
+
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/gif"
+                      onChange={
+                        subirFoto
+                      }
+                      style={{
+                        display:
+                          "none",
+                      }}
+                      disabled={
+                        guardando ||
+                        subiendoFoto
+                      }
+                    />
+
+                  </label>
+
+
+                  <button
+                    type="button"
+                    onClick={
+                      quitarFoto
+                    }
+                    style={{
+                      ...estilos.botonCancelar,
+                      fontSize:
+                        "12px",
+                    }}
+                    disabled={
+                      guardando ||
+                      subiendoFoto
+                    }
+                  >
+                    Quitar fotografía
+                  </button>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          ) : (
+
+            <div>
+
+              <div
+                style={{
+                  color:
+                    "rgba(255,255,255,0.65)",
+                  fontSize:
+                    "13px",
+                  marginBottom:
+                    "14px",
+                }}
+              >
+                Este profesor no tiene fotografía.
+              </div>
+
+
+              <label
+                style={{
+                  ...estilos.botonNuevo,
+                  display:
+                    "inline-flex",
+                  cursor:
+                    "pointer",
+                }}
+              >
+
+                📷 Seleccionar fotografía
+
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  onChange={
+                    subirFoto
+                  }
+                  style={{
+                    display:
+                      "none",
+                  }}
+                  disabled={
+                    guardando ||
+                    subiendoFoto
+                  }
+                />
+
+              </label>
+
+            </div>
+
+          )}
+
+        </div>
+
+
+        {/* ===============================================
+            ACTIVIDADES
+        =============================================== */}
 
         <label style={estilos.label}>
           Actividades que imparte
@@ -2327,6 +2813,10 @@ function ProfesorFila({
                         actividad.id
                       )
                     }
+                    disabled={
+                      guardando ||
+                      subiendoFoto
+                    }
                   />
 
 
@@ -2344,6 +2834,10 @@ function ProfesorFila({
         </div>
 
 
+        {/* ===============================================
+            BOTONES
+        =============================================== */}
+
         <div
           style={
             estilos.botonesEditor
@@ -2358,7 +2852,10 @@ function ProfesorFila({
             style={
               estilos.botonCancelar
             }
-            disabled={guardando}
+            disabled={
+              guardando ||
+              subiendoFoto
+            }
           >
             Cancelar
           </button>
@@ -2372,9 +2869,14 @@ function ProfesorFila({
             style={
               estilos.botonGuardar
             }
-            disabled={guardando}
+            disabled={
+              guardando ||
+              subiendoFoto
+            }
           >
-            {guardando
+            {subiendoFoto
+              ? "Subiendo fotografía..."
+              : guardando
               ? "Guardando..."
               : "Guardar cambios"}
           </button>
@@ -2388,6 +2890,10 @@ function ProfesorFila({
   }
 
 
+  // =======================================================
+  // VISTA NORMAL
+  // =======================================================
+
   return (
 
     <div style={estilos.fila}>
@@ -2399,6 +2905,69 @@ function ProfesorFila({
           2,
           "0"
         )}
+      </div>
+
+
+      {/* FOTO PEQUEÑA */}
+      <div
+        style={{
+          width:
+            "58px",
+          height:
+            "58px",
+          borderRadius:
+            "12px",
+          overflow:
+            "hidden",
+          flexShrink:
+            0,
+          background:
+            "rgba(255,255,255,0.06)",
+          display:
+            "flex",
+          alignItems:
+            "center",
+          justifyContent:
+            "center",
+          marginRight:
+            "16px",
+        }}
+      >
+
+        {profesor.foto ? (
+
+          <img
+            src={
+              profesor.foto
+            }
+            alt={
+              profesor.nombre
+            }
+            style={{
+              width:
+                "100%",
+              height:
+                "100%",
+              objectFit:
+                "cover",
+            }}
+          />
+
+        ) : (
+
+          <span
+            style={{
+              fontSize:
+                "22px",
+              opacity:
+                0.45,
+            }}
+          >
+            👤
+          </span>
+
+        )}
+
       </div>
 
 
@@ -2497,8 +3066,10 @@ function ProfesorFila({
           }
           style={{
             ...estilos.estadoActivo,
-            border: "0",
-            cursor: "pointer",
+            border:
+              "0",
+            cursor:
+              "pointer",
           }}
           disabled={
             guardando
@@ -2537,7 +3108,8 @@ function ProfesorFila({
           }
           style={{
             ...estilos.botonEditar,
-            color: "#ff8995",
+            color:
+              "#ff8995",
           }}
           disabled={
             guardando
