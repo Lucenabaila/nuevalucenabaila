@@ -19,7 +19,7 @@ export default function AdminPage() {
       const [respuestaProfesores, respuestaActividades] =
         await Promise.all([
           fetch("/api/profesores", { cache: "no-store" }),
-          fetch("/api/actividades", { cache: "no-store" }),
+          fetch("/api/actividades?admin=true", { cache: "no-store" }),
         ]);
 
       const datosProfesores = await respuestaProfesores.json();
