@@ -3285,7 +3285,6 @@ function Galeria() {
   const galeriaInicial = {
     titulo: "",
     descripcion: "",
-    imagen: "",
     activa: true,
     orden: 0,
   };
@@ -3533,25 +3532,21 @@ function Galeria() {
 
       const cuerpo = {
 
-        titulo:
-          formulario.titulo.trim(),
+  titulo:
+    formulario.titulo.trim(),
 
-        descripcion:
-          formulario.descripcion.trim(),
+  descripcion:
+    formulario.descripcion.trim(),
 
-        imagen:
-          formulario.imagen.trim(),
+  activa:
+    formulario.activa,
 
-        activa:
-          formulario.activa,
+  orden:
+    Number(
+      formulario.orden
+    ) || 0,
 
-        orden:
-          Number(
-            formulario.orden
-          ) || 0,
-
-      };
-
+};
 
       if (editando) {
 
