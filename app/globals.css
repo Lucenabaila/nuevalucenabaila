@@ -1,12 +1,14 @@
 :root {
-  --ink: #17151b;
-  --muted: #716c76;
-  --paper: #fbf8f5;
-  --soft: #f0e8e2;
-  --accent: #c56a54;
-  --accent-dark: #8e3e32;
-  --line: #ddd4ce;
-  --white: #fff;
+  --ink: #0d0b10;
+  --muted: #6f6872;
+  --paper: #fff9fc;
+  --soft: #f8e8f1;
+  --accent: #e83d8c;
+  --accent-dark: #b91663;
+  --line: #ead5df;
+  --white: #ffffff;
+  --pink-light: #fdebf4;
+  --pink-dark: #8f174f;
 }
 
 * {
@@ -36,7 +38,6 @@ a {
 
 .nav {
   height: 78px;
-
   padding: 0 6vw;
 
   display: flex;
@@ -49,29 +50,23 @@ a {
   top: 0;
   z-index: 10;
 
-  background: rgba(251, 248, 245, 0.94);
+  background: rgba(255, 249, 252, 0.94);
 
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(14px);
 }
-
-
-/* ---------------------------------------------------------
-   MARCA
---------------------------------------------------------- */
 
 .brand {
   display: flex;
   align-items: center;
-
   gap: 10px;
 
   font-size: 19px;
-
   letter-spacing: -0.5px;
 }
 
 .brand strong {
   font-weight: 800;
+  color: var(--accent);
 }
 
 .brand-mark {
@@ -88,16 +83,13 @@ a {
   font-size: 12px;
 
   transform: rotate(-5deg);
+
+  box-shadow:
+    4px 4px 0 var(--accent);
 }
-
-
-/* ---------------------------------------------------------
-   MENÚ
---------------------------------------------------------- */
 
 nav {
   display: flex;
-
   gap: 28px;
 
   font-size: 14px;
@@ -106,40 +98,60 @@ nav {
 }
 
 nav a {
-  transition:
-    color 0.2s ease;
+  position: relative;
+  transition: color 0.2s ease;
 }
 
-nav a:hover,
-.text-link:hover {
-  color: var(--accent-dark);
+nav a::after {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  bottom: -7px;
+
+  width: 0;
+  height: 2px;
+
+  background: var(--accent);
+
+  transition: width 0.2s ease;
 }
 
+nav a:hover {
+  color: var(--accent);
+}
 
-/* ---------------------------------------------------------
-   BOTÓN CABECERA
---------------------------------------------------------- */
+nav a:hover::after {
+  width: 100%;
+}
 
 .nav-cta {
-  border: 1px solid var(--ink);
-
   padding: 11px 17px;
 
+  border: 1px solid var(--accent);
+
+  background: var(--accent);
+
+  color: var(--white);
+
   font-size: 13px;
+  font-weight: 700;
 
   transition:
     background 0.2s ease,
-    color 0.2s ease;
+    transform 0.2s ease;
 }
 
 .nav-cta:hover {
-  background: var(--ink);
-  color: var(--white);
+  background: var(--accent-dark);
+
+  transform: translateY(-2px);
 }
 
 
 /* =========================================================
-   HERO — PORTADA
+   HERO
 ========================================================= */
 
 .hero {
@@ -162,30 +174,23 @@ nav a:hover,
 
   background:
     radial-gradient(
-      circle at 72% 35%,
-      rgba(197, 106, 84, 0.16),
-      transparent 35%
+      circle at 70% 30%,
+      rgba(232, 61, 140, 0.13),
+      transparent 34%
     ),
     var(--paper);
 
   overflow: hidden;
 }
 
-
-/* ---------------------------------------------------------
-   TEXTO DEL HERO
---------------------------------------------------------- */
-
 .hero-copy {
   position: relative;
-
   z-index: 2;
 }
 
 .hero-copy .eyebrow {
   color: var(--accent-dark);
 }
-
 
 .hero-copy h1 {
   font-family:
@@ -214,14 +219,8 @@ nav a:hover,
 
 .hero-copy h1 em {
   color: var(--accent);
-
   font-style: italic;
 }
-
-
-/* ---------------------------------------------------------
-   TEXTO DESCRIPTIVO
---------------------------------------------------------- */
 
 .hero-text {
   max-width: 500px;
@@ -235,11 +234,6 @@ nav a:hover,
   margin: 0;
 }
 
-
-/* ---------------------------------------------------------
-   BOTONES HERO
---------------------------------------------------------- */
-
 .hero-actions {
   display: flex;
 
@@ -252,7 +246,7 @@ nav a:hover,
 
 
 /* =========================================================
-   BOTONES GENERALES
+   BOTONES
 ========================================================= */
 
 .button {
@@ -277,7 +271,8 @@ nav a:hover,
 
   transition:
     transform 0.2s ease,
-    background 0.2s ease;
+    background 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .button:hover {
@@ -285,36 +280,55 @@ nav a:hover,
 }
 
 .primary {
-  background: var(--ink);
+  background: var(--accent);
 
   color: var(--white);
+
+  box-shadow:
+    4px 4px 0 var(--ink);
 }
 
 .primary:hover {
   background: var(--accent-dark);
+
+  box-shadow:
+    2px 2px 0 var(--ink);
 }
 
 .secondary {
-  border: 1px solid var(--line);
+  border:
+    1px solid
+    var(--ink);
 
-  background: transparent;
+  background:
+    transparent;
 
-  color: var(--ink);
+  color:
+    var(--ink);
 }
 
 .secondary:hover {
-  background: var(--white);
+  background:
+    var(--ink);
+
+  color:
+    var(--white);
 }
 
 .light {
-  background: var(--white);
+  background:
+    var(--white);
 
-  color: var(--ink);
+  color:
+    var(--ink);
+
+  box-shadow:
+    4px 4px 0 rgba(13, 11, 16, 0.25);
 }
 
 
 /* =========================================================
-   IMAGEN PRINCIPAL DEL HERO
+   FOTO HERO
 ========================================================= */
 
 .hero-art {
@@ -324,15 +338,15 @@ nav a:hover,
 
   overflow: hidden;
 
-  background: #160d12;
+  background:
+    #160d12;
 
   isolation: isolate;
+
+  box-shadow:
+    12px 12px 0
+    rgba(232, 61, 140, 0.20);
 }
-
-
-/* ---------------------------------------------------------
-   FOTO
---------------------------------------------------------- */
 
 .hero-image {
   position: absolute;
@@ -354,17 +368,9 @@ nav a:hover,
     transform 0.6s ease;
 }
 
-
-/* Pequeño movimiento al pasar el ratón */
-
 .hero-art:hover .hero-image {
   transform: scale(1.025);
 }
-
-
-/* ---------------------------------------------------------
-   CAPA OSCURA
---------------------------------------------------------- */
 
 .hero-overlay {
   position: absolute;
@@ -376,21 +382,16 @@ nav a:hover,
   background:
     linear-gradient(
       90deg,
-      rgba(18, 10, 15, 0.42),
-      rgba(18, 10, 15, 0.04) 55%,
-      rgba(18, 10, 15, 0.28)
+      rgba(13, 8, 14, 0.48),
+      rgba(13, 8, 14, 0.04) 55%,
+      rgba(13, 8, 14, 0.30)
     ),
     linear-gradient(
       0deg,
-      rgba(18, 10, 15, 0.48),
-      transparent 45%
+      rgba(13, 8, 14, 0.52),
+      transparent 48%
     );
 }
-
-
-/* ---------------------------------------------------------
-   EFECTO DECORATIVO
---------------------------------------------------------- */
 
 .hero-art::before {
   content: "";
@@ -407,21 +408,17 @@ nav a:hover,
     linear-gradient(
       140deg,
       transparent 30%,
-      rgba(255, 255, 255, 0.09),
+      rgba(255, 255, 255, 0.10),
       transparent 65%
     );
 
-  transform: rotate(12deg);
+  transform:
+    rotate(12deg);
 
   z-index: 2;
 
   pointer-events: none;
 }
-
-
-/* =========================================================
-   STICKER HERO
-========================================================= */
 
 .hero-sticker {
   position: absolute;
@@ -434,9 +431,11 @@ nav a:hover,
 
   border-radius: 50%;
 
-  background: var(--accent);
+  background:
+    var(--accent);
 
-  color: var(--white);
+  color:
+    var(--white);
 
   display: grid;
 
@@ -450,7 +449,8 @@ nav a:hover,
 
   line-height: 0.9;
 
-  transform: rotate(8deg);
+  transform:
+    rotate(8deg);
 
   z-index: 3;
 
@@ -458,7 +458,7 @@ nav a:hover,
     0
     12px
     35px
-    rgba(0, 0, 0, 0.25);
+    rgba(0, 0, 0, 0.30);
 }
 
 .hero-sticker span {
@@ -466,11 +466,6 @@ nav a:hover,
 
   letter-spacing: 1px;
 }
-
-
-/* ---------------------------------------------------------
-   TEXTO INFERIOR DE LA FOTO
---------------------------------------------------------- */
 
 .hero-photo-note {
   position: absolute;
@@ -492,7 +487,7 @@ nav a:hover,
 
 
 /* =========================================================
-   SECCIONES GENERALES
+   SECCIONES
 ========================================================= */
 
 .section {
@@ -500,11 +495,6 @@ nav a:hover,
     110px
     6vw;
 }
-
-
-/* ---------------------------------------------------------
-   CABECERA DE SECCIÓN
---------------------------------------------------------- */
 
 .section-head {
   display: flex;
@@ -518,11 +508,6 @@ nav a:hover,
   margin-bottom: 42px;
 }
 
-
-/* ---------------------------------------------------------
-   TIPOGRAFÍA
---------------------------------------------------------- */
-
 .eyebrow {
   font-size: 11px;
 
@@ -530,7 +515,8 @@ nav a:hover,
 
   font-weight: 800;
 
-  color: var(--accent-dark);
+  color:
+    var(--accent-dark);
 
   margin:
     0
@@ -564,7 +550,8 @@ h2 {
 }
 
 h2 em {
-  color: var(--accent);
+  color:
+    var(--accent);
 
   font-style: italic;
 }
@@ -572,7 +559,8 @@ h2 em {
 .section-head > p {
   max-width: 390px;
 
-  color: var(--muted);
+  color:
+    var(--muted);
 
   line-height: 1.7;
 
@@ -581,7 +569,7 @@ h2 em {
 
 
 /* =========================================================
-   ACTIVIDADES / CARDS
+   ACTIVIDADES
 ========================================================= */
 
 .cards {
@@ -595,31 +583,48 @@ h2 em {
 
   gap: 1px;
 
-  background: var(--line);
+  background:
+    var(--line);
 
-  border: 1px solid var(--line);
+  border:
+    1px solid
+    var(--line);
 }
 
 .card {
-  background: var(--paper);
+  background:
+    var(--paper);
 
-  padding: 30px;
+  padding:
+    30px;
 
-  min-height: 250px;
+  min-height:
+    250px;
 
   transition:
     transform 0.2s,
-    background 0.2s;
+    background 0.2s,
+    box-shadow 0.2s;
 }
 
 .card:hover {
-  transform: translateY(-5px);
+  transform:
+    translateY(-5px);
 
-  background: var(--white);
+  background:
+    var(--white);
+
+  box-shadow:
+    inset
+    0
+    3px
+    0
+    var(--accent);
 }
 
 .card-icon {
-  font-size: 28px;
+  font-size:
+    28px;
 }
 
 .card h3 {
@@ -628,27 +633,41 @@ h2 em {
     0
     9px;
 
-  font-size: 21px;
+  font-size:
+    21px;
 }
 
 .card p {
-  color: var(--muted);
+  color:
+    var(--muted);
 
-  line-height: 1.6;
+  line-height:
+    1.6;
 
-  font-size: 14px;
+  font-size:
+    14px;
 }
 
 .card a {
-  display: inline-block;
+  display:
+    inline-block;
 
-  margin-top: 12px;
+  margin-top:
+    12px;
 
-  font-size: 12px;
+  font-size:
+    12px;
 
-  font-weight: 800;
+  font-weight:
+    800;
 
-  color: var(--accent-dark);
+  color:
+    var(--accent-dark);
+}
+
+.card a:hover {
+  color:
+    var(--accent);
 }
 
 
@@ -657,17 +676,37 @@ h2 em {
 ========================================================= */
 
 .schedule-section {
-  background: var(--soft);
+  background:
+    var(--ink);
+
+  color:
+    var(--white);
+}
+
+.schedule-section .eyebrow {
+  color:
+    var(--accent);
+}
+
+.schedule-section h2 {
+  color:
+    var(--white);
+}
+
+.schedule-section .section-head > p {
+  color:
+    rgba(255, 255, 255, 0.65);
 }
 
 .schedule {
   border-top:
     1px solid
-    var(--ink);
+    rgba(255, 255, 255, 0.35);
 }
 
 .schedule-row {
-  display: grid;
+  display:
+    grid;
 
   grid-template-columns:
     1fr
@@ -675,7 +714,8 @@ h2 em {
     1.4fr
     1fr;
 
-  gap: 20px;
+  gap:
+    20px;
 
   padding:
     22px
@@ -683,28 +723,44 @@ h2 em {
 
   border-bottom:
     1px solid
-    rgba(
-      23,
-      21,
-      27,
-      0.16
-    );
+    rgba(255, 255, 255, 0.14);
 
-  font-size: 14px;
+  font-size:
+    14px;
+
+  transition:
+    background 0.2s ease;
 }
 
-.time {
-  font-weight: 800;
+.schedule-row:hover {
+  background:
+    rgba(232, 61, 140, 0.08);
 }
 
-.level {
-  color: var(--muted);
+.schedule-section .time {
+  color:
+    var(--accent);
+
+  font-weight:
+    800;
+}
+
+.schedule-section .level {
+  color:
+    rgba(255, 255, 255, 0.60);
 }
 
 .text-link {
-  font-size: 13px;
+  font-size:
+    13px;
 
-  font-weight: 800;
+  font-weight:
+    800;
+}
+
+.schedule-section .text-link {
+  color:
+    var(--accent);
 }
 
 
@@ -712,8 +768,19 @@ h2 em {
    PROFESORES
 ========================================================= */
 
+#profesores {
+  background:
+    var(--paper);
+}
+
 #profesores .card {
-  overflow: hidden;
+  overflow:
+    hidden;
+
+  padding:
+    0
+    0
+    30px;
 }
 
 #profesores .card img {
@@ -722,7 +789,24 @@ h2 em {
 }
 
 #profesores .card:hover img {
-  transform: scale(1.03);
+  transform:
+    scale(1.03);
+}
+
+#profesores .card h3,
+#profesores .card p,
+#profesores .card a,
+#profesores .card > div:not(:first-child) {
+  margin-left:
+    30px;
+
+  margin-right:
+    30px;
+}
+
+#profesores .card h3 {
+  margin-top:
+    0;
 }
 
 
@@ -731,40 +815,53 @@ h2 em {
 ========================================================= */
 
 .story {
-  display: grid;
+  display:
+    grid;
 
   grid-template-columns:
     1.1fr
     0.9fr;
 
-  min-height: 650px;
+  min-height:
+    650px;
 }
 
 .story-image {
-  min-height: 650px;
+  min-height:
+    650px;
 
-  position: relative;
+  position:
+    relative;
 
-  overflow: hidden;
+  overflow:
+    hidden;
 
   background:
     linear-gradient(
       135deg,
-      #55443f,
-      #bd7863
+      #1a1118,
+      #c62d76
     );
 }
 
 .story-image::before {
-  content: "";
+  content:
+    "";
 
-  position: absolute;
+  position:
+    absolute;
 
-  width: 70%;
-  height: 120%;
+  width:
+    70%;
 
-  left: 12%;
-  top: -10%;
+  height:
+    120%;
+
+  left:
+    12%;
+
+  top:
+    -10%;
 
   background:
     rgba(
@@ -779,10 +876,14 @@ h2 em {
 }
 
 .story-image span {
-  position: absolute;
+  position:
+    absolute;
 
-  left: 24px;
-  bottom: 24px;
+  left:
+    24px;
+
+  bottom:
+    24px;
 
   color:
     rgba(
@@ -792,9 +893,11 @@ h2 em {
       0.78
     );
 
-  font-size: 11px;
+  font-size:
+    11px;
 
-  letter-spacing: 2px;
+  letter-spacing:
+    2px;
 }
 
 .story-copy {
@@ -802,25 +905,36 @@ h2 em {
     9vw
     7vw;
 
-  display: flex;
+  display:
+    flex;
 
-  flex-direction: column;
+  flex-direction:
+    column;
 
-  align-items: flex-start;
+  align-items:
+    flex-start;
 
-  justify-content: center;
+  justify-content:
+    center;
+
+  background:
+    var(--white);
 }
 
 .story-copy p:not(.eyebrow) {
-  max-width: 500px;
+  max-width:
+    500px;
 
-  color: var(--muted);
+  color:
+    var(--muted);
 
-  line-height: 1.75;
+  line-height:
+    1.75;
 }
 
 .story-copy .button {
-  margin-top: 18px;
+  margin-top:
+    18px;
 }
 
 
@@ -833,11 +947,14 @@ h2 em {
     130px
     6vw;
 
-  text-align: center;
+  text-align:
+    center;
 
-  background: var(--accent);
+  background:
+    var(--accent);
 
-  color: var(--white);
+  color:
+    var(--white);
 }
 
 .banner .eyebrow {
@@ -846,7 +963,7 @@ h2 em {
       255,
       255,
       255,
-      0.75
+      0.78
     );
 }
 
@@ -858,7 +975,8 @@ h2 em {
       110px
     );
 
-  line-height: 0.85;
+  line-height:
+    0.85;
 
   margin:
     0
@@ -867,7 +985,8 @@ h2 em {
 }
 
 .banner h2 em {
-  color: var(--white);
+  color:
+    var(--white);
 }
 
 
@@ -876,89 +995,115 @@ h2 em {
 ========================================================= */
 
 .contact {
-  display: grid;
+  display:
+    grid;
 
   grid-template-columns:
     1fr
     1fr;
 
-  gap: 8vw;
+  gap:
+    8vw;
 
-  align-items: center;
+  align-items:
+    center;
 }
 
 .contact > div > p:not(.eyebrow) {
-  color: var(--muted);
+  color:
+    var(--muted);
 
-  line-height: 1.7;
+  line-height:
+    1.7;
 
-  max-width: 470px;
+  max-width:
+    470px;
 }
 
-
-/* ---------------------------------------------------------
-   FORMULARIO
---------------------------------------------------------- */
-
 .form {
-  display: grid;
+  display:
+    grid;
 
-  gap: 12px;
+  gap:
+    12px;
 }
 
 .form input,
 .form select {
-  width: 100%;
+  width:
+    100%;
 
-  height: 52px;
+  height:
+    52px;
 
   border:
     1px solid
     var(--line);
 
-  background: var(--white);
+  background:
+    var(--white);
 
   padding:
     0
     15px;
 
-  font: inherit;
+  font:
+    inherit;
 
-  color: var(--ink);
+  color:
+    var(--ink);
 }
 
 .form input:focus,
 .form select:focus {
-  outline: none;
+  outline:
+    none;
 
   border-color:
     var(--accent);
+
+  box-shadow:
+    0
+    0
+    0
+    3px
+    rgba(
+      232,
+      61,
+      140,
+      0.10
+    );
 }
 
 .form button {
-  width: 100%;
+  width:
+    100%;
 }
 
 
 /* =========================================================
-   MENSAJES VACÍOS
+   MENSAJES
 ========================================================= */
 
 .vacio-web {
   padding:
     35px;
 
-  text-align: center;
+  text-align:
+    center;
 
-  color: var(--muted);
+  color:
+    var(--muted);
 
   border:
     1px solid
     var(--line);
 
-  background: var(--white);
+  background:
+    var(--white);
 
-  font-size: 14px;
+  font-size:
+    14px;
 }
 
 
@@ -975,19 +1120,28 @@ footer {
     1px solid
     var(--line);
 
-  display: flex;
+  display:
+    flex;
 
-  align-items: center;
+  align-items:
+    center;
 
-  justify-content: space-between;
+  justify-content:
+    space-between;
 
-  color: var(--muted);
+  color:
+    var(--muted);
 
-  font-size: 12px;
+  font-size:
+    12px;
+
+  background:
+    #fff;
 }
 
 .footer-brand {
-  color: var(--ink);
+  color:
+    var(--ink);
 }
 
 
@@ -1003,11 +1157,10 @@ footer {
       5vw;
   }
 
-
   nav {
-    display: none;
+    display:
+      none;
   }
-
 
   .nav-cta {
     padding:
@@ -1019,23 +1172,27 @@ footer {
   /* HERO */
 
   .hero {
-    grid-template-columns: 1fr;
+    grid-template-columns:
+      1fr;
 
-    padding-top: 65px;
+    padding-top:
+      65px;
 
-    gap: 45px;
+    gap:
+      45px;
   }
-
 
   .hero-copy {
-    max-width: 720px;
+    max-width:
+      720px;
   }
 
-
   .hero-art {
-    min-height: 520px;
+    min-height:
+      520px;
 
-    width: 100%;
+    width:
+      100%;
   }
 
 
@@ -1052,14 +1209,14 @@ footer {
 
   .story,
   .contact {
-    grid-template-columns: 1fr;
+    grid-template-columns:
+      1fr;
   }
-
 
   .story-image {
-    min-height: 480px;
+    min-height:
+      480px;
   }
-
 
   .story-copy {
     padding:
@@ -1077,30 +1234,34 @@ footer {
 @media (max-width: 560px) {
 
   .nav {
-    height: 68px;
+    height:
+      68px;
   }
-
 
   .brand {
-    font-size: 16px;
+    font-size:
+      16px;
   }
-
 
   .brand-mark {
-    width: 32px;
-    height: 32px;
+    width:
+      32px;
+
+    height:
+      32px;
   }
 
-
   .nav-cta {
-    font-size: 11px;
+    font-size:
+      11px;
   }
 
 
   /* HERO */
 
   .hero {
-    min-height: auto;
+    min-height:
+      auto;
 
     padding:
       65px
@@ -1108,32 +1269,39 @@ footer {
       65px;
   }
 
-
   .hero-copy h1 {
-    font-size: 65px;
+    font-size:
+      65px;
 
-    letter-spacing: -3px;
+    letter-spacing:
+      -3px;
   }
-
 
   .hero-text {
-    font-size: 15px;
+    font-size:
+      15px;
   }
-
 
   .hero-art {
-    min-height: 430px;
+    min-height:
+      430px;
   }
 
-
   .hero-sticker {
-    width: 90px;
-    height: 90px;
+    width:
+      90px;
 
-    right: 18px;
-    top: 18px;
+    height:
+      90px;
 
-    font-size: 15px;
+    right:
+      18px;
+
+    top:
+      18px;
+
+    font-size:
+      15px;
   }
 
 
@@ -1145,21 +1313,22 @@ footer {
       5vw;
   }
 
-
   .section-head {
-    display: block;
+    display:
+      block;
   }
 
-
   .section-head > p {
-    margin-top: 20px;
+    margin-top:
+      20px;
   }
 
 
   /* CARDS */
 
   .cards {
-    grid-template-columns: 1fr;
+    grid-template-columns:
+      1fr;
   }
 
 
@@ -1170,25 +1339,34 @@ footer {
       1fr
       1fr;
 
-    gap: 9px;
+    gap:
+      9px;
   }
-
 
   .schedule-row span:nth-child(3) {
     grid-column:
       1 / -1;
   }
 
-
   .schedule-row .level {
-    text-align: right;
+    text-align:
+      right;
+  }
+
+
+  /* PROFESORES */
+
+  #profesores .card {
+    padding-bottom:
+      25px;
   }
 
 
   /* ESCUELA */
 
   .story-image {
-    min-height: 380px;
+    min-height:
+      380px;
   }
 
 
@@ -1204,16 +1382,17 @@ footer {
   /* CONTACTO */
 
   .contact {
-    gap: 45px;
+    gap:
+      45px;
   }
 
 
   /* FOOTER */
 
   footer {
-    display: block;
+    display:
+      block;
   }
-
 
   footer p {
     margin:
