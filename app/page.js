@@ -12,21 +12,15 @@ function obtenerIcono(nombre = "") {
   const texto =
     nombre.toLowerCase();
 
-  if (
-    texto.includes("salsa")
-  ) {
+  if (texto.includes("salsa")) {
     return "💃";
   }
 
-  if (
-    texto.includes("bachata")
-  ) {
+  if (texto.includes("bachata")) {
     return "🔥";
   }
 
-  if (
-    texto.includes("ballet")
-  ) {
+  if (texto.includes("ballet")) {
     return "🩰";
   }
 
@@ -53,9 +47,7 @@ function obtenerIcono(nombre = "") {
     return "🌸";
   }
 
-  if (
-    texto.includes("ladies")
-  ) {
+  if (texto.includes("ladies")) {
     return "💫";
   }
 
@@ -77,6 +69,11 @@ export default function Home() {
   const [
     horarios,
     setHorarios,
+  ] = useState([]);
+
+  const [
+    profesores,
+    setProfesores,
   ] = useState([]);
 
   const [
@@ -113,6 +110,7 @@ export default function Home() {
         const [
           respuestaActividades,
           respuestaHorarios,
+          respuestaProfesores,
         ] = await Promise.all([
 
           fetch(
@@ -124,6 +122,13 @@ export default function Home() {
 
           fetch(
             "/api/horarios",
+            {
+              cache: "no-store",
+            }
+          ),
+
+          fetch(
+            "/api/profesores",
             {
               cache: "no-store",
             }
@@ -154,12 +159,30 @@ export default function Home() {
         }
 
 
-        const datosActividades =
-          await respuestaActividades.json();
+        if (
+          !respuestaProfesores.ok
+        ) {
+
+          throw new Error(
+            "No se pudieron cargar los profesores."
+          );
+
+        }
 
 
-        const datosHorarios =
-          await respuestaHorarios.json();
+        const [
+          datosActividades,
+          datosHorarios,
+          datosProfesores,
+        ] = await Promise.all([
+
+          respuestaActividades.json(),
+
+          respuestaHorarios.json(),
+
+          respuestaProfesores.json(),
+
+        ]);
 
 
         if (
@@ -186,6 +209,18 @@ export default function Home() {
         }
 
 
+        if (
+          !datosProfesores.correcto
+        ) {
+
+          throw new Error(
+            datosProfesores.mensaje ||
+            "Error cargando profesores."
+          );
+
+        }
+
+
         setActividades(
           Array.isArray(
             datosActividades.actividades
@@ -200,6 +235,15 @@ export default function Home() {
             datosHorarios.horarios
           )
             ? datosHorarios.horarios
+            : []
+        );
+
+
+        setProfesores(
+          Array.isArray(
+            datosProfesores.profesores
+          )
+            ? datosProfesores.profesores
             : []
         );
 
@@ -265,6 +309,43 @@ export default function Home() {
 
 
   // =======================================================
+  // OBTENER NOMBRES DE PROFESORES
+  // =======================================================
+
+  function obtenerProfesoresHorario(
+    horario
+  ) {
+
+    if (
+      !Array.isArray(
+        horario.profesor_ids
+      )
+    ) {
+
+      return [];
+
+    }
+
+
+    return horario.profesor_ids
+      .map(
+        (profesorId) =>
+          profesores.find(
+            (profesor) =>
+              Number(
+                profesor.id
+              ) ===
+              Number(
+                profesorId
+              )
+          )
+      )
+      .filter(Boolean);
+
+  }
+
+
+  // =======================================================
   // FORMATO DE HORA
   // =======================================================
 
@@ -280,6 +361,43 @@ export default function Home() {
     return String(
       hora
     ).slice(0, 5);
+
+  }
+
+
+  // =======================================================
+  // ACTIVIDADES DE UN PROFESOR
+  // =======================================================
+
+  function obtenerActividadesProfesor(
+    profesor
+  ) {
+
+    if (
+      !Array.isArray(
+        profesor.actividad_ids
+      )
+    ) {
+
+      return [];
+
+    }
+
+
+    return profesor.actividad_ids
+      .map(
+        (actividadId) =>
+          actividades.find(
+            (actividad) =>
+              Number(
+                actividad.id
+              ) ===
+              Number(
+                actividadId
+              )
+          )
+      )
+      .filter(Boolean);
 
   }
 
