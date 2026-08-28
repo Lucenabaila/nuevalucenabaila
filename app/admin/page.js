@@ -1008,6 +1008,12 @@ function Profesores({
   const [descripcion, setDescripcion] =
     useState("");
 
+  const [foto, setFoto] =
+    useState("");
+
+  const [vistaPrevia, setVistaPrevia] =
+    useState("");
+
   const [
     actividadesSeleccionadas,
     setActividadesSeleccionadas,
@@ -1016,21 +1022,36 @@ function Profesores({
   const [guardando, setGuardando] =
     useState(false);
 
+  const [subiendoFoto, setSubiendoFoto] =
+    useState(false);
+
+
+  // =======================================================
+  // LIMPIAR FORMULARIO
+  // =======================================================
 
   function limpiarFormulario() {
 
     setNombre("");
     setDescripcion("");
+    setFoto("");
+    setVistaPrevia("");
     setActividadesSeleccionadas([]);
     setMostrandoFormulario(false);
 
   }
 
 
+  // =======================================================
+  // NUEVO PROFESOR
+  // =======================================================
+
   function nuevoProfesor() {
 
     setNombre("");
     setDescripcion("");
+    setFoto("");
+    setVistaPrevia("");
     setActividadesSeleccionadas([]);
     setMostrandoFormulario(true);
 
@@ -1042,70 +1063,109 @@ function Profesores({
   }
 
 
-  function cambiarActividadNuevoProfesor(id) {
+  // =======================================================
+  // SUBIR FOTO
+  // =======================================================
 
-    setActividadesSeleccionadas(
-      (actuales) => {
+  async function subirFoto(event) {
 
-        if (actuales.includes(id)) {
-
-          return actuales.filter(
-            (actividadId) =>
-              actividadId !== id
-          );
-
-        }
-
-        return [
-          ...actuales,
-          id,
-        ];
-
-      }
-    );
-
-  }
+    const archivo =
+      event.target.files?.[0];
 
 
-  async function guardarProfesor(event) {
-
-    event.preventDefault();
-
-    if (!nombre.trim()) {
-
-      alert(
-        "El nombre del profesor es obligatorio."
-      );
-
+    if (!archivo) {
       return;
     }
 
 
+    // -----------------------------------------------------
+    // COMPROBAR TIPO
+    // -----------------------------------------------------
+
+    const tiposPermitidos = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/gif",
+    ];
+
+
+    if (
+      !tiposPermitidos.includes(
+        archivo.type
+      )
+    ) {
+
+      alert(
+        "La fotografía debe ser JPG, PNG, WEBP o GIF."
+      );
+
+      event.target.value = "";
+
+      return;
+
+    }
+
+
+    // -----------------------------------------------------
+    // COMPROBAR TAMAÑO
+    // -----------------------------------------------------
+
+    if (
+      archivo.size >
+      10 * 1024 * 1024
+    ) {
+
+      alert(
+        "La fotografía no puede superar los 10 MB."
+      );
+
+      event.target.value = "";
+
+      return;
+
+    }
+
+
+    // -----------------------------------------------------
+    // VISTA PREVIA INMEDIATA
+    // -----------------------------------------------------
+
+    const preview =
+      URL.createObjectURL(
+        archivo
+      );
+
+    setVistaPrevia(
+      preview
+    );
+
+
+    // -----------------------------------------------------
+    // SUBIR AL SERVIDOR
+    // -----------------------------------------------------
+
     try {
 
-      setGuardando(true);
+      setSubiendoFoto(true);
+
+
+      const formData =
+        new FormData();
+
+
+      formData.append(
+        "foto",
+        archivo
+      );
 
 
       const respuesta =
         await fetch(
-          "/api/profesores",
+          "/api/profesores-imagen",
           {
             method: "POST",
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
-            body:
-              JSON.stringify({
-                nombre:
-                  nombre.trim(),
-
-                descripcion:
-                  descripcion.trim(),
-
-                actividadIds:
-                  actividadesSeleccionadas,
-              }),
+            body: formData,
           }
         );
 
@@ -1119,12 +1179,200 @@ function Profesores({
         !datos.correcto
       ) {
 
+        console.error(
+          "Error subiendo fotografía:",
+          datos
+        );
+
+
+        setFoto("");
+        setVistaPrevia("");
+
+
+        alert(
+          datos.mensaje ||
+          "No se pudo subir la fotografía."
+        );
+
+
+        return;
+
+      }
+
+
+      setFoto(
+        datos.ruta ||
+        datos.foto ||
+        ""
+      );
+
+
+    } catch (error) {
+
+      console.error(
+        "Error subiendo fotografía:",
+        error
+      );
+
+
+      setFoto("");
+      setVistaPrevia("");
+
+
+      alert(
+        "Ha ocurrido un error al subir la fotografía."
+      );
+
+
+    } finally {
+
+      setSubiendoFoto(false);
+
+      event.target.value = "";
+
+    }
+
+  }
+
+
+  // =======================================================
+  // QUITAR FOTO
+  // =======================================================
+
+  function quitarFoto() {
+
+    setFoto("");
+    setVistaPrevia("");
+
+  }
+
+
+  // =======================================================
+  // CAMBIAR ACTIVIDAD
+  // =======================================================
+
+  function cambiarActividadNuevoProfesor(id) {
+
+    setActividadesSeleccionadas(
+      (actuales) => {
+
+        if (
+          actuales.includes(id)
+        ) {
+
+          return actuales.filter(
+            (actividadId) =>
+              actividadId !== id
+          );
+
+        }
+
+
+        return [
+          ...actuales,
+          id,
+        ];
+
+      }
+    );
+
+  }
+
+
+  // =======================================================
+  // GUARDAR PROFESOR
+  // =======================================================
+
+  async function guardarProfesor(event) {
+
+    event.preventDefault();
+
+
+    if (!nombre.trim()) {
+
+      alert(
+        "El nombre del profesor es obligatorio."
+      );
+
+      return;
+
+    }
+
+
+    // No permitimos guardar mientras se está subiendo
+    // la fotografía.
+
+    if (subiendoFoto) {
+
+      alert(
+        "Espera a que termine de subir la fotografía."
+      );
+
+      return;
+
+    }
+
+
+    try {
+
+      setGuardando(true);
+
+
+      const respuesta =
+        await fetch(
+          "/api/profesores",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+
+                nombre:
+                  nombre.trim(),
+
+                descripcion:
+                  descripcion.trim(),
+
+                foto:
+                  foto || null,
+
+                actividadIds:
+                  actividadesSeleccionadas,
+
+              }),
+
+          }
+        );
+
+
+      const datos =
+        await respuesta.json();
+
+
+      if (
+        !respuesta.ok ||
+        !datos.correcto
+      ) {
+
+        console.error(
+          "Error creando profesor:",
+          datos
+        );
+
+
         alert(
           datos.mensaje ||
           "No se pudo crear el profesor."
         );
 
+
         return;
+
       }
 
 
@@ -1135,11 +1383,16 @@ function Profesores({
 
     } catch (error) {
 
-      console.error(error);
+      console.error(
+        "Error creando profesor:",
+        error
+      );
+
 
       alert(
         "Ha ocurrido un error al crear el profesor."
       );
+
 
     } finally {
 
@@ -1153,6 +1406,10 @@ function Profesores({
   return (
 
     <div>
+
+      {/* =================================================
+          CABECERA
+      ================================================= */}
 
       <div style={estilos.cabeceraSeccion}>
 
@@ -1184,6 +1441,10 @@ function Profesores({
       </div>
 
 
+      {/* =================================================
+          FORMULARIO NUEVO PROFESOR
+      ================================================= */}
+
       {mostrandoFormulario && (
 
         <div style={estilos.editor}>
@@ -1197,45 +1458,262 @@ function Profesores({
           </div>
 
 
-          <form onSubmit={guardarProfesor}>
+          <form
+            onSubmit={
+              guardarProfesor
+            }
+          >
+
+            {/* ===========================================
+                NOMBRE
+            =========================================== */}
 
             <label style={estilos.label}>
               Nombre
             </label>
 
+
             <input
               value={nombre}
               onChange={(e) =>
-                setNombre(e.target.value)
+                setNombre(
+                  e.target.value
+                )
               }
               placeholder="Ej.: Juárez"
               style={estilos.input}
-              disabled={guardando}
+              disabled={
+                guardando ||
+                subiendoFoto
+              }
             />
 
+
+            {/* ===========================================
+                DESCRIPCIÓN
+            =========================================== */}
 
             <label style={estilos.label}>
               Descripción
             </label>
 
+
             <textarea
               value={descripcion}
               onChange={(e) =>
-                setDescripcion(e.target.value)
+                setDescripcion(
+                  e.target.value
+                )
               }
               placeholder="Descripción del profesor"
               style={estilos.textarea}
               rows={3}
-              disabled={guardando}
+              disabled={
+                guardando ||
+                subiendoFoto
+              }
             />
 
+
+            {/* ===========================================
+                FOTOGRAFÍA
+            =========================================== */}
+
+            <label style={estilos.label}>
+              Fotografía del profesor
+            </label>
+
+
+            <div
+              style={{
+                border:
+                  "1px dashed rgba(255,255,255,0.18)",
+                borderRadius:
+                  "16px",
+                padding:
+                  "18px",
+                marginBottom:
+                  "20px",
+              }}
+            >
+
+              {vistaPrevia ? (
+
+                <div
+                  style={{
+                    display:
+                      "flex",
+                    alignItems:
+                      "center",
+                    gap:
+                      "18px",
+                    flexWrap:
+                      "wrap",
+                  }}
+                >
+
+                  <img
+                    src={vistaPrevia}
+                    alt="Vista previa"
+                    style={{
+                      width:
+                        "130px",
+                      height:
+                        "130px",
+                      objectFit:
+                        "cover",
+                      borderRadius:
+                        "16px",
+                      display:
+                        "block",
+                    }}
+                  />
+
+
+                  <div>
+
+                    <div
+                      style={{
+                        color:
+                          "#ffffff",
+                        fontWeight:
+                          "700",
+                        marginBottom:
+                          "8px",
+                      }}
+                    >
+                      Fotografía seleccionada
+                    </div>
+
+
+                    {subiendoFoto && (
+
+                      <div
+                        style={{
+                          color:
+                            "#ff9aa5",
+                          fontSize:
+                            "13px",
+                          marginBottom:
+                            "12px",
+                        }}
+                      >
+                        📤 Subiendo fotografía...
+                      </div>
+
+                    )}
+
+
+                    {!subiendoFoto &&
+                      foto && (
+
+                        <div
+                          style={{
+                            color:
+                              "#9ff0b2",
+                            fontSize:
+                              "13px",
+                            marginBottom:
+                              "12px",
+                          }}
+                        >
+                          ✓ Fotografía subida correctamente
+                        </div>
+
+                      )}
+
+
+                    <button
+                      type="button"
+                      onClick={
+                        quitarFoto
+                      }
+                      style={{
+                        ...estilos.botonCancelar,
+                        fontSize:
+                          "12px",
+                      }}
+                      disabled={
+                        guardando ||
+                        subiendoFoto
+                      }
+                    >
+                      Quitar fotografía
+                    </button>
+
+                  </div>
+
+                </div>
+
+              ) : (
+
+                <div>
+
+                  <div
+                    style={{
+                      color:
+                        "rgba(255,255,255,0.65)",
+                      fontSize:
+                        "13px",
+                      marginBottom:
+                        "14px",
+                    }}
+                  >
+                    Añade una fotografía del profesor.
+                  </div>
+
+
+                  <label
+                    style={{
+                      ...estilos.botonNuevo,
+                      display:
+                        "inline-flex",
+                      cursor:
+                        "pointer",
+                    }}
+                  >
+
+                    📷 Seleccionar fotografía
+
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/gif"
+                      onChange={
+                        subirFoto
+                      }
+                      style={{
+                        display:
+                          "none",
+                      }}
+                      disabled={
+                        guardando ||
+                        subiendoFoto
+                      }
+                    />
+
+                  </label>
+
+                </div>
+
+              )}
+
+            </div>
+
+
+            {/* ===========================================
+                ACTIVIDADES
+            =========================================== */}
 
             <label style={estilos.label}>
               Actividades que imparte
             </label>
 
 
-            <div style={estilos.actividadesChecks}>
+            <div
+              style={
+                estilos.actividadesChecks
+              }
+            >
 
               {actividades.map(
                 (actividad) => {
@@ -1249,7 +1727,9 @@ function Profesores({
                   return (
 
                     <label
-                      key={actividad.id}
+                      key={
+                        actividad.id
+                      }
                       style={{
                         ...estilos.check,
                         ...(seleccionada
@@ -1260,16 +1740,25 @@ function Profesores({
 
                       <input
                         type="checkbox"
-                        checked={seleccionada}
+                        checked={
+                          seleccionada
+                        }
                         onChange={() =>
                           cambiarActividadNuevoProfesor(
                             actividad.id
                           )
                         }
+                        disabled={
+                          guardando ||
+                          subiendoFoto
+                        }
                       />
 
+
                       <span>
-                        {actividad.nombre}
+                        {
+                          actividad.nombre
+                        }
                       </span>
 
                     </label>
@@ -1282,13 +1771,28 @@ function Profesores({
             </div>
 
 
-            <div style={estilos.botonesEditor}>
+            {/* ===========================================
+                BOTONES
+            =========================================== */}
+
+            <div
+              style={
+                estilos.botonesEditor
+              }
+            >
 
               <button
                 type="button"
-                onClick={limpiarFormulario}
-                style={estilos.botonCancelar}
-                disabled={guardando}
+                onClick={
+                  limpiarFormulario
+                }
+                style={
+                  estilos.botonCancelar
+                }
+                disabled={
+                  guardando ||
+                  subiendoFoto
+                }
               >
                 Cancelar
               </button>
@@ -1296,10 +1800,17 @@ function Profesores({
 
               <button
                 type="submit"
-                style={estilos.botonGuardar}
-                disabled={guardando}
+                style={
+                  estilos.botonGuardar
+                }
+                disabled={
+                  guardando ||
+                  subiendoFoto
+                }
               >
-                {guardando
+                {subiendoFoto
+                  ? "Subiendo fotografía..."
+                  : guardando
                   ? "Guardando..."
                   : "Crear profesor"}
               </button>
@@ -1312,6 +1823,10 @@ function Profesores({
 
       )}
 
+
+      {/* =================================================
+          LISTA DE PROFESORES
+      ================================================= */}
 
       <div style={estilos.lista}>
 
@@ -1327,11 +1842,21 @@ function Profesores({
             (profesor, indice) => (
 
               <ProfesorFila
-                key={profesor.id}
-                profesor={profesor}
-                indice={indice}
-                actividades={actividades}
-                recargar={recargar}
+                key={
+                  profesor.id
+                }
+                profesor={
+                  profesor
+                }
+                indice={
+                  indice
+                }
+                actividades={
+                  actividades
+                }
+                recargar={
+                  recargar
+                }
               />
 
             )
@@ -1342,9 +1867,10 @@ function Profesores({
       </div>
 
     </div>
-  );
-}
 
+  );
+
+}
 
 /* =========================================================
    FILA PROFESOR
