@@ -402,236 +402,410 @@ export default function Home() {
   }
 
 
-  // =======================================================
-  // RENDER
-  // =======================================================
+  // =========================================================
+// RENDER
+// =========================================================
 
-  return (
+return (
 
-    <main>
+  <main>
 
-      {/* =================================================
-          NAVEGACIÓN
-      ================================================= */}
+    {/* =================================================
+        NAVEGACIÓN
+    ================================================= */}
 
-      <header className="nav">
+    <header className="nav">
 
-        <a
-          className="brand"
-          href="#inicio"
-          aria-label="Lucena Baila"
-        >
+      <a
+        className="brand"
+        href="#inicio"
+        aria-label="Lucena Baila"
+      >
 
-          <span className="brand-mark">
-            LB
-          </span>
+        <span className="brand-mark">
+          LB
+        </span>
+
+        <span>
+          Lucena <strong>Baila</strong>
+        </span>
+
+      </a>
+
+
+      <nav>
+
+        <a href="#clases">
+          Clases
+        </a>
+
+        <a href="#horarios">
+          Horarios
+        </a>
+
+        <a href="#profesores">
+          Profesores
+        </a>
+
+        <a href="#escuela">
+          La escuela
+        </a>
+
+        <a href="#contacto">
+          Contacto
+        </a>
+
+      </nav>
+
+
+      <a
+        className="nav-cta"
+        href="#contacto"
+      >
+        Prueba una clase
+      </a>
+
+    </header>
+
+
+    {/* =================================================
+        HERO
+    ================================================= */}
+
+    <section
+      id="inicio"
+      className="hero"
+    >
+
+      <div className="hero-copy">
+
+        <p className="eyebrow">
+          ESCUELA DE BAILE · LUCENA
+        </p>
+
+
+        <h1>
+          Baila.
+          <br />
+          <em>Disfruta.</em>
+          <br />
+          Conecta.
+        </h1>
+
+
+        <p className="hero-text">
+          Un espacio para aprender,
+          compartir y vivir el baile.
+          Encuentra tu estilo, conoce
+          a tu gente y empieza a moverte.
+        </p>
+
+
+        <div className="hero-actions">
+
+          <a
+            className="button primary"
+            href="#clases"
+          >
+            Ver actividades
+          </a>
+
+
+          <a
+            className="button secondary"
+            href="#contacto"
+          >
+            Quiero probar una clase
+          </a>
+
+        </div>
+
+      </div>
+
+
+      <div
+        className="hero-art"
+        aria-label="Espacio reservado para fotografía principal"
+      >
+
+        <div className="hero-photo-note">
+          TU FOTO PRINCIPAL AQUÍ
+        </div>
+
+
+        <div className="hero-sticker">
+
+          BAILA
+
+          <br />
 
           <span>
-            Lucena <strong>Baila</strong>
+            CON NOSOTROS
           </span>
 
-        </a>
+        </div>
+
+      </div>
+
+    </section>
 
 
-        <nav>
+    {/* =================================================
+        ACTIVIDADES
+    ================================================= */}
 
-          <a href="#clases">
-            Clases
-          </a>
+    <section
+      id="clases"
+      className="section"
+    >
 
-          <a href="#horarios">
+      <div className="section-head">
+
+        <div>
+
+          <p className="eyebrow">
+            ENCUENTRA TU ESTILO
+          </p>
+
+
+          <h2>
+            Clases para <em>todos</em>
+          </h2>
+
+        </div>
+
+
+        <p>
+          Desde tus primeros pasos
+          hasta perfeccionar tu técnica.
+          Aquí hay un lugar para ti.
+        </p>
+
+      </div>
+
+
+      {cargando ? (
+
+        <div className="vacio-web">
+          Cargando actividades...
+        </div>
+
+      ) : actividades.length === 0 ? (
+
+        <div className="vacio-web">
+          Actualmente no hay actividades
+          disponibles.
+        </div>
+
+      ) : (
+
+        <div className="cards">
+
+          {actividades.map(
+            (actividad) => (
+
+              <article
+                className="card"
+                key={
+                  actividad.id
+                }
+              >
+
+                <span className="card-icon">
+                  {obtenerIcono(
+                    actividad.nombre
+                  )}
+                </span>
+
+
+                <h3>
+                  {actividad.nombre}
+                </h3>
+
+
+                <p>
+
+                  {actividad.descripcion ||
+                    "Descubre esta actividad y disfruta del baile con nosotros."}
+
+                </p>
+
+
+                <a href="#contacto">
+                  Más información →
+                </a>
+
+              </article>
+
+            )
+          )}
+
+        </div>
+
+      )}
+
+    </section>
+
+
+    {/* =================================================
+        HORARIOS
+    ================================================= */}
+
+    <section
+      id="horarios"
+      className="section schedule-section"
+    >
+
+      <div className="section-head">
+
+        <div>
+
+          <p className="eyebrow">
+            ORGANIZA TU SEMANA
+          </p>
+
+
+          <h2>
             Horarios
-          </a>
+          </h2>
 
-          <a href="#escuela">
-            La escuela
-          </a>
-
-          <a href="#contacto">
-            Contacto
-          </a>
-
-        </nav>
+        </div>
 
 
         <a
-          className="nav-cta"
+          className="text-link"
           href="#contacto"
         >
-          Prueba una clase
+          Consultar todos →
         </a>
 
-      </header>
+      </div>
 
 
-      {/* =================================================
-          HERO
-      ================================================= */}
+      {/* FILTRO DE ACTIVIDADES */}
 
-      <section
-        id="inicio"
-        className="hero"
-      >
+      {!cargando &&
+        actividades.length > 0 && (
 
-        <div className="hero-copy">
+          <div
+            style={{
+              display:
+                "flex",
+              flexWrap:
+                "wrap",
+              gap:
+                "10px",
+              marginBottom:
+                "30px",
+            }}
+          >
 
-          <p className="eyebrow">
-            ESCUELA DE BAILE · LUCENA
-          </p>
+            <button
+              type="button"
+              onClick={() =>
+                setFiltroActividad(
+                  "todas"
+                )
+              }
+              style={{
+                padding:
+                  "10px 16px",
 
+                border:
+                  filtroActividad ===
+                  "todas"
+                    ? "1px solid var(--ink)"
+                    : "1px solid var(--line)",
 
-          <h1>
-            Baila.
-            <br />
-            <em>Disfruta.</em>
-            <br />
-            Conecta.
-          </h1>
+                background:
+                  filtroActividad ===
+                  "todas"
+                    ? "var(--ink)"
+                    : "var(--white)",
 
+                color:
+                  filtroActividad ===
+                  "todas"
+                    ? "var(--white)"
+                    : "var(--ink)",
 
-          <p className="hero-text">
-            Un espacio para aprender,
-            compartir y vivir el baile.
-            Encuentra tu estilo, conoce
-            a tu gente y empieza a moverte.
-          </p>
+                cursor:
+                  "pointer",
 
+                fontSize:
+                  "12px",
 
-          <div className="hero-actions">
-
-            <a
-              className="button primary"
-              href="#clases"
+                fontWeight:
+                  "700",
+              }}
             >
-              Ver actividades
-            </a>
+              Todas
+            </button>
 
-
-            <a
-              className="button secondary"
-              href="#contacto"
-            >
-              Quiero probar una clase
-            </a>
-
-          </div>
-
-        </div>
-
-
-        <div
-          className="hero-art"
-          aria-label="Espacio reservado para fotografía principal"
-        >
-
-          <div className="hero-photo-note">
-            TU FOTO PRINCIPAL AQUÍ
-          </div>
-
-
-          <div className="hero-sticker">
-
-            BAILA
-
-            <br />
-
-            <span>
-              CON NOSOTROS
-            </span>
-
-          </div>
-
-        </div>
-
-      </section>
-
-
-      {/* =================================================
-          ACTIVIDADES
-      ================================================= */}
-
-      <section
-        id="clases"
-        className="section"
-      >
-
-        <div className="section-head">
-
-          <div>
-
-            <p className="eyebrow">
-              ENCUENTRA TU ESTILO
-            </p>
-
-
-            <h2>
-              Clases para <em>todos</em>
-            </h2>
-
-          </div>
-
-
-          <p>
-            Desde tus primeros pasos
-            hasta perfeccionar tu técnica.
-            Aquí hay un lugar para ti.
-          </p>
-
-        </div>
-
-
-        {cargando ? (
-
-          <div className="vacio-web">
-            Cargando actividades...
-          </div>
-
-        ) : actividades.length === 0 ? (
-
-          <div className="vacio-web">
-            Actualmente no hay actividades
-            disponibles.
-          </div>
-
-        ) : (
-
-          <div className="cards">
 
             {actividades.map(
               (actividad) => (
 
-                <article
-                  className="card"
+                <button
                   key={
                     actividad.id
                   }
+                  type="button"
+                  onClick={() =>
+                    setFiltroActividad(
+                      String(
+                        actividad.id
+                      )
+                    )
+                  }
+                  style={{
+                    padding:
+                      "10px 16px",
+
+                    border:
+                      Number(
+                        filtroActividad
+                      ) ===
+                      Number(
+                        actividad.id
+                      )
+                        ? "1px solid var(--ink)"
+                        : "1px solid var(--line)",
+
+                    background:
+                      Number(
+                        filtroActividad
+                      ) ===
+                      Number(
+                        actividad.id
+                      )
+                        ? "var(--ink)"
+                        : "var(--white)",
+
+                    color:
+                      Number(
+                        filtroActividad
+                      ) ===
+                      Number(
+                        actividad.id
+                      )
+                        ? "var(--white)"
+                        : "var(--ink)",
+
+                    cursor:
+                      "pointer",
+
+                    fontSize:
+                      "12px",
+
+                    fontWeight:
+                      "700",
+                  }}
                 >
 
-                  <span className="card-icon">
-                    {obtenerIcono(
-                      actividad.nombre
-                    )}
-                  </span>
+                  {actividad.nombre}
 
-
-                  <h3>
-                    {actividad.nombre}
-                  </h3>
-
-
-                  <p>
-
-                    {actividad.descripcion ||
-                      "Descubre esta actividad y disfruta del baile con nosotros."}
-
-                  </p>
-
-
-                  <a href="#contacto">
-                    Más información →
-                  </a>
-
-                </article>
+                </button>
 
               )
             )}
@@ -640,187 +814,41 @@ export default function Home() {
 
         )}
 
-      </section>
 
+      <div className="schedule">
 
-      {/* =================================================
-          HORARIOS
-      ================================================= */}
+        {cargando ? (
 
-      <section
-        id="horarios"
-        className="section schedule-section"
-      >
-
-        <div className="section-head">
-
-          <div>
-
-            <p className="eyebrow">
-              ORGANIZA TU SEMANA
-            </p>
-
-
-            <h2>
-              Horarios
-            </h2>
-
+          <div className="vacio-web">
+            Cargando horarios...
           </div>
 
+        ) : error ? (
 
-          <a
-            className="text-link"
-            href="#contacto"
-          >
-            Consultar todos →
-          </a>
+          <div className="vacio-web">
+            No se pudieron cargar los horarios.
+          </div>
 
-        </div>
+        ) : horariosFiltrados.length ===
+          0 ? (
 
+          <div className="vacio-web">
+            No hay horarios disponibles
+            para esta actividad.
+          </div>
 
-        {/* FILTRO */}
+        ) : (
 
-        {!cargando &&
-          actividades.length > 0 && (
+          horariosFiltrados.map(
+            (horario) => {
 
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: "10px",
-                marginBottom: "30px",
-              }}
-            >
-
-              <button
-                type="button"
-                onClick={() =>
-                  setFiltroActividad(
-                    "todas"
-                  )
-                }
-                style={{
-                  padding:
-                    "10px 16px",
-                  border:
-                    filtroActividad ===
-                    "todas"
-                      ? "1px solid var(--ink)"
-                      : "1px solid var(--line)",
-                  background:
-                    filtroActividad ===
-                    "todas"
-                      ? "var(--ink)"
-                      : "var(--white)",
-                  color:
-                    filtroActividad ===
-                    "todas"
-                      ? "var(--white)"
-                      : "var(--ink)",
-                  cursor:
-                    "pointer",
-                  fontSize:
-                    "12px",
-                  fontWeight:
-                    "700",
-                }}
-              >
-                Todas
-              </button>
+              const profesoresHorario =
+                obtenerProfesoresHorario(
+                  horario
+                );
 
 
-              {actividades.map(
-                (actividad) => (
-
-                  <button
-                    key={
-                      actividad.id
-                    }
-                    type="button"
-                    onClick={() =>
-                      setFiltroActividad(
-                        String(
-                          actividad.id
-                        )
-                      )
-                    }
-                    style={{
-                      padding:
-                        "10px 16px",
-                      border:
-                        Number(
-                          filtroActividad
-                        ) ===
-                        Number(
-                          actividad.id
-                        )
-                          ? "1px solid var(--ink)"
-                          : "1px solid var(--line)",
-                      background:
-                        Number(
-                          filtroActividad
-                        ) ===
-                        Number(
-                          actividad.id
-                        )
-                          ? "var(--ink)"
-                          : "var(--white)",
-                      color:
-                        Number(
-                          filtroActividad
-                        ) ===
-                        Number(
-                          actividad.id
-                        )
-                          ? "var(--white)"
-                          : "var(--ink)",
-                      cursor:
-                        "pointer",
-                      fontSize:
-                        "12px",
-                      fontWeight:
-                        "700",
-                    }}
-                  >
-
-                    {actividad.nombre}
-
-                  </button>
-
-                )
-              )}
-
-            </div>
-
-          )}
-
-
-        <div className="schedule">
-
-          {cargando ? (
-
-            <div className="vacio-web">
-              Cargando horarios...
-            </div>
-
-          ) : error ? (
-
-            <div className="vacio-web">
-              No se pudieron cargar los horarios.
-            </div>
-
-          ) : horariosFiltrados.length ===
-            0 ? (
-
-            <div className="vacio-web">
-              No hay horarios disponibles
-              para esta actividad.
-            </div>
-
-          ) : (
-
-            horariosFiltrados.map(
-              (horario) => (
+              return (
 
                 <div
                   className="schedule-row"
@@ -869,286 +897,521 @@ export default function Home() {
 
                   <span className="level">
 
-                    {horario.profesor_nombres &&
-                    horario.profesor_nombres.length >
-                      0
-                      ? horario.profesor_nombres.join(
-                          " · "
-                        )
+                    {profesoresHorario.length >
+                    0
+                      ? profesoresHorario
+                          .map(
+                            (profesor) =>
+                              profesor.nombre
+                          )
+                          .join(
+                            " · "
+                          )
                       : ""}
 
                   </span>
 
                 </div>
 
-              )
-            )
+              );
 
-          )}
+            }
 
-        </div>
+          )
 
-      </section>
+        )}
 
+      </div>
 
-      {/* =================================================
-          LA ESCUELA
-      ================================================= */}
-
-      <section
-        id="escuela"
-        className="story"
-      >
-
-        <div className="story-image">
-
-          <span>
-            FOTO DE LA ESCUELA
-          </span>
-
-        </div>
+    </section>
 
 
-        <div className="story-copy">
+    {/* =================================================
+        PROFESORES
+    ================================================= */}
 
-          <p className="eyebrow">
-            MUCHO MÁS QUE UNA ESCUELA
-          </p>
+    <section
+      id="profesores"
+      className="section"
+    >
 
-
-          <h2>
-            Un lugar para{" "}
-            <em>
-              sentirte tú
-            </em>
-          </h2>
-
-
-          <p>
-            Queremos que venir a clase
-            sea uno de los mejores
-            momentos de tu semana.
-            Profesores, compañeros y
-            un espacio pensado para que
-            disfrutes del baile.
-          </p>
-
-
-          <p>
-            En Artes Escénicas Paradise
-            encontrarás diferentes
-            disciplinas, profesores y
-            niveles para disfrutar del
-            baile y seguir aprendiendo.
-          </p>
-
-
-          <a
-            className="button primary"
-            href="#contacto"
-          >
-            Conoce la escuela
-          </a>
-
-        </div>
-
-      </section>
-
-
-      {/* =================================================
-          BANNER
-      ================================================= */}
-
-      <section className="banner">
-
-        <p className="eyebrow">
-          ¿EMPEZAMOS?
-        </p>
-
-
-        <h2>
-          Tu próxima clase
-          <br />
-          <em>
-            puede ser hoy.
-          </em>
-        </h2>
-
-
-        <a
-          className="button light"
-          href="#contacto"
-        >
-          Quiero probar
-        </a>
-
-      </section>
-
-
-      {/* =================================================
-          CONTACTO
-      ================================================= */}
-
-      <section
-        id="contacto"
-        className="contact section"
-      >
+      <div className="section-head">
 
         <div>
 
           <p className="eyebrow">
-            DA EL PRIMER PASO
+            NUESTRO EQUIPO
           </p>
 
 
           <h2>
-            ¿Quieres{" "}
-            <em>
-              bailar
-            </em>{" "}
-            con nosotros?
+            Profesores
           </h2>
-
-
-          <p>
-            Déjanos tus datos y te
-            contamos qué clase encaja
-            mejor contigo.
-          </p>
 
         </div>
 
 
-        <form
-          className="form"
-          action="contacto"
-        >
+        <p>
+          Profesionales que comparten
+          su pasión por el baile y te
+          acompañan en cada paso.
+        </p>
 
-          <input
-            aria-label="Nombre"
-            placeholder="Tu nombre"
-          />
+      </div>
 
 
-          <input
-            aria-label="Teléfono"
-            placeholder="Teléfono"
-          />
+      {cargando ? (
+
+        <div className="vacio-web">
+          Cargando profesores...
+        </div>
+
+      ) : profesores.length === 0 ? (
+
+        <div className="vacio-web">
+          Actualmente no hay profesores
+          disponibles.
+        </div>
+
+      ) : (
+
+        <div className="cards">
+
+          {profesores.map(
+            (profesor) => {
+
+              const actividadesProfesor =
+                obtenerActividadesProfesor(
+                  profesor
+                );
 
 
-          <select
-            aria-label="Actividad"
-            defaultValue=""
-          >
+              return (
 
-            <option
-              value=""
-              disabled
-            >
-              ¿Qué actividad te interesa?
-            </option>
-
-
-            {actividades.map(
-              (actividad) => (
-
-                <option
+                <article
+                  className="card"
                   key={
-                    actividad.id
+                    profesor.id
                   }
-                  value={
-                    actividad.id
-                  }
+                  style={{
+                    minHeight:
+                      "auto",
+                  }}
                 >
-                  {actividad.nombre}
-                </option>
 
-              )
-            )}
+                  {/* FOTO */}
+
+                  <div
+                    style={{
+                      width:
+                        "100%",
+                      height:
+                        "300px",
+                      marginBottom:
+                        "25px",
+                      overflow:
+                        "hidden",
+                      background:
+                        "var(--soft)",
+                    }}
+                  >
+
+                    {profesor.foto ? (
+
+                      <img
+                        src={
+                          profesor.foto
+                        }
+                        alt={
+                          profesor.nombre
+                        }
+                        style={{
+                          width:
+                            "100%",
+                          height:
+                            "100%",
+                          objectFit:
+                            "cover",
+                          display:
+                            "block",
+                        }}
+                      />
+
+                    ) : (
+
+                      <div
+                        style={{
+                          width:
+                            "100%",
+                          height:
+                            "100%",
+                          display:
+                            "flex",
+                          alignItems:
+                            "center",
+                          justifyContent:
+                            "center",
+                          fontSize:
+                            "55px",
+                        }}
+                      >
+                        👤
+                      </div>
+
+                    )}
+
+                  </div>
 
 
-            <option value="otra">
-              Otra
-            </option>
-
-          </select>
-
-
-          <button
-            className="button primary"
-            type="submit"
-          >
-            Solicitar información
-          </button>
-
-        </form>
-
-      </section>
+                  <h3
+                    style={{
+                      marginTop:
+                        "0",
+                    }}
+                  >
+                    {profesor.nombre}
+                  </h3>
 
 
-      {/* =================================================
-          ERROR DE CARGA
-      ================================================= */}
+                  <p>
+                    {profesor.descripcion ||
+                      "Profesor de la Escuela Artes Escénicas Paradise."}
+                  </p>
 
-      {error && (
 
-        <div
-          style={{
-            maxWidth:
-              "1100px",
-            margin:
-              "0 auto 40px",
-            padding:
-              "15px 6vw",
-            color:
-              "var(--muted)",
-            fontSize:
-              "12px",
-          }}
-        >
-          {error}
+                  {/* ACTIVIDADES */}
+
+                  {actividadesProfesor.length >
+                    0 && (
+
+                    <div
+                      style={{
+                        display:
+                          "flex",
+                        flexWrap:
+                          "wrap",
+                        gap:
+                          "7px",
+                        marginTop:
+                          "15px",
+                      }}
+                    >
+
+                      {actividadesProfesor.map(
+                        (actividad) => (
+
+                          <span
+                            key={
+                              actividad.id
+                            }
+                            style={{
+                              display:
+                                "inline-block",
+                              padding:
+                                "6px 9px",
+                              background:
+                                "var(--soft)",
+                              fontSize:
+                                "11px",
+                              fontWeight:
+                                "700",
+                            }}
+                          >
+                            {
+                              actividad.nombre
+                            }
+                          </span>
+
+                        )
+                      )}
+
+                    </div>
+
+                  )}
+
+
+                  <a
+                    href="#contacto"
+                    style={{
+                      marginTop:
+                        "18px",
+                    }}
+                  >
+                    Más información →
+                  </a>
+
+                </article>
+
+              );
+
+            }
+          )}
+
         </div>
 
       )}
 
+    </section>
 
-      {/* =================================================
-          FOOTER
-      ================================================= */}
 
-      <footer>
+         {/* =================================================
+        LA ESCUELA
+    ================================================= */}
 
-        <div
-          className="brand footer-brand"
+    <section
+      id="escuela"
+      className="story"
+    >
+
+      <div className="story-image">
+
+        <span>
+          FOTO DE LA ESCUELA
+        </span>
+
+      </div>
+
+
+      <div className="story-copy">
+
+        <p className="eyebrow">
+          MUCHO MÁS QUE UNA ESCUELA
+        </p>
+
+
+        <h2>
+          Un lugar para{" "}
+          <em>
+            sentirte tú
+          </em>
+        </h2>
+
+
+        <p>
+          Queremos que venir a clase
+          sea uno de los mejores
+          momentos de tu semana.
+          Profesores, compañeros y
+          un espacio pensado para que
+          disfrutes del baile.
+        </p>
+
+
+        <p>
+          En Artes Escénicas Paradise
+          encontrarás diferentes
+          disciplinas, profesores y
+          niveles para disfrutar del
+          baile y seguir aprendiendo.
+        </p>
+
+
+        <a
+          className="button primary"
+          href="#contacto"
+        >
+          Conoce la escuela
+        </a>
+
+      </div>
+
+    </section>
+
+
+    {/* =================================================
+        BANNER
+    ================================================= */}
+
+    <section className="banner">
+
+      <p className="eyebrow">
+        ¿EMPEZAMOS?
+      </p>
+
+
+      <h2>
+        Tu próxima clase
+        <br />
+        <em>
+          puede ser hoy.
+        </em>
+      </h2>
+
+
+      <a
+        className="button light"
+        href="#contacto"
+      >
+        Quiero probar
+      </a>
+
+    </section>
+
+
+    {/* =================================================
+        CONTACTO
+    ================================================= */}
+
+    <section
+      id="contacto"
+      className="contact section"
+    >
+
+      <div>
+
+        <p className="eyebrow">
+          DA EL PRIMER PASO
+        </p>
+
+
+        <h2>
+          ¿Quieres{" "}
+          <em>
+            bailar
+          </em>{" "}
+          con nosotros?
+        </h2>
+
+
+        <p>
+          Déjanos tus datos y te
+          contamos qué clase encaja
+          mejor contigo.
+        </p>
+
+      </div>
+
+
+      <form
+        className="form"
+        action="contacto"
+      >
+
+        <input
+          aria-label="Nombre"
+          placeholder="Tu nombre"
+        />
+
+
+        <input
+          aria-label="Teléfono"
+          placeholder="Teléfono"
+        />
+
+
+        <select
+          aria-label="Actividad"
+          defaultValue=""
         >
 
-          <span className="brand-mark">
-            LB
-          </span>
-
-          <span>
-            Lucena <strong>Baila</strong>
-          </span>
-
-        </div>
+          <option
+            value=""
+            disabled
+          >
+            ¿Qué actividad te interesa?
+          </option>
 
 
-        <p>
-          Escuela de baile · Lucena
-        </p>
+          {actividades.map(
+            (actividad) => (
+
+              <option
+                key={
+                  actividad.id
+                }
+                value={
+                  actividad.id
+                }
+              >
+                {actividad.nombre}
+              </option>
+
+            )
+          )}
 
 
-        <p>
-          ©{" "}
-          {new Date().getFullYear()}
-          {" "}
-          Lucena Baila
-        </p>
+          <option value="otra">
+            Otra
+          </option>
 
-      </footer>
+        </select>
 
-    </main>
 
-  );
+        <button
+          className="button primary"
+          type="submit"
+        >
+          Solicitar información
+        </button>
+
+      </form>
+
+    </section>
+
+
+    {/* =================================================
+        ERROR DE CARGA
+    ================================================= */}
+
+    {error && (
+
+      <div
+        style={{
+          maxWidth:
+            "1100px",
+          margin:
+            "0 auto 40px",
+          padding:
+            "15px 6vw",
+          color:
+            "var(--muted)",
+          fontSize:
+            "12px",
+        }}
+      >
+        {error}
+      </div>
+
+    )}
+
+
+    {/* =================================================
+        FOOTER
+    ================================================= */}
+
+    <footer>
+
+      <div
+        className="brand footer-brand"
+      >
+
+        <span className="brand-mark">
+          LB
+        </span>
+
+        <span>
+          Lucena <strong>Baila</strong>
+        </span>
+
+      </div>
+
+
+      <p>
+        Escuela de baile · Lucena
+      </p>
+
+
+      <p>
+        ©{" "}
+        {new Date().getFullYear()}
+        {" "}
+        Lucena Baila
+      </p>
+
+    </footer>
+
+  </main>
+
+);
 
 }
