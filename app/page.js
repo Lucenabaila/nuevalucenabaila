@@ -527,7 +527,7 @@ return (
   >
 
     <img
-      src="/hero.jpg"
+      src="/hero.png"
       alt="Artes Escénicas Paradise"
       className="hero-image"
     />
