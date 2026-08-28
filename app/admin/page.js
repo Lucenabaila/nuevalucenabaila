@@ -3293,12 +3293,20 @@ function Galeria() {
     orden: 0,
   };
 
-  const [galerias, setGalerias] = useState([]);
-  const [cargando, setCargando] = useState(true);
-  const [guardando, setGuardando] = useState(false);
 
-  const [mostrandoFormulario, setMostrandoFormulario] =
+  const [galerias, setGalerias] =
+    useState([]);
+
+  const [cargando, setCargando] =
+    useState(true);
+
+  const [guardando, setGuardando] =
     useState(false);
+
+  const [
+    mostrandoFormulario,
+    setMostrandoFormulario,
+  ] = useState(false);
 
   const [editando, setEditando] =
     useState(null);
@@ -3307,11 +3315,33 @@ function Galeria() {
     useState(galeriaInicial);
 
 
+  const [galeriaFotos, setGaleriaFotos] =
+    useState([]);
+
+  const [cargandoFotos, setCargandoFotos] =
+    useState(false);
+
+  const [subiendoFotos, setSubiendoFotos] =
+    useState(false);
+
+  const [galeriaAbierta, setGaleriaAbierta] =
+    useState(null);
+
+
+  const inputFotosId =
+    "input-fotos-galeria";
+
+
+  // =======================================================
+  // CARGAR GALERÍAS
+  // =======================================================
+
   async function cargarGalerias() {
 
     try {
 
       setCargando(true);
+
 
       const respuesta =
         await fetch(
@@ -3321,8 +3351,10 @@ function Galeria() {
           }
         );
 
+
       const datos =
         await respuesta.json();
+
 
       if (
         !respuesta.ok ||
@@ -3337,9 +3369,11 @@ function Galeria() {
         return;
       }
 
+
       setGalerias(
         datos.galerias || []
       );
+
 
     } catch (error) {
 
@@ -3348,9 +3382,11 @@ function Galeria() {
         error
       );
 
+
       alert(
         "Error cargando las galerías."
       );
+
 
     } finally {
 
@@ -3367,6 +3403,10 @@ function Galeria() {
 
   }, []);
 
+
+  // =======================================================
+  // NUEVA GALERÍA
+  // =======================================================
 
   function nuevaGaleria() {
 
@@ -3385,6 +3425,10 @@ function Galeria() {
 
   }
 
+
+  // =======================================================
+  // EDITAR GALERÍA
+  // =======================================================
 
   function editarGaleria(galeria) {
 
@@ -3407,9 +3451,11 @@ function Galeria() {
 
     });
 
+
     setEditando(galeria);
 
     setMostrandoFormulario(true);
+
 
     window.scrollTo({
       top: 0,
@@ -3418,6 +3464,10 @@ function Galeria() {
 
   }
 
+
+  // =======================================================
+  // CERRAR FORMULARIO
+  // =======================================================
 
   function cerrarFormulario() {
 
@@ -3431,6 +3481,10 @@ function Galeria() {
 
   }
 
+
+  // =======================================================
+  // CAMBIAR CAMPO
+  // =======================================================
 
   function cambiarCampo(
     campo,
@@ -3447,6 +3501,10 @@ function Galeria() {
   }
 
 
+  // =======================================================
+  // GUARDAR GALERÍA
+  // =======================================================
+
   async function guardarGaleria(event) {
 
     event.preventDefault();
@@ -3461,6 +3519,7 @@ function Galeria() {
       );
 
       return;
+
     }
 
 
@@ -3490,7 +3549,9 @@ function Galeria() {
           formulario.activa,
 
         orden:
-          Number(formulario.orden) || 0,
+          Number(
+            formulario.orden
+          ) || 0,
 
       };
 
@@ -3539,22 +3600,12 @@ function Galeria() {
 
 
         alert(
-          [
-            datos.mensaje ||
-              "No se pudo guardar la galería.",
-
-            datos.error
-              ? `\n\nError: ${datos.error}`
-              : "",
-
-            datos.sqlMessage
-              ? `\n\nMySQL: ${datos.sqlMessage}`
-              : "",
-
-          ].join("")
+          datos.mensaje ||
+          "No se pudo guardar la galería."
         );
 
         return;
+
       }
 
 
@@ -3585,11 +3636,371 @@ function Galeria() {
   }
 
 
-  async function eliminarGaleria(id) {
+  // =======================================================
+  // CARGAR FOTOGRAFÍAS
+  // =======================================================
+
+  async function cargarFotos(
+    galeriaId
+  ) {
+
+    try {
+
+      setCargandoFotos(true);
+
+
+      const respuesta =
+        await fetch(
+          `/api/galeria-imagenes?galeriaId=${galeriaId}`,
+          {
+            cache: "no-store",
+          }
+        );
+
+
+      const datos =
+        await respuesta.json();
+
+
+      if (
+        !respuesta.ok ||
+        !datos.correcto
+      ) {
+
+        alert(
+          datos.mensaje ||
+          "No se pudieron cargar las fotografías."
+        );
+
+        return;
+
+      }
+
+
+      setGaleriaFotos(
+        datos.imagenes || []
+      );
+
+
+    } catch (error) {
+
+      console.error(
+        "Error cargando fotografías:",
+        error
+      );
+
+
+      alert(
+        "Error cargando las fotografías."
+      );
+
+
+    } finally {
+
+      setCargandoFotos(false);
+
+    }
+
+  }
+
+
+  // =======================================================
+  // ABRIR GESTIÓN DE FOTOGRAFÍAS
+  // =======================================================
+
+  async function abrirGaleria(
+    galeria
+  ) {
+
+    setGaleriaAbierta(
+      galeria
+    );
+
+    setGaleriaFotos([]);
+
+    await cargarFotos(
+      galeria.id
+    );
+
+  }
+
+
+  // =======================================================
+  // CERRAR GESTIÓN DE FOTOGRAFÍAS
+  // =======================================================
+
+  function cerrarGaleria() {
+
+    setGaleriaAbierta(null);
+
+    setGaleriaFotos([]);
+
+  }
+
+
+  // =======================================================
+  // SUBIR FOTOGRAFÍAS
+  // =======================================================
+
+  async function subirFotos(
+    event
+  ) {
+
+    const archivos =
+      Array.from(
+        event.target.files || []
+      );
+
+
+    if (
+      archivos.length === 0
+    ) {
+
+      return;
+
+    }
+
+
+    if (
+      !galeriaAbierta
+    ) {
+
+      alert(
+        "No hay ninguna galería seleccionada."
+      );
+
+      return;
+
+    }
+
+
+    try {
+
+      setSubiendoFotos(true);
+
+
+      const formData =
+        new FormData();
+
+
+      formData.append(
+        "galeriaId",
+        String(
+          galeriaAbierta.id
+        )
+      );
+
+
+      archivos.forEach(
+        (archivo) => {
+
+          formData.append(
+            "archivos",
+            archivo
+          );
+
+        }
+      );
+
+
+      const respuesta =
+        await fetch(
+          "/api/galeria-imagenes",
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+
+
+      const datos =
+        await respuesta.json();
+
+
+      if (
+        !respuesta.ok ||
+        !datos.correcto
+      ) {
+
+        console.error(
+          "Error subiendo fotografías:",
+          datos
+        );
+
+
+        alert(
+          datos.mensaje ||
+          "No se pudieron subir las fotografías."
+        );
+
+        return;
+
+      }
+
+
+      if (
+        datos.errores &&
+        datos.errores.length > 0
+      ) {
+
+        console.warn(
+          "Algunas fotografías no se pudieron subir:",
+          datos.errores
+        );
+
+        alert(
+          `${datos.mensaje}\n\nAlgunas fotografías no se pudieron subir.`
+        );
+
+      } else {
+
+        alert(
+          datos.mensaje
+        );
+
+      }
+
+
+      await cargarFotos(
+        galeriaAbierta.id
+      );
+
+
+      await cargarGalerias();
+
+
+    } catch (error) {
+
+      console.error(
+        "Error subiendo fotografías:",
+        error
+      );
+
+
+      alert(
+        "Ha ocurrido un error al subir las fotografías."
+      );
+
+
+    } finally {
+
+      setSubiendoFotos(false);
+
+
+      event.target.value =
+        "";
+
+    }
+
+  }
+
+
+  // =======================================================
+  // ELIMINAR FOTOGRAFÍA
+  // =======================================================
+
+  async function eliminarFoto(
+    foto
+  ) {
 
     const confirmar =
       window.confirm(
-        "¿Seguro que quieres eliminar esta galería? También se eliminarán las imágenes asociadas."
+        "¿Seguro que quieres eliminar esta fotografía?"
+      );
+
+
+    if (!confirmar) {
+
+      return;
+
+    }
+
+
+    try {
+
+      setGuardando(true);
+
+
+      const respuesta =
+        await fetch(
+          "/api/galeria-imagenes",
+          {
+            method: "DELETE",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+                id:
+                  foto.id,
+              }),
+          }
+        );
+
+
+      const datos =
+        await respuesta.json();
+
+
+      if (
+        !respuesta.ok ||
+        !datos.correcto
+      ) {
+
+        alert(
+          datos.mensaje ||
+          "No se pudo eliminar la fotografía."
+        );
+
+        return;
+
+      }
+
+
+      await cargarFotos(
+        galeriaAbierta.id
+      );
+
+
+      await cargarGalerias();
+
+
+    } catch (error) {
+
+      console.error(
+        "Error eliminando fotografía:",
+        error
+      );
+
+
+      alert(
+        "Ha ocurrido un error al eliminar la fotografía."
+      );
+
+
+    } finally {
+
+      setGuardando(false);
+
+    }
+
+  }
+
+
+  // =======================================================
+  // ELIMINAR GALERÍA
+  // =======================================================
+
+  async function eliminarGaleria(
+    id
+  ) {
+
+    const confirmar =
+      window.confirm(
+        "¿Seguro que quieres eliminar esta galería? También se eliminarán las fotografías asociadas."
       );
 
 
@@ -3639,6 +4050,17 @@ function Galeria() {
         );
 
         return;
+
+      }
+
+
+      if (
+        galeriaAbierta &&
+        galeriaAbierta.id === id
+      ) {
+
+        cerrarGaleria();
+
       }
 
 
@@ -3666,6 +4088,10 @@ function Galeria() {
 
   }
 
+
+  // =======================================================
+  // CAMBIAR ESTADO
+  // =======================================================
 
   async function cambiarEstadoGaleria(
     galeria
@@ -3697,10 +4123,12 @@ function Galeria() {
                   galeria.titulo,
 
                 descripcion:
-                  galeria.descripcion || "",
+                  galeria.descripcion ||
+                  "",
 
                 imagen:
-                  galeria.imagen || "",
+                  galeria.imagen ||
+                  "",
 
                 activa:
                   Number(
@@ -3732,6 +4160,7 @@ function Galeria() {
         );
 
         return;
+
       }
 
 
@@ -3760,6 +4189,271 @@ function Galeria() {
   }
 
 
+  // =======================================================
+  // VISTA DE GESTIÓN DE FOTOGRAFÍAS
+  // =======================================================
+
+  if (galeriaAbierta) {
+
+    return (
+
+      <div>
+
+        <div style={estilos.cabeceraSeccion}>
+
+          <div>
+
+            <div style={estilos.etiquetaSeccion}>
+              FOTOGRAFÍAS
+            </div>
+
+            <h2 style={estilos.tituloSeccion}>
+              {galeriaAbierta.titulo}
+            </h2>
+
+            <p style={estilos.descripcionSeccion}>
+              Gestiona las fotografías de esta galería.
+            </p>
+
+          </div>
+
+
+          <div
+            style={{
+              display: "flex",
+              gap: "10px",
+            }}
+          >
+
+            <button
+              type="button"
+              onClick={() =>
+                document
+                  .getElementById(
+                    inputFotosId
+                  )
+                  ?.click()
+              }
+              style={estilos.botonNuevo}
+              disabled={subiendoFotos}
+            >
+              {subiendoFotos
+                ? "Subiendo..."
+                : "+ Añadir fotografías"}
+            </button>
+
+
+            <button
+              type="button"
+              onClick={
+                cerrarGaleria
+              }
+              style={
+                estilos.botonCancelar
+              }
+              disabled={subiendoFotos}
+            >
+              ← Volver a galerías
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <input
+          id={inputFotosId}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          multiple
+          onChange={
+            subirFotos
+          }
+          style={{
+            display: "none",
+          }}
+        />
+
+
+        {subiendoFotos && (
+
+          <div
+            style={{
+              ...estilos.editor,
+              textAlign: "center",
+            }}
+          >
+
+            <div style={estilos.vacioIcono}>
+              📤
+            </div>
+
+            <div style={estilos.vacioTitulo}>
+              Subiendo fotografías...
+            </div>
+
+            <div style={estilos.vacioTexto}>
+              No cierres ni recargues esta página.
+            </div>
+
+          </div>
+
+        )}
+
+
+        {cargandoFotos ? (
+
+          <div style={estilos.vacio}>
+            <div style={estilos.vacioIcono}>
+              🖼️
+            </div>
+
+            <div style={estilos.vacioTitulo}>
+              Cargando fotografías...
+            </div>
+          </div>
+
+        ) : galeriaFotos.length === 0 ? (
+
+          <div style={estilos.vacio}>
+
+            <div style={estilos.vacioIcono}>
+              📷
+            </div>
+
+            <div style={estilos.vacioTitulo}>
+              Esta galería todavía no tiene fotografías.
+            </div>
+
+            <div style={estilos.vacioTexto}>
+              Pulsa «Añadir fotografías» para seleccionar imágenes desde tu ordenador.
+            </div>
+
+          </div>
+
+        ) : (
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns:
+                "repeat(auto-fill, minmax(190px, 1fr))",
+              gap: "18px",
+              marginTop: "25px",
+            }}
+          >
+
+            {galeriaFotos.map(
+              (foto) => (
+
+                <div
+                  key={foto.id}
+                  style={{
+                    background:
+                      "rgba(255,255,255,0.035)",
+                    border:
+                      "1px solid rgba(255,255,255,0.08)",
+                    borderRadius: "18px",
+                    overflow: "hidden",
+                  }}
+                >
+
+                  <div
+                    style={{
+                      width: "100%",
+                      aspectRatio: "4 / 3",
+                      background:
+                        "rgba(0,0,0,0.2)",
+                      overflow: "hidden",
+                    }}
+                  >
+
+                    <img
+                      src={foto.imagen}
+                      alt={
+                        foto.titulo ||
+                        "Fotografía"
+                      }
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                        display: "block",
+                      }}
+                    />
+
+                  </div>
+
+
+                  <div
+                    style={{
+                      padding: "13px",
+                    }}
+                  >
+
+                    <div
+                      style={{
+                        color: "#fff2cf",
+                        fontSize: "12px",
+                        fontWeight: 700,
+                        whiteSpace:
+                          "nowrap",
+                        overflow:
+                          "hidden",
+                        textOverflow:
+                          "ellipsis",
+                        marginBottom:
+                          "10px",
+                      }}
+                    >
+                      {foto.titulo ||
+                        "Fotografía"}
+                    </div>
+
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        eliminarFoto(
+                          foto
+                        )
+                      }
+                      style={{
+                        ...estilos.botonEditar,
+                        color:
+                          "#ff8995",
+                        width: "100%",
+                      }}
+                      disabled={
+                        guardando ||
+                        subiendoFotos
+                      }
+                    >
+                      Eliminar
+                    </button>
+
+                  </div>
+
+                </div>
+
+              )
+            )}
+
+          </div>
+
+        )}
+
+      </div>
+
+    );
+
+  }
+
+
+  // =======================================================
+  // LISTADO DE GALERÍAS
+  // =======================================================
+
   return (
 
     <div>
@@ -3785,7 +4479,9 @@ function Galeria() {
 
         <button
           type="button"
-          onClick={nuevaGaleria}
+          onClick={
+            nuevaGaleria
+          }
           style={estilos.botonNuevo}
         >
           + Añadir galería
@@ -3809,7 +4505,11 @@ function Galeria() {
           </div>
 
 
-          <form onSubmit={guardarGaleria}>
+          <form
+            onSubmit={
+              guardarGaleria
+            }
+          >
 
             <label style={estilos.label}>
               Título
@@ -3896,10 +4596,16 @@ function Galeria() {
             />
 
 
-            <div style={estilos.checkboxSimple}>
+            <div
+              style={
+                estilos.checkboxSimple
+              }
+            >
 
               <label
-                style={estilos.checkEstado}
+                style={
+                  estilos.checkEstado
+                }
               >
 
                 <input
@@ -3925,7 +4631,11 @@ function Galeria() {
             </div>
 
 
-            <div style={estilos.botonesEditor}>
+            <div
+              style={
+                estilos.botonesEditor
+              }
+            >
 
               <button
                 type="button"
@@ -3996,14 +4706,25 @@ function Galeria() {
             (galeria, indice) => (
 
               <div
-                key={galeria.id}
-                style={estilos.fila}
+                key={
+                  galeria.id
+                }
+                style={
+                  estilos.fila
+                }
               >
 
-                <div style={estilos.numero}>
+                <div
+                  style={
+                    estilos.numero
+                  }
+                >
                   {String(
                     indice + 1
-                  ).padStart(2, "0")}
+                  ).padStart(
+                    2,
+                    "0"
+                  )}
                 </div>
 
 
@@ -4069,13 +4790,34 @@ function Galeria() {
                       border: "0",
                       cursor: "pointer",
                     }}
-                    disabled={guardando}
+                    disabled={
+                      guardando
+                    }
                   >
                     {Number(
                       galeria.activa
                     ) !== 0
                       ? "ACTIVA"
                       : "OCULTA"}
+                  </button>
+
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      abrirGaleria(
+                        galeria
+                      )
+                    }
+                    style={{
+                      ...estilos.botonEditar,
+                      color: "#fff2cf",
+                    }}
+                    disabled={
+                      guardando
+                    }
+                  >
+                    📷 Gestionar fotos
                   </button>
 
 
@@ -4089,7 +4831,9 @@ function Galeria() {
                     style={
                       estilos.botonEditar
                     }
-                    disabled={guardando}
+                    disabled={
+                      guardando
+                    }
                   >
                     Editar
                   </button>
@@ -4104,9 +4848,12 @@ function Galeria() {
                     }
                     style={{
                       ...estilos.botonEditar,
-                      color: "#ff8995",
+                      color:
+                        "#ff8995",
                     }}
-                    disabled={guardando}
+                    disabled={
+                      guardando
+                    }
                   >
                     Eliminar
                   </button>
@@ -4126,8 +4873,8 @@ function Galeria() {
     </div>
 
   );
-}
 
+}
 
 /* =========================================================
    SECCIONES FUTURAS
