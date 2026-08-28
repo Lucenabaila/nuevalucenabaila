@@ -157,6 +157,13 @@ export async function POST(request) {
       null;
 
 
+    // NUEVO — FOTO
+    const foto =
+      typeof body.foto === "string"
+        ? body.foto.trim() || null
+        : null;
+
+
     const actividadIds =
       Array.isArray(
         body.actividadIds
@@ -205,15 +212,17 @@ export async function POST(request) {
         (
           nombre,
           descripcion,
+          foto,
           activa,
           orden
         )
       VALUES
-        (?, ?, TRUE, 0)
+        (?, ?, ?, TRUE, 0)
       `,
       [
         nombre,
         descripcion,
+        foto,
       ]
     );
 
@@ -393,6 +402,36 @@ export async function PUT(request) {
       null;
 
 
+    // -----------------------------------------------------
+    // FOTO
+    // -----------------------------------------------------
+    // Si el campo foto viene en la petición:
+    //   - string = cambiar foto
+    //   - null/vacío = quitar foto
+    //
+    // Si el campo no viene:
+    //   - conservar la foto existente.
+
+    const tieneCampoFoto =
+      Object.prototype.hasOwnProperty.call(
+        body,
+        "foto"
+      );
+
+
+    let foto = null;
+
+
+    if (tieneCampoFoto) {
+
+      foto =
+        typeof body.foto === "string"
+          ? body.foto.trim() || null
+          : null;
+
+    }
+
+
     const actividadIds =
       Array.isArray(
         body.actividadIds
@@ -433,7 +472,7 @@ export async function PUT(request) {
             "El ID del profesor es obligatorio",
         },
         {
-          status: 400,
+          status: 400
         }
       );
 
@@ -452,7 +491,7 @@ export async function PUT(request) {
             "El nombre es obligatorio",
         },
         {
-          status: 400,
+          status: 400
         }
       );
 
@@ -471,7 +510,8 @@ export async function PUT(request) {
     ] = await connection.query(
       `
       SELECT
-        id
+        id,
+        foto
       FROM profesores
       WHERE id = ?
       LIMIT 1
@@ -496,11 +536,21 @@ export async function PUT(request) {
             "El profesor no existe.",
         },
         {
-          status: 404,
+          status: 404
         }
       );
 
     }
+
+
+    // -----------------------------------------------------
+    // DETERMINAR FOTO FINAL
+    // -----------------------------------------------------
+
+    const fotoFinal =
+      tieneCampoFoto
+        ? foto
+        : profesorExiste[0].foto;
 
 
     // -----------------------------------------------------
@@ -513,6 +563,7 @@ export async function PUT(request) {
       SET
         nombre = ?,
         descripcion = ?,
+        foto = ?,
         activa = ?,
         orden = ?
       WHERE id = ?
@@ -520,6 +571,7 @@ export async function PUT(request) {
       [
         nombre,
         descripcion,
+        fotoFinal,
         activa,
         orden,
         id,
@@ -677,7 +729,7 @@ export async function PUT(request) {
           error.sqlMessage || null,
       },
       {
-        status: 500,
+        status: 500
       }
     );
 
@@ -718,7 +770,7 @@ export async function DELETE(request) {
             "El ID del profesor es obligatorio",
         },
         {
-          status: 400,
+          status: 400
         }
       );
 
@@ -762,7 +814,7 @@ export async function DELETE(request) {
             "El profesor no existe.",
         },
         {
-          status: 404,
+          status: 404
         }
       );
 
@@ -813,7 +865,7 @@ export async function DELETE(request) {
             "No se pudo eliminar el profesor.",
         },
         {
-          status: 500,
+          status: 500
         }
       );
 
@@ -880,7 +932,7 @@ export async function DELETE(request) {
           error.sqlMessage || null,
       },
       {
-        status: 500,
+        status: 500
       }
     );
 
