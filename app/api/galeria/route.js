@@ -590,8 +590,7 @@ export async function POST(request) {
 
 
     const imagen =
-      body.imagen?.trim() ||
-      null;
+  body.imagen?.trim() || "";
 
 
     const orden =
@@ -716,8 +715,7 @@ export async function PUT(request) {
 
 
     const imagen =
-      body.imagen?.trim() ||
-      null;
+  body.imagen?.trim() || "";
 
 
     const activa =
