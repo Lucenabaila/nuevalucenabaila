@@ -2565,9 +2565,6 @@ function Eventos() {
         lugar:
           formulario.lugar.trim(),
 
-        imagen:
-          formulario.imagen.trim(),
-
         activa:
           formulario.activa,
 
@@ -4550,27 +4547,6 @@ function Galeria() {
               placeholder="Descripción del álbum..."
               style={estilos.textarea}
               rows={4}
-              disabled={guardando}
-            />
-
-
-            <label style={estilos.label}>
-              Imagen de portada
-            </label>
-
-
-            <input
-              value={
-                formulario.imagen
-              }
-              onChange={(e) =>
-                cambiarCampo(
-                  "imagen",
-                  e.target.value
-                )
-              }
-              placeholder="URL de la imagen de portada"
-              style={estilos.input}
               disabled={guardando}
             />
 
