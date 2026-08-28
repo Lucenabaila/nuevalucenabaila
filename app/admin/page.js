@@ -18,7 +18,7 @@ export default function AdminPage() {
 
       const [respuestaProfesores, respuestaActividades] =
         await Promise.all([
-          fetch("/api/profesores", { cache: "no-store" }),
+          fetch("/api/profesores?admin=true", { cache: "no-store" }),
           fetch("/api/actividades?admin=true", { cache: "no-store" }),
         ]);
 
@@ -341,11 +341,13 @@ function Actividades({
 
 
   function limpiarFormulario() {
+
     setNombre("");
     setDescripcion("");
     setOrden(0);
     setEditando(null);
     setMostrandoFormulario(false);
+
   }
 
 
@@ -362,10 +364,22 @@ function Actividades({
 
   function editarActividad(actividad) {
 
-    setNombre(actividad.nombre || "");
-    setDescripcion(actividad.descripcion || "");
-    setOrden(actividad.orden || 0);
-    setEditando(actividad);
+    setNombre(
+      actividad.nombre || ""
+    );
+
+    setDescripcion(
+      actividad.descripcion || ""
+    );
+
+    setOrden(
+      actividad.orden || 0
+    );
+
+    setEditando(
+      actividad
+    );
+
     setMostrandoFormulario(true);
 
     window.scrollTo({
@@ -380,6 +394,7 @@ function Actividades({
 
     event.preventDefault();
 
+
     if (!nombre.trim()) {
 
       alert(
@@ -387,12 +402,14 @@ function Actividades({
       );
 
       return;
+
     }
 
 
     try {
 
       setGuardando(true);
+
 
       const metodo =
         editando
@@ -401,6 +418,7 @@ function Actividades({
 
 
       const cuerpo = {
+
         nombre:
           nombre.trim(),
 
@@ -409,12 +427,20 @@ function Actividades({
 
         orden:
           Number(orden) || 0,
+
       };
 
 
       if (editando) {
+
         cuerpo.id =
           editando.id;
+
+        cuerpo.activa =
+          Number(
+            editando.activa
+          ) !== 0;
+
       }
 
 
@@ -422,13 +448,18 @@ function Actividades({
         await fetch(
           "/api/actividades",
           {
-            method: metodo,
+            method:
+              metodo,
+
             headers: {
               "Content-Type":
                 "application/json",
             },
+
             body:
-              JSON.stringify(cuerpo),
+              JSON.stringify(
+                cuerpo
+              ),
           }
         );
 
@@ -448,6 +479,7 @@ function Actividades({
         );
 
         return;
+
       }
 
 
@@ -458,11 +490,193 @@ function Actividades({
 
     } catch (error) {
 
-      console.error(error);
+      console.error(
+        "Error guardando actividad:",
+        error
+      );
+
 
       alert(
         "Ha ocurrido un error al guardar la actividad."
       );
+
+
+    } finally {
+
+      setGuardando(false);
+
+    }
+
+  }
+
+
+  async function cambiarEstadoActividad(
+    actividad
+  ) {
+
+    try {
+
+      setGuardando(true);
+
+
+      const respuesta =
+        await fetch(
+          "/api/actividades",
+          {
+            method: "PUT",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+
+                id:
+                  actividad.id,
+
+                nombre:
+                  actividad.nombre,
+
+                descripcion:
+                  actividad.descripcion || "",
+
+                activa:
+                  Number(
+                    actividad.activa
+                  ) === 0,
+
+                orden:
+                  Number(
+                    actividad.orden
+                  ) || 0,
+
+              }),
+          }
+        );
+
+
+      const datos =
+        await respuesta.json();
+
+
+      if (
+        !respuesta.ok ||
+        !datos.correcto
+      ) {
+
+        alert(
+          datos.mensaje ||
+          "No se pudo cambiar el estado."
+        );
+
+        return;
+
+      }
+
+
+      await recargar();
+
+
+    } catch (error) {
+
+      console.error(
+        "Error cambiando estado:",
+        error
+      );
+
+
+      alert(
+        "Ha ocurrido un error al cambiar el estado."
+      );
+
+
+    } finally {
+
+      setGuardando(false);
+
+    }
+
+  }
+
+
+  async function eliminarActividad(
+    actividad
+  ) {
+
+    const confirmar =
+      window.confirm(
+        `¿Seguro que quieres eliminar la actividad "${actividad.nombre}"?\n\nTambién se eliminarán sus asignaciones y horarios relacionados.`
+      );
+
+
+    if (!confirmar) {
+
+      return;
+
+    }
+
+
+    try {
+
+      setGuardando(true);
+
+
+      const respuesta =
+        await fetch(
+          "/api/actividades",
+          {
+            method: "DELETE",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+                id:
+                  actividad.id,
+              }),
+          }
+        );
+
+
+      const datos =
+        await respuesta.json();
+
+
+      if (
+        !respuesta.ok ||
+        !datos.correcto
+      ) {
+
+        alert(
+          datos.mensaje ||
+          "No se pudo eliminar la actividad."
+        );
+
+        return;
+
+      }
+
+
+      await recargar();
+
+
+    } catch (error) {
+
+      console.error(
+        "Error eliminando actividad:",
+        error
+      );
+
+
+      alert(
+        "Ha ocurrido un error al eliminar la actividad."
+      );
+
 
     } finally {
 
@@ -498,8 +712,12 @@ function Actividades({
 
         <button
           type="button"
-          onClick={nuevaActividad}
-          style={estilos.botonNuevo}
+          onClick={
+            nuevaActividad
+          }
+          style={
+            estilos.botonNuevo
+          }
         >
           + Añadir actividad
         </button>
@@ -522,7 +740,11 @@ function Actividades({
           </div>
 
 
-          <form onSubmit={guardarActividad}>
+          <form
+            onSubmit={
+              guardarActividad
+            }
+          >
 
             <label style={estilos.label}>
               Nombre
@@ -531,7 +753,9 @@ function Actividades({
             <input
               value={nombre}
               onChange={(e) =>
-                setNombre(e.target.value)
+                setNombre(
+                  e.target.value
+                )
               }
               placeholder="Ej.: Bachata"
               style={estilos.input}
@@ -546,7 +770,9 @@ function Actividades({
             <textarea
               value={descripcion}
               onChange={(e) =>
-                setDescripcion(e.target.value)
+                setDescripcion(
+                  e.target.value
+                )
               }
               placeholder="Descripción de la actividad"
               style={estilos.textarea}
@@ -563,7 +789,9 @@ function Actividades({
               type="number"
               value={orden}
               onChange={(e) =>
-                setOrden(e.target.value)
+                setOrden(
+                  e.target.value
+                )
               }
               style={estilos.input}
               disabled={guardando}
@@ -574,8 +802,12 @@ function Actividades({
 
               <button
                 type="button"
-                onClick={limpiarFormulario}
-                style={estilos.botonCancelar}
+                onClick={
+                  limpiarFormulario
+                }
+                style={
+                  estilos.botonCancelar
+                }
                 disabled={guardando}
               >
                 Cancelar
@@ -584,7 +816,9 @@ function Actividades({
 
               <button
                 type="submit"
-                style={estilos.botonGuardar}
+                style={
+                  estilos.botonGuardar
+                }
                 disabled={guardando}
               >
                 {guardando
@@ -617,28 +851,49 @@ function Actividades({
             (actividad, indice) => (
 
               <div
-                key={actividad.id}
-                style={estilos.fila}
+                key={
+                  actividad.id
+                }
+                style={
+                  estilos.fila
+                }
               >
 
                 <div style={estilos.numero}>
                   {String(
                     indice + 1
-                  ).padStart(2, "0")}
+                  ).padStart(
+                    2,
+                    "0"
+                  )}
                 </div>
 
 
-                <div style={estilos.filaContenido}>
+                <div
+                  style={
+                    estilos.filaContenido
+                  }
+                >
 
-                  <div style={estilos.filaTitulo}>
+                  <div
+                    style={
+                      estilos.filaTitulo
+                    }
+                  >
                     {actividad.nombre}
                   </div>
 
 
                   {actividad.descripcion && (
 
-                    <div style={estilos.filaDescripcion}>
-                      {actividad.descripcion}
+                    <div
+                      style={
+                        estilos.filaDescripcion
+                      }
+                    >
+                      {
+                        actividad.descripcion
+                      }
                     </div>
 
                   )}
@@ -646,11 +901,36 @@ function Actividades({
                 </div>
 
 
-                <div style={estilos.filaAcciones}>
+                <div
+                  style={
+                    estilos.filaAcciones
+                  }
+                >
 
-                  <span style={estilos.estadoActivo}>
-                    ACTIVA
-                  </span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      cambiarEstadoActividad(
+                        actividad
+                      )
+                    }
+                    style={{
+                      ...estilos.estadoActivo,
+                      border: "0",
+                      cursor: "pointer",
+                    }}
+                    disabled={
+                      guardando
+                    }
+                  >
+
+                    {Number(
+                      actividad.activa
+                    ) !== 0
+                      ? "ACTIVA"
+                      : "OCULTA"}
+
+                  </button>
 
 
                   <button
@@ -660,9 +940,33 @@ function Actividades({
                         actividad
                       )
                     }
-                    style={estilos.botonEditar}
+                    style={
+                      estilos.botonEditar
+                    }
+                    disabled={
+                      guardando
+                    }
                   >
                     Editar
+                  </button>
+
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      eliminarActividad(
+                        actividad
+                      )
+                    }
+                    style={{
+                      ...estilos.botonEditar,
+                      color: "#ff8995",
+                    }}
+                    disabled={
+                      guardando
+                    }
+                  >
+                    Eliminar
                   </button>
 
                 </div>
@@ -678,9 +982,10 @@ function Actividades({
       </div>
 
     </div>
-  );
-}
 
+  );
+
+}
 
 /* =========================================================
    PROFESORES
@@ -1059,10 +1364,14 @@ function ProfesorFila({
     useState(false);
 
   const [nombre, setNombre] =
-    useState(profesor.nombre || "");
+    useState(
+      profesor.nombre || ""
+    );
 
   const [descripcion, setDescripcion] =
-    useState(profesor.descripcion || "");
+    useState(
+      profesor.descripcion || ""
+    );
 
   const [
     actividadesSeleccionadas,
@@ -1077,7 +1386,9 @@ function ProfesorFila({
     setActividadesSeleccionadas(
       (actuales) => {
 
-        if (actuales.includes(id)) {
+        if (
+          actuales.includes(id)
+        ) {
 
           return actuales.filter(
             (item) =>
@@ -1085,6 +1396,7 @@ function ProfesorFila({
           );
 
         }
+
 
         return [
           ...actuales,
@@ -1109,12 +1421,15 @@ function ProfesorFila({
           "/api/profesores",
           {
             method: "PUT",
+
             headers: {
               "Content-Type":
                 "application/json",
             },
+
             body:
               JSON.stringify({
+
                 id:
                   profesor.id,
 
@@ -1126,7 +1441,19 @@ function ProfesorFila({
 
                 actividadIds:
                   actividadesSeleccionadas,
+
+                activa:
+                  Number(
+                    profesor.activa
+                  ) !== 0,
+
+                orden:
+                  Number(
+                    profesor.orden
+                  ) || 0,
+
               }),
+
           }
         );
 
@@ -1144,6 +1471,7 @@ function ProfesorFila({
           "Error recibido de la API:",
           datos
         );
+
 
         alert(
           [
@@ -1165,6 +1493,7 @@ function ProfesorFila({
         );
 
         return;
+
       }
 
 
@@ -1177,9 +1506,11 @@ function ProfesorFila({
 
       console.error(error);
 
+
       alert(
         "Ha ocurrido un error al guardar el profesor."
       );
+
 
     } finally {
 
@@ -1189,6 +1520,513 @@ function ProfesorFila({
 
   }
 
+
+  async function cambiarEstadoProfesor() {
+
+    try {
+
+      setGuardando(true);
+
+
+      const respuesta =
+        await fetch(
+          "/api/profesores",
+          {
+            method: "PUT",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+
+                id:
+                  profesor.id,
+
+                nombre:
+                  profesor.nombre,
+
+                descripcion:
+                  profesor.descripcion || "",
+
+                actividadIds:
+                  profesor.actividad_ids || [],
+
+                activa:
+                  Number(
+                    profesor.activa
+                  ) === 0,
+
+                orden:
+                  Number(
+                    profesor.orden
+                  ) || 0,
+
+              }),
+
+          }
+        );
+
+
+      const datos =
+        await respuesta.json();
+
+
+      if (
+        !respuesta.ok ||
+        !datos.correcto
+      ) {
+
+        alert(
+          datos.mensaje ||
+          "No se pudo cambiar el estado."
+        );
+
+        return;
+
+      }
+
+
+      await recargar();
+
+
+    } catch (error) {
+
+      console.error(
+        "Error cambiando estado del profesor:",
+        error
+      );
+
+
+      alert(
+        "Ha ocurrido un error al cambiar el estado."
+      );
+
+
+    } finally {
+
+      setGuardando(false);
+
+    }
+
+  }
+
+
+  async function eliminarProfesor() {
+
+    const confirmar =
+      window.confirm(
+        `¿Seguro que quieres eliminar al profesor "${profesor.nombre}"?\n\nTambién se eliminarán sus asignaciones de actividades.`
+      );
+
+
+    if (!confirmar) {
+
+      return;
+
+    }
+
+
+    try {
+
+      setGuardando(true);
+
+
+      const respuesta =
+        await fetch(
+          "/api/profesores",
+          {
+            method: "DELETE",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+                id:
+                  profesor.id,
+              }),
+
+          }
+        );
+
+
+      const datos =
+        await respuesta.json();
+
+
+      if (
+        !respuesta.ok ||
+        !datos.correcto
+      ) {
+
+        alert(
+          datos.mensaje ||
+          "No se pudo eliminar el profesor."
+        );
+
+        return;
+
+      }
+
+
+      await recargar();
+
+
+    } catch (error) {
+
+      console.error(
+        "Error eliminando profesor:",
+        error
+      );
+
+
+      alert(
+        "Ha ocurrido un error al eliminar el profesor."
+      );
+
+
+    } finally {
+
+      setGuardando(false);
+
+    }
+
+  }
+
+
+  if (editando) {
+
+    return (
+
+      <div style={estilos.editor}>
+
+        <div style={estilos.editorCabecera}>
+
+          <div style={estilos.numero}>
+            {String(
+              indice + 1
+            ).padStart(
+              2,
+              "0"
+            )}
+          </div>
+
+
+          <div style={estilos.editorTitulo}>
+            Editar profesor
+          </div>
+
+        </div>
+
+
+        <label style={estilos.label}>
+          Nombre
+        </label>
+
+
+        <input
+          value={nombre}
+          onChange={(e) =>
+            setNombre(
+              e.target.value
+            )
+          }
+          style={estilos.input}
+        />
+
+
+        <label style={estilos.label}>
+          Descripción
+        </label>
+
+
+        <textarea
+          value={descripcion}
+          onChange={(e) =>
+            setDescripcion(
+              e.target.value
+            )
+          }
+          style={estilos.textarea}
+          rows={3}
+        />
+
+
+        <label style={estilos.label}>
+          Actividades que imparte
+        </label>
+
+
+        <div
+          style={
+            estilos.actividadesChecks
+          }
+        >
+
+          {actividades.map(
+            (actividad) => {
+
+              const seleccionada =
+                actividadesSeleccionadas.includes(
+                  actividad.id
+                );
+
+
+              return (
+
+                <label
+                  key={
+                    actividad.id
+                  }
+                  style={{
+                    ...estilos.check,
+                    ...(seleccionada
+                      ? estilos.checkActivo
+                      : {}),
+                  }}
+                >
+
+                  <input
+                    type="checkbox"
+                    checked={
+                      seleccionada
+                    }
+                    onChange={() =>
+                      cambiarActividad(
+                        actividad.id
+                      )
+                    }
+                  />
+
+
+                  <span>
+                    {actividad.nombre}
+                  </span>
+
+                </label>
+
+              );
+
+            }
+          )}
+
+        </div>
+
+
+        <div
+          style={
+            estilos.botonesEditor
+          }
+        >
+
+          <button
+            type="button"
+            onClick={() =>
+              setEditando(false)
+            }
+            style={
+              estilos.botonCancelar
+            }
+            disabled={guardando}
+          >
+            Cancelar
+          </button>
+
+
+          <button
+            type="button"
+            onClick={
+              guardarCambios
+            }
+            style={
+              estilos.botonGuardar
+            }
+            disabled={guardando}
+          >
+            {guardando
+              ? "Guardando..."
+              : "Guardar cambios"}
+          </button>
+
+        </div>
+
+      </div>
+
+    );
+
+  }
+
+
+  return (
+
+    <div style={estilos.fila}>
+
+      <div style={estilos.numero}>
+        {String(
+          indice + 1
+        ).padStart(
+          2,
+          "0"
+        )}
+      </div>
+
+
+      <div
+        style={
+          estilos.filaContenido
+        }
+      >
+
+        <div
+          style={
+            estilos.filaTitulo
+          }
+        >
+          {profesor.nombre}
+        </div>
+
+
+        <div
+          style={
+            estilos.filaDescripcion
+          }
+        >
+          {profesor.descripcion ||
+            "Sin descripción"}
+        </div>
+
+
+        <div style={estilos.chips}>
+
+          {profesor.actividad_ids &&
+          profesor.actividad_ids.length >
+            0 ? (
+
+            profesor.actividad_ids.map(
+              (actividadId) => {
+
+                const actividad =
+                  actividades.find(
+                    (item) =>
+                      item.id ===
+                      actividadId
+                  );
+
+
+                if (!actividad) {
+                  return null;
+                }
+
+
+                return (
+
+                  <span
+                    key={
+                      actividadId
+                    }
+                    style={
+                      estilos.chip
+                    }
+                  >
+                    {actividad.nombre}
+                  </span>
+
+                );
+
+              }
+            )
+
+          ) : (
+
+            <span
+              style={
+                estilos.sinActividades
+              }
+            >
+              Sin actividades asignadas
+            </span>
+
+          )}
+
+        </div>
+
+      </div>
+
+
+      <div
+        style={
+          estilos.filaAcciones
+        }
+      >
+
+        <button
+          type="button"
+          onClick={
+            cambiarEstadoProfesor
+          }
+          style={{
+            ...estilos.estadoActivo,
+            border: "0",
+            cursor: "pointer",
+          }}
+          disabled={
+            guardando
+          }
+        >
+
+          {Number(
+            profesor.activa
+          ) !== 0
+            ? "ACTIVO"
+            : "OCULTO"}
+
+        </button>
+
+
+        <button
+          type="button"
+          onClick={() =>
+            setEditando(true)
+          }
+          style={
+            estilos.botonEditar
+          }
+          disabled={
+            guardando
+          }
+        >
+          Editar
+        </button>
+
+
+        <button
+          type="button"
+          onClick={
+            eliminarProfesor
+          }
+          style={{
+            ...estilos.botonEditar,
+            color: "#ff8995",
+          }}
+          disabled={
+            guardando
+          }
+        >
+          Eliminar
+        </button>
+
+      </div>
+
+    </div>
+
+  );
+
+}
 
   if (editando) {
 
