@@ -416,139 +416,140 @@ return (
 
     <header className="nav">
 
+  <a
+    className="brand"
+    href="#inicio"
+    aria-label="Artes Escénicas Paradise"
+  >
+
+    <span className="brand-mark">
+      AP
+    </span>
+
+    <span>
+      Artes Escénicas{" "}
+      <strong>
+        Paradise
+      </strong>
+    </span>
+
+  </a>
+
+
+  <nav>
+
+    <a href="#clases">
+      Clases
+    </a>
+
+    <a href="#horarios">
+      Horarios
+    </a>
+
+    <a href="#profesores">
+      Profesores
+    </a>
+
+    <a href="#escuela">
+      La escuela
+    </a>
+
+    <a href="#contacto">
+      Contacto
+    </a>
+
+  </nav>
+
+
+  <a
+    className="nav-cta"
+    href="#contacto"
+  >
+    Prueba una clase
+  </a>
+
+</header>
+
+{/* =================================================
+    HERO
+================================================= */}
+
+<section
+  id="inicio"
+  className="hero"
+>
+
+  <div className="hero-copy">
+
+    <p className="eyebrow">
+      ARTES ESCÉNICAS · LUCENA
+    </p>
+
+    <h1>
+      Baila.
+      <br />
+      <em>Disfruta.</em>
+      <br />
+      Conecta.
+    </h1>
+
+    <p className="hero-text">
+      Un espacio para aprender,
+      compartir y vivir el baile.
+      Encuentra tu estilo, conoce
+      a tu gente y disfruta cada paso.
+    </p>
+
+    <div className="hero-actions">
+
       <a
-        className="brand"
-        href="#inicio"
-        aria-label="Lucena Baila"
+        className="button primary"
+        href="#clases"
       >
-
-        <span className="brand-mark">
-          LB
-        </span>
-
-        <span>
-          Lucena <strong>Baila</strong>
-        </span>
-
+        Ver actividades
       </a>
 
-
-      <nav>
-
-        <a href="#clases">
-          Clases
-        </a>
-
-        <a href="#horarios">
-          Horarios
-        </a>
-
-        <a href="#profesores">
-          Profesores
-        </a>
-
-        <a href="#escuela">
-          La escuela
-        </a>
-
-        <a href="#contacto">
-          Contacto
-        </a>
-
-      </nav>
-
-
       <a
-        className="nav-cta"
+        className="button secondary"
         href="#contacto"
       >
-        Prueba una clase
+        Quiero probar una clase
       </a>
 
-    </header>
+    </div>
+
+  </div>
 
 
-    {/* =================================================
-        HERO
-    ================================================= */}
+  <div
+    className="hero-art"
+    aria-label="Artes Escénicas Paradise"
+  >
 
-    <section
-      id="inicio"
-      className="hero"
-    >
+    <img
+      src="/hero.jpg"
+      alt="Artes Escénicas Paradise"
+      className="hero-image"
+    />
 
-      <div className="hero-copy">
-
-        <p className="eyebrow">
-          ESCUELA DE BAILE · LUCENA
-        </p>
+    <div className="hero-overlay"></div>
 
 
-        <h1>
-          Baila.
-          <br />
-          <em>Disfruta.</em>
-          <br />
-          Conecta.
-        </h1>
+    <div className="hero-sticker">
 
+      BAILA
 
-        <p className="hero-text">
-          Un espacio para aprender,
-          compartir y vivir el baile.
-          Encuentra tu estilo, conoce
-          a tu gente y empieza a moverte.
-        </p>
+      <br />
 
+      <span>
+        CON NOSOTROS
+      </span>
 
-        <div className="hero-actions">
+    </div>
 
-          <a
-            className="button primary"
-            href="#clases"
-          >
-            Ver actividades
-          </a>
+  </div>
 
-
-          <a
-            className="button secondary"
-            href="#contacto"
-          >
-            Quiero probar una clase
-          </a>
-
-        </div>
-
-      </div>
-
-
-      <div
-        className="hero-art"
-        aria-label="Espacio reservado para fotografía principal"
-      >
-
-        <div className="hero-photo-note">
-          TU FOTO PRINCIPAL AQUÍ
-        </div>
-
-
-        <div className="hero-sticker">
-
-          BAILA
-
-          <br />
-
-          <span>
-            CON NOSOTROS
-          </span>
-
-        </div>
-
-      </div>
-
-    </section>
-
+</section>
 
     {/* =================================================
         ACTIVIDADES
