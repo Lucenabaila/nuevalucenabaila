@@ -5,9 +5,18 @@ import pool from "../../lib/db";
 // GET — OBTENER PROFESORES
 // =========================================================
 
-export async function GET() {
+export async function GET(request) {
+
   try {
-    const [profesores] = await pool.query(`
+
+    const url =
+      new URL(request.url);
+
+    const admin =
+      url.searchParams.get("admin") === "true";
+
+
+    let consulta = `
       SELECT
         p.id,
         p.nombre,
@@ -23,7 +32,21 @@ export async function GET() {
       FROM profesores p
       LEFT JOIN profesor_actividad pa
         ON p.id = pa.profesor_id
-      WHERE p.activa = TRUE
+    `;
+
+
+    // Para la web pública solamente profesores activos.
+    // Para el administrador, todos.
+    if (!admin) {
+
+      consulta += `
+        WHERE p.activa = TRUE
+      `;
+
+    }
+
+
+    consulta += `
       GROUP BY
         p.id,
         p.nombre,
@@ -34,22 +57,43 @@ export async function GET() {
       ORDER BY
         p.orden ASC,
         p.nombre ASC
-    `);
+    `;
 
-    const resultado = profesores.map((profesor) => ({
-      ...profesor,
-      actividad_ids: profesor.actividad_ids
-        ? profesor.actividad_ids
-            .split(",")
-            .map(Number)
-            .filter(Boolean)
-        : [],
-    }));
+
+    const [
+      profesores
+    ] = await pool.query(
+      consulta
+    );
+
+
+    const resultado =
+      profesores.map(
+        (profesor) => ({
+
+          ...profesor,
+
+          actividad_ids:
+            profesor.actividad_ids
+              ? profesor.actividad_ids
+                  .split(",")
+                  .map(Number)
+                  .filter(Boolean)
+              : [],
+
+        })
+      );
+
 
     return Response.json({
+
       correcto: true,
-      profesores: resultado,
+
+      profesores:
+        resultado,
+
     });
+
 
   } catch (error) {
 
@@ -58,20 +102,33 @@ export async function GET() {
       error
     );
 
+
     return Response.json(
       {
         correcto: false,
-        mensaje: "Error obteniendo profesores",
-        error: error.message,
-        codigo: error.code || null,
-        errno: error.errno || null,
-        sqlMessage: error.sqlMessage || null,
+
+        mensaje:
+          "Error obteniendo profesores",
+
+        error:
+          error.message,
+
+        codigo:
+          error.code || null,
+
+        errno:
+          error.errno || null,
+
+        sqlMessage:
+          error.sqlMessage || null,
       },
       {
         status: 500,
       }
     );
+
   }
+
 }
 
 
@@ -84,19 +141,26 @@ export async function POST(request) {
   const connection =
     await pool.getConnection();
 
+
   try {
 
     const body =
       await request.json();
 
+
     const nombre =
       body.nombre?.trim();
 
+
     const descripcion =
-      body.descripcion?.trim() || null;
+      body.descripcion?.trim() ||
+      null;
+
 
     const actividadIds =
-      Array.isArray(body.actividadIds)
+      Array.isArray(
+        body.actividadIds
+      )
         ? [
             ...new Set(
               body.actividadIds
@@ -114,6 +178,7 @@ export async function POST(request) {
       return Response.json(
         {
           correcto: false,
+
           mensaje:
             "El nombre es obligatorio",
         },
@@ -121,6 +186,7 @@ export async function POST(request) {
           status: 400,
         }
       );
+
     }
 
 
@@ -131,22 +197,25 @@ export async function POST(request) {
     // CREAR PROFESOR
     // -----------------------------------------------------
 
-    const [resultado] =
-      await connection.query(
-        `
-        INSERT INTO profesores
-          (
-            nombre,
-            descripcion
-          )
-        VALUES
-          (?, ?)
-        `,
-        [
+    const [
+      resultado
+    ] = await connection.query(
+      `
+      INSERT INTO profesores
+        (
           nombre,
           descripcion,
-        ]
-      );
+          activa,
+          orden
+        )
+      VALUES
+        (?, ?, TRUE, 0)
+      `,
+      [
+        nombre,
+        descripcion,
+      ]
+    );
 
 
     const profesorId =
@@ -157,7 +226,9 @@ export async function POST(request) {
     // COMPROBAR ACTIVIDADES
     // -----------------------------------------------------
 
-    if (actividadIds.length > 0) {
+    if (
+      actividadIds.length > 0
+    ) {
 
       const placeholders =
         actividadIds
@@ -166,12 +237,14 @@ export async function POST(request) {
 
 
       const [
-        actividadesValidas,
+        actividadesValidas
       ] = await connection.query(
         `
-        SELECT id
+        SELECT
+          id
         FROM actividades
         WHERE id IN (${placeholders})
+          AND activa = TRUE
         `,
         actividadIds
       );
@@ -180,7 +253,9 @@ export async function POST(request) {
       const idsValidos =
         actividadesValidas.map(
           (actividad) =>
-            Number(actividad.id)
+            Number(
+              actividad.id
+            )
         );
 
 
@@ -210,6 +285,7 @@ export async function POST(request) {
         );
 
       }
+
     }
 
 
@@ -221,9 +297,12 @@ export async function POST(request) {
     return Response.json(
       {
         correcto: true,
+
         mensaje:
           "Profesor creado correctamente",
-        id: profesorId,
+
+        id:
+          profesorId,
       },
       {
         status: 201,
@@ -234,24 +313,32 @@ export async function POST(request) {
   } catch (error) {
 
     try {
+
       await connection.rollback();
+
     } catch (rollbackError) {
+
       console.error(
         "ERROR HACIENDO ROLLBACK:",
         rollbackError
       );
+
     }
 
+
     connection.release();
+
 
     console.error(
       "ERROR CREANDO PROFESOR:",
       error
     );
 
+
     return Response.json(
       {
         correcto: false,
+
         mensaje:
           "Error creando profesor",
 
@@ -271,7 +358,9 @@ export async function POST(request) {
         status: 500,
       }
     );
+
   }
+
 }
 
 
@@ -283,6 +372,7 @@ export async function PUT(request) {
 
   const connection =
     await pool.getConnection();
+
 
   try {
 
@@ -299,11 +389,14 @@ export async function PUT(request) {
 
 
     const descripcion =
-      body.descripcion?.trim() || null;
+      body.descripcion?.trim() ||
+      null;
 
 
     const actividadIds =
-      Array.isArray(body.actividadIds)
+      Array.isArray(
+        body.actividadIds
+      )
         ? [
             ...new Set(
               body.actividadIds
@@ -312,6 +405,16 @@ export async function PUT(request) {
             ),
           ]
         : [];
+
+
+    const activa =
+      body.activa === false
+        ? false
+        : true;
+
+
+    const orden =
+      Number(body.orden) || 0;
 
 
     // -----------------------------------------------------
@@ -325,6 +428,7 @@ export async function PUT(request) {
       return Response.json(
         {
           correcto: false,
+
           mensaje:
             "El ID del profesor es obligatorio",
         },
@@ -332,6 +436,7 @@ export async function PUT(request) {
           status: 400,
         }
       );
+
     }
 
 
@@ -342,6 +447,7 @@ export async function PUT(request) {
       return Response.json(
         {
           correcto: false,
+
           mensaje:
             "El nombre es obligatorio",
         },
@@ -349,6 +455,7 @@ export async function PUT(request) {
           status: 400,
         }
       );
+
     }
 
 
@@ -360,10 +467,11 @@ export async function PUT(request) {
     // -----------------------------------------------------
 
     const [
-      profesorExiste,
+      profesorExiste
     ] = await connection.query(
       `
-      SELECT id
+      SELECT
+        id
       FROM profesores
       WHERE id = ?
       LIMIT 1
@@ -383,6 +491,7 @@ export async function PUT(request) {
       return Response.json(
         {
           correcto: false,
+
           mensaje:
             "El profesor no existe.",
         },
@@ -390,11 +499,12 @@ export async function PUT(request) {
           status: 404,
         }
       );
+
     }
 
 
     // -----------------------------------------------------
-    // ACTUALIZAR PROFESOR
+    // ACTUALIZAR DATOS DEL PROFESOR
     // -----------------------------------------------------
 
     await connection.query(
@@ -402,12 +512,16 @@ export async function PUT(request) {
       UPDATE profesores
       SET
         nombre = ?,
-        descripcion = ?
+        descripcion = ?,
+        activa = ?,
+        orden = ?
       WHERE id = ?
       `,
       [
         nombre,
         descripcion,
+        activa,
+        orden,
         id,
       ]
     );
@@ -420,7 +534,9 @@ export async function PUT(request) {
     let idsValidos = [];
 
 
-    if (actividadIds.length > 0) {
+    if (
+      actividadIds.length > 0
+    ) {
 
       const placeholders =
         actividadIds
@@ -429,12 +545,11 @@ export async function PUT(request) {
 
 
       const [
-        actividadesValidas,
+        actividadesValidas
       ] = await connection.query(
         `
         SELECT
           id,
-          nombre,
           activa
         FROM actividades
         WHERE id IN (${placeholders})
@@ -447,23 +562,16 @@ export async function PUT(request) {
         actividadesValidas
           .filter(
             (actividad) =>
-              Number(actividad.activa) === 1
+              Number(
+                actividad.activa
+              ) === 1
           )
           .map(
             (actividad) =>
-              Number(actividad.id)
+              Number(
+                actividad.id
+              )
           );
-
-
-      console.log(
-        "Actividades recibidas:",
-        actividadIds
-      );
-
-      console.log(
-        "Actividades válidas:",
-        idsValidos
-      );
 
     }
 
@@ -509,19 +617,18 @@ export async function PUT(request) {
     }
 
 
-    // -----------------------------------------------------
-    // CONFIRMAR
-    // -----------------------------------------------------
-
     await connection.commit();
 
     connection.release();
 
 
     return Response.json({
+
       correcto: true,
+
       mensaje:
         "Profesor actualizado correctamente",
+
     });
 
 
@@ -545,7 +652,7 @@ export async function PUT(request) {
 
 
     console.error(
-      "ERROR REAL ACTUALIZANDO PROFESOR:",
+      "ERROR ACTUALIZANDO PROFESOR:",
       error
     );
 
@@ -573,5 +680,210 @@ export async function PUT(request) {
         status: 500,
       }
     );
+
   }
+
+}
+
+
+// =========================================================
+// DELETE — ELIMINAR PROFESOR
+// =========================================================
+
+export async function DELETE(request) {
+
+  const connection =
+    await pool.getConnection();
+
+
+  try {
+
+    const body =
+      await request.json();
+
+
+    const id =
+      Number(body.id);
+
+
+    if (!id) {
+
+      connection.release();
+
+      return Response.json(
+        {
+          correcto: false,
+
+          mensaje:
+            "El ID del profesor es obligatorio",
+        },
+        {
+          status: 400,
+        }
+      );
+
+    }
+
+
+    await connection.beginTransaction();
+
+
+    // -----------------------------------------------------
+    // COMPROBAR PROFESOR
+    // -----------------------------------------------------
+
+    const [
+      profesorExiste
+    ] = await connection.query(
+      `
+      SELECT
+        id
+      FROM profesores
+      WHERE id = ?
+      LIMIT 1
+      `,
+      [id]
+    );
+
+
+    if (
+      profesorExiste.length === 0
+    ) {
+
+      await connection.rollback();
+
+      connection.release();
+
+      return Response.json(
+        {
+          correcto: false,
+
+          mensaje:
+            "El profesor no existe.",
+        },
+        {
+          status: 404,
+        }
+      );
+
+    }
+
+
+    // -----------------------------------------------------
+    // ELIMINAR RELACIONES CON ACTIVIDADES
+    // -----------------------------------------------------
+
+    await connection.query(
+      `
+      DELETE FROM profesor_actividad
+      WHERE profesor_id = ?
+      `,
+      [id]
+    );
+
+
+    // -----------------------------------------------------
+    // ELIMINAR PROFESOR
+    // -----------------------------------------------------
+
+    const [
+      resultado
+    ] = await connection.query(
+      `
+      DELETE FROM profesores
+      WHERE id = ?
+      `,
+      [id]
+    );
+
+
+    if (
+      resultado.affectedRows === 0
+    ) {
+
+      await connection.rollback();
+
+      connection.release();
+
+      return Response.json(
+        {
+          correcto: false,
+
+          mensaje:
+            "No se pudo eliminar el profesor.",
+        },
+        {
+          status: 500,
+        }
+      );
+
+    }
+
+
+    await connection.commit();
+
+    connection.release();
+
+
+    return Response.json({
+
+      correcto: true,
+
+      mensaje:
+        "Profesor eliminado correctamente",
+
+    });
+
+
+  } catch (error) {
+
+    try {
+
+      await connection.rollback();
+
+    } catch (rollbackError) {
+
+      console.error(
+        "ERROR HACIENDO ROLLBACK:",
+        rollbackError
+      );
+
+    }
+
+
+    connection.release();
+
+
+    console.error(
+      "ERROR ELIMINANDO PROFESOR:",
+      error
+    );
+
+
+    return Response.json(
+      {
+        correcto: false,
+
+        mensaje:
+          "Error eliminando profesor",
+
+        error:
+          error.message,
+
+        codigo:
+          error.code || null,
+
+        errno:
+          error.errno || null,
+
+        sqlMessage:
+          error.sqlMessage || null,
+      },
+      {
+        status: 500,
+      }
+    );
+
+  }
+
 }
