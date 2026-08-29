@@ -1,6 +1,7 @@
 /* =========================================================
    ARTES ESCÉNICAS PARADISE
    WEB PÚBLICA
+   DISEÑO PRINCIPAL
    ========================================================= */
 
 :root {
@@ -12,15 +13,16 @@
   --white-soft: #e8e6eb;
 
   --pink: #f00062;
-  --pink-light: #ff2d83;
+  --pink-light: #ff3b91;
   --pink-dark: #c90050;
 
   --gray: #aaa7b0;
   --gray-dark: #68656e;
 
-  --line: rgba(255, 255, 255, 0.12);
-  --line-light: rgba(255, 255, 255, 0.2);
+  --line: rgba(255,255,255,.12);
+  --line-light: rgba(255,255,255,.22);
 }
+
 
 /* =========================================================
    RESET
@@ -60,123 +62,115 @@ button {
 
 ::selection {
   background: var(--pink);
-  color: white;
+  color: #fff;
 }
 
 
 /* =========================================================
-   MAIN
+   CONTENEDOR
    ========================================================= */
 
 .site {
   width: 100%;
+  min-height: 100vh;
   overflow: hidden;
   background: var(--black);
 }
 
 
 /* =========================================================
-   NAVEGACIÓN
+   HEADER
    ========================================================= */
 
 .nav {
-  height: 92px;
-
-  padding: 0 3.8vw;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
 
-  z-index: 50;
+  z-index: 100;
 
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.7),
-    transparent
-  );
+  height: 88px;
 
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  padding: 0 5vw;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(0,0,0,.75),
+      rgba(0,0,0,.15),
+      transparent
+    );
+
+  border-bottom: 1px solid rgba(255,255,255,.05);
 }
 
 
 /* =========================================================
-   LOGO
+   MARCA
    ========================================================= */
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
 
-  min-width: 290px;
+  font-size: 17px;
+  letter-spacing: .2px;
+
+  white-space: nowrap;
 }
 
-.brand-logo {
-  width: 42px;
-  height: 42px;
+.brand-mark {
+  width: 40px;
+  height: 40px;
 
   display: grid;
   place-items: center;
 
-  border: 2px solid var(--pink);
+  background: var(--pink);
+  color: #fff;
 
-  color: var(--pink);
-
-  font-size: 15px;
+  font-size: 11px;
   font-weight: 900;
 
   transform: rotate(-5deg);
+
+  box-shadow:
+    0 8px 25px rgba(240,0,98,.25);
 }
 
-.brand-text {
-  display: flex;
-  flex-direction: column;
-
-  line-height: 1;
-}
-
-.brand-text span {
-  font-size: 9px;
-  letter-spacing: 4px;
-  font-weight: 800;
-
-  margin-bottom: 5px;
-}
-
-.brand-text strong {
-  font-size: 27px;
-  letter-spacing: 2px;
+.brand strong {
   font-weight: 900;
 }
 
 
 /* =========================================================
-   MENÚ
+   MENU
    ========================================================= */
 
 .nav nav {
   display: flex;
   align-items: center;
-  gap: 36px;
+  gap: 32px;
 
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 800;
+  letter-spacing: .5px;
+  text-transform: uppercase;
 }
 
 .nav nav a {
   position: relative;
 
-  color: rgba(255, 255, 255, 0.92);
+  color: rgba(255,255,255,.88);
 
   transition:
-    color 0.2s ease,
-    transform 0.2s ease;
+    color .2s ease;
 }
 
 .nav nav a::after {
@@ -192,7 +186,8 @@ button {
 
   background: var(--pink);
 
-  transition: width 0.25s ease;
+  transition:
+    width .25s ease;
 }
 
 .nav nav a:hover {
@@ -205,32 +200,30 @@ button {
 
 
 /* =========================================================
-   BOTÓN NAV
+   BOTÓN HEADER
    ========================================================= */
 
 .nav-cta {
-  min-width: 190px;
-
-  padding: 17px 25px;
-
-  text-align: center;
+  padding: 14px 20px;
 
   background: var(--pink);
+  color: #fff;
 
-  color: white;
+  border-radius: 9px;
 
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 900;
 
-  border-radius: 14px;
+  letter-spacing: .4px;
+  text-transform: uppercase;
 
   box-shadow:
-    0 10px 35px rgba(240, 0, 98, 0.28);
+    0 10px 30px rgba(240,0,98,.25);
 
   transition:
-    transform 0.2s ease,
-    background 0.2s ease,
-    box-shadow 0.2s ease;
+    transform .2s ease,
+    background .2s ease,
+    box-shadow .2s ease;
 }
 
 .nav-cta:hover {
@@ -239,7 +232,7 @@ button {
   transform: translateY(-2px);
 
   box-shadow:
-    0 15px 45px rgba(240, 0, 98, 0.4);
+    0 15px 40px rgba(240,0,98,.4);
 }
 
 
@@ -248,60 +241,67 @@ button {
    ========================================================= */
 
 .hero {
-  min-height: 900px;
-
   position: relative;
 
-  display: grid;
-  grid-template-columns: 42% 58%;
+  min-height: 760px;
 
-  align-items: stretch;
+  padding: 130px 5vw 70px;
+
+  display: grid;
+
+  grid-template-columns: minmax(0, .95fr) minmax(400px, .85fr);
+
+  gap: 5vw;
+
+  align-items: center;
 
   overflow: hidden;
 
   background:
     radial-gradient(
-      circle at 75% 55%,
-      rgba(240, 0, 98, 0.18),
+      circle at 72% 48%,
+      rgba(240,0,98,.16),
       transparent 30%
     ),
     radial-gradient(
-      circle at 60% 25%,
-      rgba(80, 30, 120, 0.18),
+      circle at 50% 20%,
+      rgba(100,40,140,.13),
       transparent 35%
     ),
     #050509;
 }
 
 
-/* =========================================================
-   FONDO HERO
-   ========================================================= */
+/* fondo decorativo */
 
-.hero-background {
+.hero::before {
+  content: "";
+
   position: absolute;
 
-  inset: 0;
+  width: 600px;
+  height: 600px;
+
+  right: 10%;
+  top: 10%;
+
+  border-radius: 50%;
 
   background:
     radial-gradient(
-      ellipse at 72% 65%,
-      rgba(240, 0, 98, 0.18),
-      transparent 38%
-    ),
-    linear-gradient(
-      115deg,
-      #050509 0%,
-      #080711 48%,
-      #100813 100%
+      circle,
+      rgba(240,0,98,.13),
+      transparent 68%
     );
+
+  filter: blur(10px);
 
   pointer-events: none;
 }
 
 
 /* =========================================================
-   COPY HERO
+   TEXTO HERO
    ========================================================= */
 
 .hero-copy {
@@ -309,40 +309,36 @@ button {
 
   z-index: 10;
 
-  padding:
-    205px
-    0
-    80px
-    5vw;
+  max-width: 650px;
 
-  display: flex;
-  flex-direction: column;
-
-  justify-content: center;
-
-  max-width: 720px;
+  padding-left: 2vw;
 }
 
-.hero-eyebrow {
-  margin: 0 0 28px;
+.eyebrow {
+  margin: 0 0 18px;
 
   color: var(--pink);
 
-  font-size: 11px;
-  letter-spacing: 3.5px;
+  font-size: 10px;
+
+  letter-spacing: 3px;
+
   font-weight: 900;
 }
 
 .hero h1 {
   margin: 0;
 
-  font-size: clamp(
-    66px,
-    6.5vw,
-    112px
-  );
+  color: #fff;
 
-  line-height: 0.84;
+  font-size:
+    clamp(
+      62px,
+      7vw,
+      105px
+    );
+
+  line-height: .82;
 
   letter-spacing: -5px;
 
@@ -351,58 +347,49 @@ button {
   text-transform: uppercase;
 }
 
-.hero h1 span {
-  color: var(--pink);
-}
-
 .hero h1 em {
   color: var(--pink);
 
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
   font-style: italic;
 
-  font-weight: 900;
-}
-
-.hero-line {
-  width: 135px;
-
-  height: 3px;
-
-  margin: 34px 0 22px;
-
-  background: var(--pink);
+  font-weight: 700;
 }
 
 .hero-text {
-  max-width: 500px;
+  max-width: 470px;
 
-  margin: 0;
+  margin: 30px 0 0;
 
-  color: rgba(255, 255, 255, 0.78);
+  color: rgba(255,255,255,.72);
 
-  font-size: 17px;
+  font-size: 16px;
 
   line-height: 1.7;
 }
 
 
 /* =========================================================
-   HERO BOTONES
+   BOTONES HERO
    ========================================================= */
 
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
 
-  gap: 18px;
+  gap: 12px;
 
-  margin-top: 34px;
+  margin-top: 30px;
 }
 
 .button {
-  min-height: 58px;
+  min-height: 52px;
 
-  padding: 0 30px;
+  padding: 0 23px;
 
   display: inline-flex;
 
@@ -413,15 +400,15 @@ button {
 
   cursor: pointer;
 
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 900;
 
-  letter-spacing: 0.3px;
+  letter-spacing: .5px;
 
   transition:
-    transform 0.2s ease,
-    background 0.2s ease,
-    box-shadow 0.2s ease;
+    transform .2s ease,
+    background .2s ease,
+    box-shadow .2s ease;
 }
 
 .button:hover {
@@ -431,281 +418,221 @@ button {
 .button.primary {
   background: var(--pink);
 
-  color: white;
+  color: #fff;
 
-  border-radius: 10px;
+  border-radius: 8px;
 
   box-shadow:
-    0 12px 35px rgba(240, 0, 98, 0.3);
+    0 10px 30px rgba(240,0,98,.28);
 }
 
 .button.primary:hover {
   background: var(--pink-light);
 
   box-shadow:
-    0 16px 45px rgba(240, 0, 98, 0.45);
+    0 15px 40px rgba(240,0,98,.42);
 }
 
-.button.outline {
-  border: 1px solid rgba(255, 255, 255, 0.75);
-
+.button.secondary {
   background: transparent;
 
-  color: white;
+  color: #fff;
 
-  border-radius: 10px;
+  border:
+    1px solid
+    rgba(255,255,255,.35);
+
+  border-radius: 8px;
 }
 
-.button.outline:hover {
-  background: white;
+.button.secondary:hover {
+  background: #fff;
 
   color: var(--black);
 }
 
 
 /* =========================================================
-   HERO FOTO
+   FOTO HERO
    ========================================================= */
 
-.hero-visual {
+.hero-art {
   position: relative;
-
-  min-height: 900px;
-
-  overflow: hidden;
-
-  display: flex;
-
-  align-items: flex-end;
-  justify-content: center;
-}
-
-.hero-image {
-  position: absolute;
 
   z-index: 5;
 
-  width: 100%;
-  height: 100%;
+  height: 610px;
 
-  object-fit: cover;
+  display: flex;
 
-  object-position: center center;
+  align-items: center;
+  justify-content: center;
+
+  overflow: visible;
+
+  background: transparent;
+}
+
+
+/*
+   IMPORTANTE:
+   La foto ya NO ocupa todo el bloque.
+   Se hace más pequeña para que se adapte
+   al boceto y no corte las personas.
+*/
+
+.hero-image {
+  position: relative;
+
+  z-index: 5;
+
+  width: auto;
+
+  height: 570px;
+
+  max-width: 100%;
+
+  object-fit: contain;
+
+  object-position: center;
 
   display: block;
 
   filter:
-    saturate(1.12)
-    contrast(1.08);
-
-  -webkit-mask-image:
-    linear-gradient(
-      to right,
-      transparent 0%,
-      black 17%,
-      black 100%
+    saturate(1.08)
+    contrast(1.04)
+    drop-shadow(
+      0 25px 55px rgba(0,0,0,.45)
     );
 
-  mask-image:
-    linear-gradient(
-      to right,
-      transparent 0%,
-      black 17%,
-      black 100%
-    );
+  border-radius: 4px;
 }
 
 
-/* =========================================================
-   EFECTOS DE LUZ
-   ========================================================= */
+/* brillo detrás de la fotografía */
 
-.hero-glow {
+.hero-art::before {
+  content: "";
+
   position: absolute;
 
-  z-index: 2;
+  width: 480px;
+  height: 480px;
 
-  width: 650px;
-  height: 650px;
+  left: 50%;
+  top: 50%;
 
-  right: 4%;
-  top: 18%;
+  transform:
+    translate(-50%,-50%);
 
   border-radius: 50%;
 
   background:
     radial-gradient(
       circle,
-      rgba(255, 0, 110, 0.3) 0%,
-      rgba(240, 0, 98, 0.12) 35%,
-      transparent 70%
+      rgba(240,0,98,.24),
+      transparent 68%
     );
 
-  filter: blur(15px);
+  filter: blur(25px);
+
+  z-index: 1;
 }
 
-.hero-visual::before {
+
+/* pequeño degradado inferior */
+
+.hero-art::after {
   content: "";
 
   position: absolute;
 
-  z-index: 7;
+  left: 0;
+  right: 0;
+  bottom: 0;
 
-  width: 420px;
-  height: 800px;
-
-  top: -100px;
-  right: -80px;
+  height: 140px;
 
   background:
-    linear-gradient(
-      125deg,
-      transparent 42%,
-      rgba(255, 255, 255, 0.14) 43%,
-      transparent 44%
-    );
-
-  transform: rotate(-8deg);
-
-  filter: blur(2px);
-}
-
-.hero-photo-overlay {
-  position: absolute;
-
-  z-index: 8;
-
-  inset: 0;
-
-  pointer-events: none;
-
-  background:
-    linear-gradient(
-      to right,
-      #050509 0%,
-      rgba(5, 5, 9, 0.65) 10%,
-      transparent 32%
-    ),
     linear-gradient(
       to top,
-      rgba(5, 5, 9, 0.6),
-      transparent 35%
+      #050509,
+      transparent
     );
+
+  z-index: 7;
+
+  pointer-events: none;
+}
+
+
+/* texto pequeño de foto */
+
+.hero-photo-note {
+  position: absolute;
+
+  z-index: 10;
+
+  left: 5%;
+
+  bottom: 28px;
+
+  color:
+    rgba(255,255,255,.55);
+
+  font-size: 9px;
+
+  letter-spacing: 2.5px;
+
+  text-transform: uppercase;
 }
 
 
 /* =========================================================
-   INFORMACIÓN HERO
+   STICKER
    ========================================================= */
 
-.hero-info {
-  position: relative;
+.hero-sticker {
+  position: absolute;
 
   z-index: 20;
 
-  min-height: 125px;
+  right: 3%;
 
-  padding:
-    25px
-    5vw;
+  top: 55px;
 
-  display: grid;
-
-  grid-template-columns:
-    1.2fr
-    0.9fr
-    1.25fr
-    1.8fr;
-
-  gap: 25px;
-
-  align-items: center;
-
-  background: #07070b;
-
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-}
-
-.hero-info-item {
-  display: flex;
-
-  align-items: center;
-
-  gap: 15px;
-
-  min-height: 65px;
-
-  border-right: 1px solid var(--line);
-}
-
-.hero-info-icon {
-  width: 48px;
-  height: 48px;
+  width: 105px;
+  height: 105px;
 
   display: grid;
   place-items: center;
 
-  flex-shrink: 0;
-
-  color: var(--pink);
-
-  border: 2px solid var(--pink);
+  text-align: center;
 
   border-radius: 50%;
 
-  font-size: 22px;
-}
+  background: var(--pink);
 
-.hero-info-item div:last-child {
-  display: flex;
-  flex-direction: column;
+  color: #fff;
 
-  gap: 7px;
-}
+  font-size: 17px;
 
-.hero-info-item strong {
-  font-size: 12px;
-
-  letter-spacing: 0.7px;
-}
-
-.hero-info-item span {
-  font-size: 11px;
-
-  color: rgba(255, 255, 255, 0.65);
-
-  letter-spacing: 1px;
-}
-
-.hero-info-item .pink {
-  color: var(--pink);
+  line-height: .9;
 
   font-weight: 900;
+
+  transform: rotate(8deg);
+
+  box-shadow:
+    0 15px 40px rgba(0,0,0,.3);
 }
 
-.hero-quote {
-  padding-left: 15px;
+.hero-sticker span {
+  font-size: 7px;
 
-  display: flex;
-  flex-direction: column;
+  letter-spacing: 1.5px;
 
-  gap: 4px;
-
-  font-family:
-    Georgia,
-    "Times New Roman",
-    serif;
-
-  font-size: 19px;
-
-  line-height: 1.2;
-}
-
-.hero-quote em {
-  color: var(--pink);
-
-  font-style: italic;
+  margin-top: 4px;
 }
 
 
@@ -715,51 +642,20 @@ button {
 
 .section {
   padding:
-    120px
+    105px
     5vw;
 }
-
-.dark-section {
-  background: var(--black);
-}
-
-.schedule-section {
-  background:
-    linear-gradient(
-      135deg,
-      #0b0a11,
-      #121018
-    );
-}
-
-
-/* =========================================================
-   CABECERA DE SECCIÓN
-   ========================================================= */
 
 .section-head {
   display: flex;
 
-  justify-content: space-between;
-
   align-items: flex-end;
+
+  justify-content: space-between;
 
   gap: 50px;
 
-  margin-bottom: 50px;
-}
-
-.section-head .eyebrow,
-.eyebrow {
-  margin: 0 0 18px;
-
-  color: var(--pink);
-
-  font-size: 11px;
-
-  letter-spacing: 3px;
-
-  font-weight: 900;
+  margin-bottom: 45px;
 }
 
 .section-head h2,
@@ -774,12 +670,12 @@ button {
 
   font-size:
     clamp(
-      50px,
+      48px,
       5.5vw,
-      82px
+      76px
     );
 
-  line-height: 0.92;
+  line-height: .9;
 
   letter-spacing: -4px;
 
@@ -795,20 +691,20 @@ button {
 }
 
 .section-head > p {
-  max-width: 440px;
+  max-width: 410px;
 
   margin: 0;
 
   color: var(--gray);
 
-  line-height: 1.75;
+  font-size: 14px;
 
-  font-size: 15px;
+  line-height: 1.7;
 }
 
 
 /* =========================================================
-   TARJETAS ACTIVIDADES
+   ACTIVIDADES
    ========================================================= */
 
 .cards {
@@ -821,26 +717,39 @@ button {
 
   background: var(--line);
 
-  border: 1px solid var(--line);
+  border:
+    1px solid
+    var(--line);
 }
 
 .card {
   position: relative;
 
-  min-height: 285px;
+  min-height: 255px;
 
-  padding: 35px;
+  padding: 30px;
 
   background:
     linear-gradient(
       145deg,
       #111019,
-      #0c0b11
+      #0b0a10
     );
 
   transition:
-    transform 0.25s ease,
-    background 0.25s ease;
+    transform .25s ease,
+    background .25s ease;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+
+  background:
+    linear-gradient(
+      145deg,
+      #19151f,
+      #0b0a10
+    );
 }
 
 .card::before {
@@ -856,18 +765,8 @@ button {
 
   background: var(--pink);
 
-  transition: width 0.3s ease;
-}
-
-.card:hover {
-  transform: translateY(-7px);
-
-  background:
-    linear-gradient(
-      145deg,
-      #18151f,
-      #0c0b11
-    );
+  transition:
+    width .3s ease;
 }
 
 .card:hover::before {
@@ -875,22 +774,16 @@ button {
 }
 
 .card-icon {
-  font-size: 32px;
-
-  filter:
-    drop-shadow(
-      0 5px 10px
-      rgba(240, 0, 98, 0.2)
-    );
+  font-size: 28px;
 }
 
 .card h3 {
   margin:
-    48px
+    42px
     0
-    12px;
+    10px;
 
-  font-size: 24px;
+  font-size: 21px;
 
   font-weight: 900;
 }
@@ -900,19 +793,19 @@ button {
 
   color: var(--gray);
 
-  line-height: 1.65;
+  font-size: 13px;
 
-  font-size: 14px;
+  line-height: 1.65;
 }
 
 .card a {
   display: inline-block;
 
-  margin-top: 22px;
+  margin-top: 18px;
 
   color: var(--pink);
 
-  font-size: 11px;
+  font-size: 10px;
 
   font-weight: 900;
 
@@ -921,49 +814,58 @@ button {
 
 
 /* =========================================================
-   FILTROS HORARIOS
+   HORARIOS
    ========================================================= */
+
+.schedule-section {
+  background:
+    linear-gradient(
+      135deg,
+      #0b0a11,
+      #111019
+    );
+}
 
 .schedule-filters {
   display: flex;
 
   flex-wrap: wrap;
 
-  gap: 9px;
+  gap: 8px;
 
-  margin-bottom: 35px;
+  margin-bottom: 32px;
 }
 
 .filter {
   padding:
-    11px
-    17px;
+    10px
+    15px;
 
   border:
     1px solid
-    rgba(255, 255, 255, 0.16);
+    rgba(255,255,255,.15);
 
   background:
-    rgba(255, 255, 255, 0.04);
+    rgba(255,255,255,.04);
 
-  color: var(--white);
+  color: #fff;
 
   cursor: pointer;
 
-  font-size: 11px;
+  font-size: 10px;
 
   font-weight: 900;
 
   transition:
-    background 0.2s ease,
-    border 0.2s ease,
-    color 0.2s ease;
+    background .2s ease,
+    border-color .2s ease,
+    color .2s ease;
 }
 
 .filter:hover {
-  border-color: var(--pink);
-
   color: var(--pink);
+
+  border-color: var(--pink);
 }
 
 .filter.active {
@@ -971,18 +873,13 @@ button {
 
   border-color: var(--pink);
 
-  color: white;
+  color: #fff;
 }
-
-
-/* =========================================================
-   HORARIOS
-   ========================================================= */
 
 .schedule {
   border-top:
     1px solid
-    rgba(255, 255, 255, 0.3);
+    rgba(255,255,255,.3);
 }
 
 .schedule-row {
@@ -991,7 +888,7 @@ button {
   grid-template-columns:
     1fr
     1.1fr
-    1.7fr
+    1.6fr
     1.2fr;
 
   gap: 20px;
@@ -999,18 +896,17 @@ button {
   align-items: center;
 
   padding:
-    24px
-    0;
+    21px 0;
 
   border-bottom:
     1px solid
-    rgba(255, 255, 255, 0.1);
+    rgba(255,255,255,.1);
 
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .schedule-row strong {
-  font-size: 14px;
+  font-size: 13px;
 
   text-transform: uppercase;
 }
@@ -1018,12 +914,12 @@ button {
 .schedule-row .time {
   color: var(--pink);
 
-  font-weight: 900;
+  font-size: 14px;
 
-  font-size: 15px;
+  font-weight: 900;
 }
 
-.schedule-activity {
+.schedule-row span:nth-child(3) {
   display: flex;
 
   flex-direction: column;
@@ -1033,10 +929,10 @@ button {
   font-weight: 800;
 }
 
-.schedule-activity small {
+.schedule-row span:nth-child(3) small {
   color: var(--gray);
 
-  font-size: 11px;
+  font-size: 10px;
 
   font-weight: 500;
 }
@@ -1044,7 +940,7 @@ button {
 .schedule-row .level {
   color: var(--gray);
 
-  font-size: 12px;
+  font-size: 11px;
 
   text-align: right;
 }
@@ -1067,26 +963,22 @@ button {
   overflow: hidden;
 
   background:
-    linear-gradient(
-      145deg,
-      #121018,
-      #0b0a10
-    );
+    #111019;
 
   border:
     1px solid
-    rgba(255, 255, 255, 0.1);
+    rgba(255,255,255,.1);
 
   transition:
-    transform 0.25s ease,
-    border-color 0.25s ease;
+    transform .25s ease,
+    border-color .25s ease;
 }
 
 .teacher-card:hover {
-  transform: translateY(-7px);
+  transform: translateY(-6px);
 
   border-color:
-    rgba(240, 0, 98, 0.5);
+    rgba(240,0,98,.55);
 }
 
 .teacher-photo {
@@ -1097,11 +989,7 @@ button {
   overflow: hidden;
 
   background:
-    radial-gradient(
-      circle at center,
-      #25212d,
-      #09080d
-    );
+    #0b0a10;
 }
 
 .teacher-photo img {
@@ -1113,7 +1001,7 @@ button {
   display: block;
 
   transition:
-    transform 0.5s ease;
+    transform .5s ease;
 }
 
 .teacher-card:hover
@@ -1128,20 +1016,20 @@ button {
   display: grid;
   place-items: center;
 
-  font-size: 60px;
+  font-size: 55px;
 }
 
 .teacher-content {
-  padding: 28px;
+  padding: 25px;
 }
 
 .teacher-content h3 {
   margin:
     0
     0
-    10px;
+    9px;
 
-  font-size: 24px;
+  font-size: 21px;
 
   font-weight: 900;
 }
@@ -1151,38 +1039,9 @@ button {
 
   color: var(--gray);
 
+  font-size: 13px;
+
   line-height: 1.7;
-
-  font-size: 14px;
-}
-
-.teacher-tags {
-  display: flex;
-
-  flex-wrap: wrap;
-
-  gap: 7px;
-
-  margin-top: 20px;
-}
-
-.teacher-tags span {
-  padding:
-    7px
-    10px;
-
-  background:
-    rgba(240, 0, 98, 0.1);
-
-  border:
-    1px solid
-    rgba(240, 0, 98, 0.25);
-
-  color: var(--pink);
-
-  font-size: 10px;
-
-  font-weight: 900;
 }
 
 
@@ -1197,10 +1056,9 @@ button {
     1fr
     1fr;
 
-  min-height: 680px;
+  min-height: 620px;
 
-  background:
-    #f3f0f3;
+  background: #f2eff2;
 
   color: var(--black);
 }
@@ -1208,20 +1066,20 @@ button {
 .story-image {
   position: relative;
 
-  min-height: 680px;
+  min-height: 620px;
 
   overflow: hidden;
 
   background:
     radial-gradient(
-      circle at 70% 35%,
-      rgba(240, 0, 98, 0.55),
+      circle at 70% 30%,
+      rgba(240,0,98,.5),
       transparent 35%
     ),
     linear-gradient(
       135deg,
-      #120a14,
-      #4b102c,
+      #100911,
+      #4a102b,
       #050509
     );
 }
@@ -1238,45 +1096,30 @@ button {
       120deg,
       transparent 0,
       transparent 80px,
-      rgba(255, 255, 255, 0.025) 81px,
+      rgba(255,255,255,.025) 81px,
       transparent 82px
     );
 }
 
-.story-overlay {
+.story-image span {
   position: absolute;
 
-  inset: 0;
+  left: 45px;
+  bottom: 40px;
 
-  background:
-    radial-gradient(
-      ellipse at center,
-      transparent 15%,
-      rgba(0, 0, 0, 0.55) 100%
-    );
-}
+  color: rgba(255,255,255,.7);
 
-.story-label {
-  position: absolute;
+  font-size: 10px;
 
-  left: 50px;
-  bottom: 45px;
-
-  color: white;
-
-  font-size: 14px;
+  letter-spacing: 3px;
 
   font-weight: 900;
-
-  letter-spacing: 4px;
-
-  line-height: 1.5;
 }
 
 .story-copy {
   padding:
-    100px
-    8vw;
+    80px
+    7vw;
 
   display: flex;
 
@@ -1287,22 +1130,18 @@ button {
   align-items: flex-start;
 }
 
-.story-copy .eyebrow {
-  color: var(--pink);
-}
-
 .story-copy h2 {
   color: var(--black);
 }
 
 .story-copy p:not(.eyebrow) {
-  max-width: 520px;
+  max-width: 500px;
 
-  color: #65616a;
+  color: #68636c;
+
+  font-size: 14px;
 
   line-height: 1.8;
-
-  font-size: 15px;
 }
 
 .story-copy .button {
@@ -1318,7 +1157,7 @@ button {
   position: relative;
 
   padding:
-    145px
+    125px
     5vw;
 
   text-align: center;
@@ -1328,14 +1167,14 @@ button {
   background:
     radial-gradient(
       circle at 50% 0%,
-      rgba(255, 255, 255, 0.14),
+      rgba(255,255,255,.15),
       transparent 30%
     ),
     linear-gradient(
       135deg,
-      #d60055,
+      #d40055,
       #f00062 55%,
-      #bd004e
+      #bc004e
     );
 }
 
@@ -1345,11 +1184,11 @@ button {
 
   position: absolute;
 
-  border-radius: 50%;
-
   border:
     1px solid
-    rgba(255, 255, 255, 0.14);
+    rgba(255,255,255,.15);
+
+  border-radius: 50%;
 }
 
 .banner::before {
@@ -1374,7 +1213,7 @@ button {
   z-index: 2;
 
   color:
-    rgba(255, 255, 255, 0.75);
+    rgba(255,255,255,.75);
 }
 
 .banner h2 {
@@ -1382,7 +1221,10 @@ button {
 
   z-index: 2;
 
-  margin: 0 0 42px;
+  margin:
+    0
+    0
+    35px;
 
   font-family:
     Georgia,
@@ -1391,12 +1233,12 @@ button {
 
   font-size:
     clamp(
-      60px,
-      8vw,
-      115px
+      55px,
+      7vw,
+      105px
     );
 
-  line-height: 0.84;
+  line-height: .85;
 
   letter-spacing: -5px;
 
@@ -1404,7 +1246,7 @@ button {
 }
 
 .banner h2 em {
-  color: white;
+  color: #fff;
 
   font-style: italic;
 }
@@ -1412,13 +1254,13 @@ button {
 .button.light {
   position: relative;
 
-  z-index: 2;
+  z-index: 3;
 
-  background: white;
+  background: #fff;
 
   color: var(--black);
 
-  border-radius: 9px;
+  border-radius: 8px;
 }
 
 
@@ -1433,19 +1275,19 @@ button {
     1fr
     1fr;
 
-  gap: 9vw;
+  gap: 8vw;
 
   align-items: center;
 }
 
 .contact > div > p:not(.eyebrow) {
-  max-width: 500px;
+  max-width: 480px;
 
   color: var(--gray);
 
-  line-height: 1.8;
+  font-size: 14px;
 
-  font-size: 15px;
+  line-height: 1.8;
 }
 
 
@@ -1456,35 +1298,35 @@ button {
 .form {
   display: grid;
 
-  gap: 13px;
+  gap: 12px;
 }
 
 .form input,
 .form select {
   width: 100%;
 
-  height: 58px;
+  height: 55px;
 
   padding:
     0
-    18px;
+    16px;
 
   border:
     1px solid
-    rgba(255, 255, 255, 0.15);
+    rgba(255,255,255,.14);
 
   outline: none;
 
   background:
-    rgba(255, 255, 255, 0.05);
+    rgba(255,255,255,.05);
 
-  color: white;
+  color: #fff;
 
-  font-size: 14px;
+  font-size: 13px;
 
   transition:
-    border-color 0.2s ease,
-    background 0.2s ease;
+    border-color .2s ease,
+    background .2s ease;
 }
 
 .form input::placeholder {
@@ -1496,7 +1338,7 @@ button {
 }
 
 .form select option {
-  color: var(--black);
+  color: #050509;
 }
 
 .form input:focus,
@@ -1504,56 +1346,35 @@ button {
   border-color: var(--pink);
 
   background:
-    rgba(240, 0, 98, 0.06);
+    rgba(240,0,98,.06);
 }
 
 .form button {
   width: 100%;
 
-  margin-top: 5px;
+  margin-top: 4px;
 }
 
 
 /* =========================================================
-   ESTADO VACÍO / CARGANDO
+   ESTADOS
    ========================================================= */
 
 .vacio-web {
-  padding:
-    35px;
+  padding: 30px;
 
   border:
     1px solid
     var(--line);
 
   background:
-    rgba(255, 255, 255, 0.03);
+    rgba(255,255,255,.03);
 
   color: var(--gray);
 
   text-align: center;
 
-  font-size: 14px;
-}
-
-
-/* =========================================================
-   ERROR
-   ========================================================= */
-
-.web-error {
-  max-width: 1100px;
-
-  margin:
-    0 auto
-    40px;
-
-  padding:
-    15px 5vw;
-
-  color: var(--gray);
-
-  font-size: 12px;
+  font-size: 13px;
 }
 
 
@@ -1563,7 +1384,7 @@ button {
 
 footer {
   padding:
-    35px
+    32px
     5vw;
 
   display: flex;
@@ -1586,30 +1407,7 @@ footer {
 }
 
 .footer-brand {
-  display: flex;
-
-  align-items: center;
-
-  gap: 12px;
-
-  color: white;
-}
-
-.footer-brand .brand-logo {
-  width: 34px;
-  height: 34px;
-
-  font-size: 11px;
-}
-
-.footer-brand .brand-text span {
-  font-size: 7px;
-
-  letter-spacing: 2px;
-}
-
-.footer-brand .brand-text strong {
-  font-size: 18px;
+  color: #fff;
 }
 
 
@@ -1617,48 +1415,34 @@ footer {
    TABLET
    ========================================================= */
 
-@media (max-width: 1100px) {
-
-  .nav {
-    padding:
-      0
-      3vw;
-  }
-
-  .brand {
-    min-width: auto;
-  }
+@media (max-width: 1050px) {
 
   .nav nav {
-    gap: 18px;
+    gap: 20px;
 
-    font-size: 11px;
+    font-size: 10px;
   }
 
   .nav-cta {
-    min-width: 155px;
-
     padding:
-      14px
-      16px;
+      12px
+      15px;
 
-    font-size: 11px;
+    font-size: 10px;
   }
 
   .hero {
     grid-template-columns:
-      45%
-      55%;
+      1fr
+      1fr;
 
-    min-height: 820px;
-  }
+    gap: 25px;
 
-  .hero-visual {
-    min-height: 820px;
+    min-height: 720px;
   }
 
   .hero-copy {
-    padding-top: 170px;
+    padding-left: 0;
   }
 
   .hero h1 {
@@ -1666,33 +1450,16 @@ footer {
       clamp(
         58px,
         7vw,
-        85px
+        82px
       );
   }
 
-  .hero-info {
-    grid-template-columns:
-      1fr
-      1fr;
-
-    padding:
-      30px 5vw;
+  .hero-art {
+    height: 520px;
   }
 
-  .hero-info-item:nth-child(2) {
-    border-right: 0;
-  }
-
-  .hero-quote {
-    grid-column:
-      1 / -1;
-
-    padding:
-      20px 0 0;
-
-    border-top:
-      1px solid
-      var(--line);
+  .hero-image {
+    height: 500px;
   }
 
   .cards {
@@ -1715,7 +1482,7 @@ footer {
 @media (max-width: 760px) {
 
   .nav {
-    height: 76px;
+    height: 72px;
 
     padding:
       0
@@ -1728,195 +1495,102 @@ footer {
     display: none;
   }
 
-  .brand-text span {
-    font-size: 7px;
-
-    letter-spacing: 2px;
+  .brand {
+    font-size: 15px;
   }
 
-  .brand-text strong {
-    font-size: 20px;
-  }
+  .brand-mark {
+    width: 34px;
+    height: 34px;
 
-  .brand-logo {
-    width: 35px;
-    height: 35px;
-
-    font-size: 11px;
+    font-size: 9px;
   }
 
   .nav-cta {
-    min-width: auto;
-
     padding:
-      12px
-      14px;
+      10px
+      13px;
 
     font-size: 9px;
-
-    border-radius: 8px;
   }
 
 
   /* HERO */
 
   .hero {
-    min-height: auto;
-
     display: flex;
 
     flex-direction: column;
 
-    background: #050509;
+    min-height: auto;
+
+    padding:
+      125px
+      7vw
+      0;
+
+    gap: 0;
   }
 
   .hero-copy {
-    min-height: 680px;
-
-    padding:
-      150px
-      7vw
-      55px;
-
-    justify-content: flex-end;
+    padding: 0;
 
     max-width: none;
-  }
-
-  .hero-eyebrow {
-    font-size: 9px;
-
-    letter-spacing: 2px;
   }
 
   .hero h1 {
     font-size:
       clamp(
-        57px,
+        55px,
         16vw,
-        85px
+        82px
       );
 
     letter-spacing: -4px;
   }
 
-  .hero-line {
-    margin:
-      25px
-      0
-      18px;
-  }
-
   .hero-text {
-    font-size: 14px;
+    margin-top: 24px;
 
-    line-height: 1.6;
+    font-size: 14px;
   }
 
   .hero-actions {
-    gap: 10px;
+    margin-top: 24px;
+  }
+
+  .hero-art {
+    height: 470px;
 
     margin-top: 25px;
   }
 
-  .button {
-    min-height: 51px;
-
-    padding:
-      0
-      19px;
-
-    font-size: 11px;
-  }
-
-  .hero-visual {
-    min-height: 570px;
-
-    margin-top: -50px;
-  }
+  /*
+    Foto mucho más controlada en móvil.
+  */
 
   .hero-image {
-    object-position:
-      58%
-      center;
+    height: 450px;
 
-    -webkit-mask-image:
-      linear-gradient(
-        to bottom,
-        transparent 0%,
-        black 12%,
-        black 100%
-      );
+    max-width: 95%;
 
-    mask-image:
-      linear-gradient(
-        to bottom,
-        transparent 0%,
-        black 12%,
-        black 100%
-      );
+    object-fit: contain;
   }
 
-  .hero-photo-overlay {
-    background:
-      linear-gradient(
-        to bottom,
-        #050509 0%,
-        transparent 25%
-      ),
-      linear-gradient(
-        to top,
-        rgba(5, 5, 9, 0.7),
-        transparent 35%
-      );
+  .hero-sticker {
+    width: 85px;
+    height: 85px;
+
+    right: 2%;
+    top: 25px;
+
+    font-size: 14px;
   }
 
+  .hero-photo-note {
+    bottom: 20px;
 
-  /* INFO */
-
-  .hero-info {
-    display: flex;
-
-    flex-direction: column;
-
-    align-items: stretch;
-
-    padding:
-      25px
-      7vw;
-
-    gap: 0;
-  }
-
-  .hero-info-item {
-    border-right: 0;
-
-    border-bottom:
-      1px solid
-      var(--line);
-
-    padding:
-      18px
-      0;
-  }
-
-  .hero-info-item:last-of-type {
-    border-bottom: 0;
-  }
-
-  .hero-quote {
-    margin-top: 10px;
-
-    padding:
-      25px
-      0
-      5px;
-
-    text-align: center;
-
-    border-top:
-      1px solid
-      var(--line);
+    left: 5%;
   }
 
 
@@ -1924,7 +1598,7 @@ footer {
 
   .section {
     padding:
-      80px
+      75px
       6vw;
   }
 
@@ -1935,7 +1609,7 @@ footer {
   }
 
   .section-head > p {
-    margin-top: 22px;
+    margin-top: 20px;
   }
 
   .section-head h2,
@@ -1943,9 +1617,9 @@ footer {
   .contact h2 {
     font-size:
       clamp(
-        48px,
+        47px,
         14vw,
-        70px
+        68px
       );
 
     letter-spacing: -3px;
@@ -1959,26 +1633,26 @@ footer {
   }
 
   .card {
-    min-height: 240px;
+    min-height: 225px;
 
     padding: 28px;
   }
 
   .card h3 {
-    margin-top: 35px;
+    margin-top: 32px;
   }
 
 
   /* HORARIOS */
 
   .schedule-filters {
-    gap: 7px;
+    gap: 6px;
   }
 
   .filter {
     padding:
-      9px
-      12px;
+      8px
+      11px;
 
     font-size: 9px;
   }
@@ -1988,28 +1662,28 @@ footer {
       1fr
       1fr;
 
-    gap: 10px;
+    gap: 9px;
 
     padding:
-      20px
+      19px
       0;
   }
 
   .schedule-row strong {
-    font-size: 12px;
+    font-size: 11px;
   }
 
   .schedule-row .time {
     text-align: right;
 
-    font-size: 12px;
+    font-size: 11px;
   }
 
-  .schedule-activity {
+  .schedule-row span:nth-child(3) {
     grid-column:
       1 / -1;
 
-    font-size: 14px;
+    font-size: 13px;
   }
 
   .schedule-row .level {
@@ -2027,7 +1701,7 @@ footer {
   }
 
   .teacher-photo {
-    height: 430px;
+    height: 420px;
   }
 
 
@@ -2038,12 +1712,12 @@ footer {
   }
 
   .story-image {
-    min-height: 480px;
+    min-height: 400px;
   }
 
   .story-copy {
     padding:
-      75px
+      70px
       7vw;
   }
 
@@ -2052,16 +1726,16 @@ footer {
 
   .banner {
     padding:
-      95px
+      90px
       6vw;
   }
 
   .banner h2 {
     font-size:
       clamp(
-        52px,
+        50px,
         15vw,
-        80px
+        78px
       );
 
     letter-spacing: -4px;
@@ -2073,7 +1747,7 @@ footer {
   .contact {
     grid-template-columns: 1fr;
 
-    gap: 45px;
+    gap: 40px;
   }
 
 
@@ -2100,24 +1774,29 @@ footer {
 
 @media (max-width: 420px) {
 
-  .brand-text strong {
-    font-size: 17px;
+  .brand {
+    font-size: 13px;
+  }
+
+  .brand-mark {
+    width: 31px;
+    height: 31px;
   }
 
   .nav-cta {
     padding:
-      10px
-      11px;
+      9px
+      10px;
 
     font-size: 8px;
   }
 
-  .hero-copy {
-    min-height: 650px;
+  .hero {
+    padding-top: 115px;
   }
 
   .hero h1 {
-    font-size: 57px;
+    font-size: 54px;
 
     letter-spacing: -3px;
   }
@@ -2130,8 +1809,21 @@ footer {
     width: 100%;
   }
 
-  .hero-visual {
-    min-height: 500px;
+  .hero-art {
+    height: 420px;
+  }
+
+  .hero-image {
+    height: 400px;
+
+    max-width: 100%;
+  }
+
+  .hero-sticker {
+    width: 72px;
+    height: 72px;
+
+    font-size: 12px;
   }
 
 }
