@@ -1,112 +1,150 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
-const activities = [
-  {
-    title: "Salsa",
-    subtitle: "Baila",
-    image: "/carteles/salsa.png",
-  },
-  {
-    title: "Bachata",
-    subtitle: "Sensual",
-    image: "/carteles/bachata.png",
-  },
-  {
-    title: "Bailes de Salón",
-    subtitle: "Parejas",
-    image: "/carteles/bailes-de-salon.png",
-  },
-  {
-    title: "Ladies Style",
-    subtitle: "Style",
-    image: "/carteles/ladies-style.png",
-  },
-  {
-    title: "Latinos",
-    subtitle: "Mix",
-    image: "/carteles/latinos.png",
-  },
-  {
-    title: "Coreográfico",
-    subtitle: "Dance",
-    image: "/carteles/coreografico.png",
-  },
-  {
-    title: "Ballet Clásico",
-    subtitle: "Clásico",
-    image: "/carteles/ballet.png",
-  },
-  {
-    title: "Fitness Barré",
-    subtitle: "Fit",
-    image: "/carteles/fitness-barre.png",
-  },
-  {
-    title: "Baile Urbano",
-    subtitle: "Urban",
-    image: "/carteles/baile-urbano.png",
-  },
-  {
-    title: "K-Pop",
-    subtitle: "Dance",
-    image: "/carteles/k-pop.png",
-  },
-];
-
-const dayOrder = [
-  "Lunes",
-  "Martes",
-  "Miércoles",
-  "Jueves",
-  "Viernes",
-  "Sábado",
-  "Domingo",
-];
+import { useEffect, useMemo, useState } from "react";
 
 export default function Home() {
+  const [actividades, setActividades] = useState([]);
   const [horarios, setHorarios] = useState([]);
-  const [loadingHorarios, setLoadingHorarios] = useState(true);
+  const [profesores, setProfesores] = useState([]);
+
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState("");
+
+  const [filtroActividad, setFiltroActividad] = useState("todas");
 
   useEffect(() => {
-    async function cargarHorarios() {
+    async function cargarDatos() {
       try {
-        const response = await fetch("/api/horarios", {
-          cache: "no-store",
-        });
+        setCargando(true);
+        setError("");
 
-        const data = await response.json();
+        const [
+          respuestaActividades,
+          respuestaHorarios,
+          respuestaProfesores,
+        ] = await Promise.all([
+          fetch("/api/actividades", {
+            cache: "no-store",
+          }),
+          fetch("/api/horarios", {
+            cache: "no-store",
+          }),
+          fetch("/api/profesores", {
+            cache: "no-store",
+          }),
+        ]);
 
-        if (data.correcto) {
-          setHorarios(
-            (data.horarios || []).filter(
-              (horario) => horario.activa !== false
-            )
+        if (!respuestaActividades.ok) {
+          throw new Error(
+            "No se pudieron cargar las actividades."
           );
         }
-      } catch (error) {
-        console.error("Error cargando horarios:", error);
+
+        if (!respuestaHorarios.ok) {
+          throw new Error(
+            "No se pudieron cargar los horarios."
+          );
+        }
+
+        if (!respuestaProfesores.ok) {
+          throw new Error(
+            "No se pudieron cargar los profesores."
+          );
+        }
+
+        const [
+          datosActividades,
+          datosHorarios,
+          datosProfesores,
+        ] = await Promise.all([
+          respuestaActividades.json(),
+          respuestaHorarios.json(),
+          respuestaProfesores.json(),
+        ]);
+
+        if (!datosActividades.correcto) {
+          throw new Error(
+            datosActividades.mensaje ||
+              "Error cargando actividades."
+          );
+        }
+
+        if (!datosHorarios.correcto) {
+          throw new Error(
+            datosHorarios.mensaje ||
+              "Error cargando horarios."
+          );
+        }
+
+        if (!datosProfesores.correcto) {
+          throw new Error(
+            datosProfesores.mensaje ||
+              "Error cargando profesores."
+          );
+        }
+
+        setActividades(
+          Array.isArray(datosActividades.actividades)
+            ? datosActividades.actividades
+            : []
+        );
+
+        setHorarios(
+          Array.isArray(datosHorarios.horarios)
+            ? datosHorarios.horarios
+            : []
+        );
+
+        setProfesores(
+          Array.isArray(datosProfesores.profesores)
+            ? datosProfesores.profesores
+            : []
+        );
+      } catch (err) {
+        console.error(
+          "Error cargando la web:",
+          err
+        );
+
+        setError(
+          err.message ||
+            "No se pudieron cargar los datos."
+        );
       } finally {
-        setLoadingHorarios(false);
+        setCargando(false);
       }
     }
 
-    cargarHorarios();
+    cargarDatos();
   }, []);
 
-  const horariosOrdenados = [...horarios].sort((a, b) => {
-    const diaA = dayOrder.indexOf(a.dia);
-    const diaB = dayOrder.indexOf(b.dia);
-
-    if (diaA !== diaB) {
-      return diaA - diaB;
+  const horariosFiltrados = useMemo(() => {
+    if (filtroActividad === "todas") {
+      return horarios;
     }
 
-    return String(a.hora_inicio).localeCompare(
-      String(b.hora_inicio)
+    return horarios.filter(
+      (horario) =>
+        Number(horario.actividad_id) ===
+        Number(filtroActividad)
     );
-  });
+  }, [horarios, filtroActividad]);
+
+  function obtenerProfesoresHorario(horario) {
+    if (!Array.isArray(horario.profesor_ids)) {
+      return [];
+    }
+
+    return horario.profesor_ids
+      .map((profesorId) =>
+        profesores.find(
+          (profesor) =>
+            Number(profesor.id) ===
+            Number(profesorId)
+        )
+      )
+      .filter(Boolean);
+  }
 
   function formatearHora(hora) {
     if (!hora) return "";
@@ -114,392 +152,416 @@ export default function Home() {
     return String(hora).slice(0, 5);
   }
 
+  function obtenerIcono(nombre = "") {
+    const texto = nombre.toLowerCase();
+
+    if (texto.includes("salsa")) return "💃";
+    if (texto.includes("bachata")) return "🔥";
+    if (texto.includes("ballet")) return "🩰";
+    if (texto.includes("urbano")) return "⚡";
+    if (texto.includes("k-pop")) return "✨";
+    if (texto.includes("kpop")) return "✨";
+    if (texto.includes("barré")) return "🌸";
+    if (texto.includes("barre")) return "🌸";
+    if (texto.includes("ladies")) return "💫";
+
+    return "🎶";
+  }
+
   return (
-    <main className="site">
+    <main>
 
-      {/* =====================================================
+      {/* ================================
           HEADER
-      ===================================================== */}
+      ================================= */}
 
-      <header className="main-header">
+      <header className="nav">
 
         <a
+          className="brand"
           href="#inicio"
-          className="paradise-logo"
           aria-label="Artes Escénicas Paradise"
         >
-          <span className="logo-small">
-            ARTES ESCÉNICAS
+          <span className="brand-mark">
+            AP
           </span>
 
-          <span className="logo-main">
-            PA<span>R</span>ADISE
+          <span>
+            Artes Escénicas{" "}
+            <strong>Paradise</strong>
           </span>
-
-          <span className="logo-bottom">
-            — ESCUELA DE BAILE —
-          </span>
-
-          <span className="logo-star">★</span>
         </a>
 
-        <nav className="main-nav">
-          <a href="#clases">CLASES</a>
-          <a href="#horarios">HORARIOS</a>
-          <a href="#profesores">PROFESORES</a>
-          <a href="#escuela">LA ESCUELA</a>
-          <a href="#contacto">CONTACTO</a>
+        <nav>
+          <a href="#clases">
+            Clases
+          </a>
+
+          <a href="#horarios">
+            Horarios
+          </a>
+
+          <a href="#profesores">
+            Profesores
+          </a>
+
+          <a href="#escuela">
+            La escuela
+          </a>
+
+          <a href="#contacto">
+            Contacto
+          </a>
         </nav>
 
         <a
+          className="nav-cta"
           href="#contacto"
-          className="header-button"
         >
-          PRUEBA UNA CLASE
+          Prueba una clase
         </a>
 
       </header>
 
 
-      {/* =====================================================
+      {/* ================================
           HERO
-      ===================================================== */}
+      ================================= */}
 
       <section
         id="inicio"
-        className="hero-paradise"
+        className="hero"
       >
 
-        <div className="hero-background"></div>
+        <div className="hero-copy">
 
-        <div className="hero-content">
+          <p className="eyebrow">
+            ESCUELA DE BAILE · LUCENA
+          </p>
 
-          <div className="hero-text-column">
+          <h1>
+            Baila.
+            <br />
 
-            <p className="hero-eyebrow">
-              ESCUELA DE BAILE · LUCENA
-            </p>
+            <em>Disfruta.</em>
 
-            <h1 className="hero-title">
-              <span>BAILA<span className="pink-dot">.</span></span>
+            <br />
 
-              <span className="script-title">
-                DISFRUTA<span className="pink-dot">.</span>
-              </span>
+            Conecta.
+          </h1>
 
-              <span>CONECTA<span className="pink-dot">.</span></span>
-            </h1>
+          <p className="hero-text">
+            Un espacio para aprender,
+            compartir y vivir el baile.
+            Encuentra tu estilo, conoce a
+            tu gente y empieza a moverte.
+          </p>
 
-            <div className="hero-line"></div>
+          <div className="hero-actions">
 
-            <p className="hero-description">
-              Un espacio para aprender,
-              <br />
-              compartir y vivir el baile.
-              <br />
-              Encuentra tu estilo, conoce a tu gente
-              <br />
-              y empieza a moverte.
-            </p>
+            <a
+              className="button primary"
+              href="#clases"
+            >
+              Ver actividades
+            </a>
 
-            <div className="hero-buttons">
-
-              <a
-                href="#clases"
-                className="pink-button"
-              >
-                VER ACTIVIDADES
-              </a>
-
-              <a
-                href="#contacto"
-                className="outline-button"
-              >
-                QUIERO PROBAR
-              </a>
-
-            </div>
-
-          </div>
-
-
-          <div className="hero-photo-column">
-
-            <img
-              src="/hero.png"
-              alt="Pareja bailando en Artes Escénicas Paradise"
-              className="hero-photo"
-            />
+            <a
+              className="button secondary"
+              href="#contacto"
+            >
+              Quiero probar una clase
+            </a>
 
           </div>
 
         </div>
 
-      </section>
 
+        <div className="hero-art">
 
-      {/* =====================================================
-          INFORMACIÓN
-      ===================================================== */}
+          <img
+            src="/hero.png"
+            alt="Artes Escénicas Paradise"
+            className="hero-image"
+          />
 
-      <section className="info-strip">
+          <div className="hero-overlay"></div>
 
-        <div className="info-item">
-
-          <div className="info-icon">
-            ♧
+          <div className="hero-photo-note">
+            ARTES ESCÉNICAS PARADISE
           </div>
 
-          <div>
-            <strong>
-              CARRETERA DE RUTE 15
-            </strong>
-
+          <div className="hero-sticker">
+            BAILA
+            <br />
             <span>
-              LUCENA, CÓRDOBA
+              CON NOSOTROS
             </span>
           </div>
-
-        </div>
-
-
-        <div className="info-separator"></div>
-
-
-        <a
-          href="https://wa.me/34676421944"
-          className="info-item info-link"
-          target="_blank"
-          rel="noreferrer"
-        >
-
-          <div className="info-icon whatsapp">
-            ◔
-          </div>
-
-          <div>
-            <strong>
-              676 421 944
-            </strong>
-
-            <span className="pink-text">
-              WHATSAPP
-            </span>
-          </div>
-
-        </a>
-
-
-        <div className="info-separator"></div>
-
-
-        <a
-          href="https://www.instagram.com/artescenicasparadise/"
-          className="info-item info-link"
-          target="_blank"
-          rel="noreferrer"
-        >
-
-          <div className="info-icon">
-            ◎
-          </div>
-
-          <div>
-            <strong>
-              @ARTESCENICASPARADISE
-            </strong>
-
-            <span className="pink-text">
-              SÍGUENOS
-            </span>
-          </div>
-
-        </a>
-
-
-        <div className="info-separator"></div>
-
-
-        <div className="info-quote">
-
-          <span>
-            No se trata de ser el mejor,
-          </span>
-
-          <span>
-            se trata de <em>disfrutar el camino.</em>
-          </span>
-
-          <b>♡</b>
 
         </div>
 
       </section>
 
 
-      {/* =====================================================
-          CLASES
-      ===================================================== */}
+      {/* ================================
+          ACTIVIDADES
+      ================================= */}
 
       <section
         id="clases"
-        className="classes-section"
+        className="section"
       >
 
-        <div className="section-heading">
+        <div className="section-head">
 
           <div>
 
-            <p className="section-eyebrow">
+            <p className="eyebrow">
               ENCUENTRA TU ESTILO
             </p>
 
             <h2>
-              Clases para <em>todos</em>
+              Clases para{" "}
+              <em>todos</em>
             </h2>
 
           </div>
 
-          <p className="section-intro">
-            Desde tus primeros pasos hasta perfeccionar
-            tu técnica. Aquí hay un lugar para ti.
+          <p>
+            Desde tus primeros pasos
+            hasta perfeccionar tu técnica.
+            Aquí hay un lugar para ti.
           </p>
 
         </div>
 
 
-        <div className="activity-grid">
+        {cargando ? (
 
-          {activities.map((activity) => (
+          <div className="vacio-web">
+            Cargando actividades...
+          </div>
 
-            <a
-              href="#horarios"
-              className="activity-card"
-              key={activity.title}
-            >
+        ) : actividades.length === 0 ? (
 
-              <div className="activity-image-wrapper">
+          <div className="vacio-web">
+            Actualmente no hay actividades
+            disponibles.
+          </div>
 
-                <img
-                  src={activity.image}
-                  alt={`${activity.title} - Artes Escénicas Paradise`}
-                  className="activity-image"
-                />
+        ) : (
 
-                <div className="activity-overlay">
+          <div className="cards">
 
-                  <span>
-                    {activity.title}
+            {actividades.map(
+              (actividad) => (
+
+                <article
+                  className="card"
+                  key={actividad.id}
+                >
+
+                  <span className="card-icon">
+                    {obtenerIcono(
+                      actividad.nombre
+                    )}
                   </span>
 
-                  <small>
-                    VER HORARIOS →
-                  </small>
+                  <h3>
+                    {actividad.nombre}
+                  </h3>
 
-                </div>
+                  <p>
+                    {actividad.descripcion ||
+                      "Descubre esta actividad y disfruta del baile con nosotros."}
+                  </p>
 
-              </div>
+                  <a href="#contacto">
+                    Más información →
+                  </a>
 
-            </a>
+                </article>
 
-          ))}
+              )
+            )}
 
-        </div>
+          </div>
+
+        )}
 
       </section>
 
 
-      {/* =====================================================
+      {/* ================================
           HORARIOS
-      ===================================================== */}
+      ================================= */}
 
       <section
         id="horarios"
-        className="schedule-section"
+        className="section schedule-section"
       >
 
-        <div className="schedule-inner">
+        <div className="section-head">
 
-          <div className="section-heading schedule-heading">
+          <div>
 
-            <div>
-
-              <p className="section-eyebrow">
-                ORGANIZA TU SEMANA
-              </p>
-
-              <h2>
-                Horarios
-              </h2>
-
-            </div>
-
-            <p className="section-intro">
-              Consulta nuestras clases, horarios,
-              niveles y profesores.
+            <p className="eyebrow">
+              ORGANIZA TU SEMANA
             </p>
+
+            <h2>
+              Horarios
+            </h2>
 
           </div>
 
+          <p>
+            Consulta nuestras clases,
+            horarios, niveles y profesores.
+          </p>
 
-          {loadingHorarios ? (
+        </div>
 
-            <div className="schedule-loading">
+
+        {!cargando &&
+          actividades.length > 0 && (
+
+            <div className="schedule-filters">
+
+              <button
+                type="button"
+                className={
+                  filtroActividad === "todas"
+                    ? "filter active"
+                    : "filter"
+                }
+                onClick={() =>
+                  setFiltroActividad(
+                    "todas"
+                  )
+                }
+              >
+                TODAS
+              </button>
+
+
+              {actividades.map(
+                (actividad) => (
+
+                  <button
+                    key={actividad.id}
+                    type="button"
+                    className={
+                      Number(
+                        filtroActividad
+                      ) ===
+                      Number(
+                        actividad.id
+                      )
+                        ? "filter active"
+                        : "filter"
+                    }
+                    onClick={() =>
+                      setFiltroActividad(
+                        String(
+                          actividad.id
+                        )
+                      )
+                    }
+                  >
+                    {actividad.nombre}
+                  </button>
+
+                )
+              )}
+
+            </div>
+
+          )}
+
+
+        <div className="schedule">
+
+          {cargando ? (
+
+            <div className="vacio-web">
               Cargando horarios...
             </div>
 
-          ) : horariosOrdenados.length === 0 ? (
+          ) : error ? (
 
-            <div className="schedule-empty">
-              Próximamente publicaremos todos los horarios.
+            <div className="vacio-web">
+              No se pudieron cargar
+              los horarios.
+            </div>
+
+          ) : horariosFiltrados.length ===
+            0 ? (
+
+            <div className="vacio-web">
+              No hay horarios disponibles
+              para esta actividad.
             </div>
 
           ) : (
 
-            <div className="public-schedule">
+            horariosFiltrados.map(
+              (horario) => {
 
-              {horariosOrdenados.map((horario) => (
+                const profesoresHorario =
+                  obtenerProfesoresHorario(
+                    horario
+                  );
 
-                <div
-                  className="public-schedule-row"
-                  key={horario.id}
-                >
+                return (
 
-                  <div className="schedule-day">
-                    {horario.dia}
+                  <div
+                    className="schedule-row"
+                    key={horario.id}
+                  >
+
+                    <strong>
+                      {horario.dia}
+                    </strong>
+
+                    <span className="time">
+                      {formatearHora(
+                        horario.hora_inicio
+                      )}
+                      {" – "}
+                      {formatearHora(
+                        horario.hora_fin
+                      )}
+                    </span>
+
+                    <span>
+                      {horario.actividad_nombre}
+
+                      {horario.nivel && (
+                        <small>
+                          {horario.nivel}
+                        </small>
+                      )}
+                    </span>
+
+                    <span className="level">
+
+                      {profesoresHorario
+                        .map(
+                          (profesor) =>
+                            profesor.nombre
+                        )
+                        .join(" · ")}
+
+                    </span>
+
                   </div>
 
-                  <div className="schedule-time">
-
-                    {formatearHora(
-                      horario.hora_inicio
-                    )}
-
-                    <span>–</span>
-
-                    {formatearHora(
-                      horario.hora_fin
-                    )}
-
-                  </div>
-
-                  <div className="schedule-activity">
-
-                    {horario.actividad_nombre}
-
-                  </div>
-
-                  <div className="schedule-level">
-
-                    {horario.nivel || "Todos los niveles"}
-
-                  </div>
-
-                </div>
-
-              ))}
-
-            </div>
+                );
+              }
+            )
 
           )}
 
@@ -508,93 +570,158 @@ export default function Home() {
       </section>
 
 
-      {/* =====================================================
+      {/* ================================
           PROFESORES
-      ===================================================== */}
+      ================================= */}
 
       <section
         id="profesores"
-        className="teachers-preview"
+        className="section"
       >
 
-        <div className="teachers-preview-content">
+        <div className="section-head">
 
-          <p className="section-eyebrow">
-            NUESTRO EQUIPO
-          </p>
+          <div>
 
-          <h2>
-            Profesores que
-            <br />
-            <em>viven el baile</em>
-          </h2>
+            <p className="eyebrow">
+              NUESTRO EQUIPO
+            </p>
+
+            <h2>
+              Profesores
+            </h2>
+
+          </div>
 
           <p>
-            Profesionales apasionados por la danza,
-            preparados para acompañarte en cada paso.
+            Profesionales que comparten
+            su pasión por el baile y te
+            acompañan en cada paso.
           </p>
 
-          <a
-            href="#contacto"
-            className="pink-button"
-          >
-            CONOCE A NUESTRO EQUIPO
-          </a>
-
         </div>
 
-        <div className="teachers-preview-art">
-          <div className="teachers-art-text">
-            PARADISE
+
+        {cargando ? (
+
+          <div className="vacio-web">
+            Cargando profesores...
           </div>
-        </div>
+
+        ) : profesores.length === 0 ? (
+
+          <div className="vacio-web">
+            Actualmente no hay profesores
+            disponibles.
+          </div>
+
+        ) : (
+
+          <div className="teacher-grid">
+
+            {profesores.map(
+              (profesor) => (
+
+                <article
+                  className="teacher-card"
+                  key={profesor.id}
+                >
+
+                  <div className="teacher-photo">
+
+                    {profesor.foto ? (
+
+                      <img
+                        src={profesor.foto}
+                        alt={
+                          profesor.nombre
+                        }
+                      />
+
+                    ) : (
+
+                      <div className="teacher-placeholder">
+                        👤
+                      </div>
+
+                    )}
+
+                  </div>
+
+                  <div className="teacher-content">
+
+                    <h3>
+                      {profesor.nombre}
+                    </h3>
+
+                    <p>
+                      {profesor.descripcion ||
+                        "Profesor de Artes Escénicas Paradise."}
+                    </p>
+
+                  </div>
+
+                </article>
+
+              )
+            )}
+
+          </div>
+
+        )}
 
       </section>
 
 
-      {/* =====================================================
+      {/* ================================
           LA ESCUELA
-      ===================================================== */}
+      ================================= */}
 
       <section
         id="escuela"
-        className="school-section"
+        className="story"
       >
 
-        <div className="school-photo">
-          <div className="school-photo-overlay">
-            ARTES ESCÉNICAS
-            <br />
-            <strong>PARADISE</strong>
-          </div>
+        <div className="story-image">
+
+          <span>
+            ARTES ESCÉNICAS PARADISE
+          </span>
+
         </div>
 
-        <div className="school-content">
+        <div className="story-copy">
 
-          <p className="section-eyebrow">
+          <p className="eyebrow">
             MUCHO MÁS QUE UNA ESCUELA
           </p>
 
           <h2>
-            Un lugar para
-            <br />
+            Un lugar para{" "}
             <em>sentirte tú</em>
           </h2>
 
           <p>
-            Queremos que venir a clase sea uno de los
-            mejores momentos de tu semana.
+            Queremos que venir a clase
+            sea uno de los mejores
+            momentos de tu semana.
+            Profesores, compañeros y un
+            espacio pensado para que
+            disfrutes del baile.
           </p>
 
           <p>
-            Un espacio donde aprender, disfrutar,
-            conocer gente y compartir nuestra pasión
-            por el baile.
+            En Artes Escénicas Paradise
+            encontrarás diferentes
+            disciplinas, niveles y
+            profesores para aprender,
+            disfrutar y compartir nuestra
+            pasión por el baile.
           </p>
 
           <a
+            className="button primary"
             href="#contacto"
-            className="pink-button"
           >
             CONOCE LA ESCUELA
           </a>
@@ -604,25 +731,27 @@ export default function Home() {
       </section>
 
 
-      {/* =====================================================
+      {/* ================================
           BANNER
-      ===================================================== */}
+      ================================= */}
 
-      <section className="big-banner">
+      <section className="banner">
 
-        <p className="section-eyebrow">
+        <p className="eyebrow">
           ¿EMPEZAMOS?
         </p>
 
         <h2>
           Tu próxima clase
           <br />
-          <em>puede ser hoy.</em>
+          <em>
+            puede ser hoy.
+          </em>
         </h2>
 
         <a
+          className="button light"
           href="#contacto"
-          className="white-button"
         >
           QUIERO PROBAR
         </a>
@@ -630,25 +759,25 @@ export default function Home() {
       </section>
 
 
-      {/* =====================================================
+      {/* ================================
           CONTACTO
-      ===================================================== */}
+      ================================= */}
 
       <section
         id="contacto"
-        className="contact-section"
+        className="contact section"
       >
 
-        <div className="contact-copy">
+        <div>
 
-          <p className="section-eyebrow">
+          <p className="eyebrow">
             DA EL PRIMER PASO
           </p>
 
           <h2>
-            ¿Quieres
-            <br />
-            <em>bailar</em> con nosotros?
+            ¿Quieres{" "}
+            <em>bailar</em>{" "}
+            con nosotros?
           </h2>
 
           <p>
@@ -660,22 +789,20 @@ export default function Home() {
 
 
         <form
-          className="contact-form"
-          onSubmit={(event) => {
-            event.preventDefault();
-          }}
+          className="form"
+          onSubmit={(event) =>
+            event.preventDefault()
+          }
         >
 
           <input
-            type="text"
+            aria-label="Nombre"
             placeholder="Tu nombre"
-            aria-label="Tu nombre"
           />
 
           <input
-            type="tel"
-            placeholder="Teléfono"
             aria-label="Teléfono"
+            placeholder="Teléfono"
           />
 
           <select
@@ -683,26 +810,31 @@ export default function Home() {
             defaultValue=""
           >
 
-            <option value="" disabled>
+            <option
+              value=""
+              disabled
+            >
               ¿Qué actividad te interesa?
             </option>
 
-            {activities.map((activity) => (
+            {actividades.map(
+              (actividad) => (
 
-              <option
-                key={activity.title}
-                value={activity.title}
-              >
-                {activity.title}
-              </option>
+                <option
+                  key={actividad.id}
+                  value={actividad.id}
+                >
+                  {actividad.nombre}
+                </option>
 
-            ))}
+              )
+            )}
 
           </select>
 
           <button
+            className="button primary"
             type="submit"
-            className="pink-button"
           >
             SOLICITAR INFORMACIÓN
           </button>
@@ -712,68 +844,33 @@ export default function Home() {
       </section>
 
 
-      {/* =====================================================
+      {/* ================================
           FOOTER
-      ===================================================== */}
+      ================================= */}
 
-      <footer className="site-footer">
+      <footer>
 
-        <div className="footer-logo">
+        <div className="brand footer-brand">
 
-          <span>
-            ARTES ESCÉNICAS
-          </span>
-
-          <strong>
-            PA<span>R</span>ADISE
-          </strong>
-
-          <small>
-            ESCUELA DE BAILE
-          </small>
-
-        </div>
-
-
-        <div className="footer-center">
-
-          <span>
-            Escuela de baile
+          <span className="brand-mark">
+            AP
           </span>
 
           <span>
-            Lucena · Córdoba
+            Artes Escénicas{" "}
+            <strong>Paradise</strong>
           </span>
 
         </div>
 
+        <p>
+          Escuela de baile · Lucena
+        </p>
 
-        <div className="footer-right">
-
-          <a
-            href="https://www.instagram.com/artescenicasparadise/"
-            target="_blank"
-            rel="noreferrer"
-          >
-            INSTAGRAM
-          </a>
-
-          <a
-            href="https://wa.me/34676421944"
-            target="_blank"
-            rel="noreferrer"
-          >
-            WHATSAPP
-          </a>
-
-        </div>
-
-
-        <div className="footer-copy">
-
-          © {new Date().getFullYear()} Artes Escénicas Paradise
-
-        </div>
+        <p>
+          © {new Date().getFullYear()}{" "}
+          Artes Escénicas Paradise
+        </p>
 
       </footer>
 
