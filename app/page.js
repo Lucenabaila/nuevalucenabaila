@@ -160,21 +160,27 @@ export default function Home() {
       <header className="nav">
 
         <a
-          className="brand"
-          href="#inicio"
-          aria-label="Artes Escénicas Paradise"
-          onClick={cerrarMenu}
-        >
-          <span className="brand-logo" aria-hidden="true">
-            <span className="brand-logo-p">P</span>
-          </span>
+  className="brand"
+  href="#inicio"
+  aria-label="Artes Escénicas Paradise"
+  onClick={cerrarMenu}
+>
+  <span className="brand-wordmark">
+    <small>ARTES ESCÉNICAS</small>
 
-          <span className="brand-name">
-            <small>ARTES ESCÉNICAS</small>
-            <strong>PARADISE</strong>
-            <i>ESCUELA DE BAILE</i>
-          </span>
-        </a>
+    <strong>
+      PA<span>R</span>ADISE
+    </strong>
+
+    <div className="brand-subtitle">
+      <i></i>
+      <b>ESCUELA DE BAILE</b>
+      <i></i>
+    </div>
+
+    <div className="brand-star">★</div>
+  </span>
+</a>
 
         <nav className={menuAbierto ? "mobile-open" : ""}>
           <a href="#clases" onClick={cerrarMenu}>
