@@ -11,6 +11,7 @@ export default function Home() {
   const [error, setError] = useState("");
   const [filtroActividad, setFiltroActividad] = useState("todas");
   const [menuAbierto, setMenuAbierto] = useState(false);
+  const [cartelAbierto, setCartelAbierto] = useState(null);
 
   useEffect(() => {
     async function cargarDatos() {
@@ -29,15 +30,21 @@ export default function Home() {
         ]);
 
         if (!respuestaActividades.ok) {
-          throw new Error("No se pudieron cargar las actividades.");
+          throw new Error(
+            "No se pudieron cargar las actividades."
+          );
         }
 
         if (!respuestaHorarios.ok) {
-          throw new Error("No se pudieron cargar los horarios.");
+          throw new Error(
+            "No se pudieron cargar los horarios."
+          );
         }
 
         if (!respuestaProfesores.ok) {
-          throw new Error("No se pudieron cargar los profesores.");
+          throw new Error(
+            "No se pudieron cargar los profesores."
+          );
         }
 
         const [
@@ -52,19 +59,22 @@ export default function Home() {
 
         if (!datosActividades.correcto) {
           throw new Error(
-            datosActividades.mensaje || "Error cargando actividades."
+            datosActividades.mensaje ||
+              "Error cargando actividades."
           );
         }
 
         if (!datosHorarios.correcto) {
           throw new Error(
-            datosHorarios.mensaje || "Error cargando horarios."
+            datosHorarios.mensaje ||
+              "Error cargando horarios."
           );
         }
 
         if (!datosProfesores.correcto) {
           throw new Error(
-            datosProfesores.mensaje || "Error cargando profesores."
+            datosProfesores.mensaje ||
+              "Error cargando profesores."
           );
         }
 
@@ -86,10 +96,14 @@ export default function Home() {
             : []
         );
       } catch (err) {
-        console.error("Error cargando la web:", err);
+        console.error(
+          "Error cargando la web:",
+          err
+        );
 
         setError(
-          err.message || "No se pudieron cargar los datos."
+          err.message ||
+            "No se pudieron cargar los datos."
         );
       } finally {
         setCargando(false);
@@ -106,7 +120,8 @@ export default function Home() {
 
     return horarios.filter(
       (horario) =>
-        Number(horario.actividad_id) === Number(filtroActividad)
+        Number(horario.actividad_id) ===
+        Number(filtroActividad)
     );
   }, [horarios, filtroActividad]);
 
@@ -119,7 +134,8 @@ export default function Home() {
       .map((profesorId) =>
         profesores.find(
           (profesor) =>
-            Number(profesor.id) === Number(profesorId)
+            Number(profesor.id) ===
+            Number(profesorId)
         )
       )
       .filter(Boolean);
@@ -127,6 +143,7 @@ export default function Home() {
 
   function formatearHora(hora) {
     if (!hora) return "";
+
     return String(hora).slice(0, 5);
   }
 
@@ -146,6 +163,55 @@ export default function Home() {
     return "🎶";
   }
 
+  function obtenerCartel(actividad) {
+    const nombre = String(
+      actividad?.nombre || ""
+    ).toLowerCase();
+
+    if (nombre.includes("bachata")) {
+      return "/actividades/bachata.webp";
+    }
+
+    if (nombre.includes("salsa")) {
+      return "/actividades/salsa.webp";
+    }
+
+    if (
+      nombre.includes("salón") ||
+      nombre.includes("salon")
+    ) {
+      return "/actividades/bailes-de-salon.webp";
+    }
+
+    if (nombre.includes("ladies")) {
+      return "/actividades/ladies-style.webp";
+    }
+
+    if (nombre.includes("ballet")) {
+      return "/actividades/ballet.webp";
+    }
+
+    if (
+      nombre.includes("barré") ||
+      nombre.includes("barre")
+    ) {
+      return "/actividades/fitness-barre.webp";
+    }
+
+    if (nombre.includes("urbano")) {
+      return "/actividades/baile-urbano.webp";
+    }
+
+    if (
+      nombre.includes("k-pop") ||
+      nombre.includes("kpop")
+    ) {
+      return "/actividades/kpop.webp";
+    }
+
+    return null;
+  }
+
   function cerrarMenu() {
     setMenuAbierto(false);
   }
@@ -160,49 +226,86 @@ export default function Home() {
       <header className="nav">
 
         <a
-  className="brand"
-  href="#inicio"
-  aria-label="Artes Escénicas Paradise"
-  onClick={cerrarMenu}
->
-  <span className="brand-wordmark">
-    <small>ARTES ESCÉNICAS</small>
+          className="brand"
+          href="#inicio"
+          aria-label="Artes Escénicas Paradise"
+          onClick={cerrarMenu}
+        >
 
-    <strong>
-      PA<span>R</span>ADISE
-    </strong>
+          <span className="brand-wordmark">
 
-    <div className="brand-subtitle">
-      <i></i>
-      <b>ESCUELA DE BAILE</b>
-      <i></i>
-    </div>
+            <small>
+              ARTES ESCÉNICAS
+            </small>
 
-    <div className="brand-star">★</div>
-  </span>
-</a>
+            <strong>
+              PA<span>R</span>ADISE
+            </strong>
 
-        <nav className={menuAbierto ? "mobile-open" : ""}>
-          <a href="#clases" onClick={cerrarMenu}>
+            <div className="brand-subtitle">
+              <i></i>
+
+              <b>
+                ESCUELA DE BAILE
+              </b>
+
+              <i></i>
+            </div>
+
+            <div className="brand-star">
+              ★
+            </div>
+
+          </span>
+
+        </a>
+
+
+        <nav
+          className={
+            menuAbierto
+              ? "mobile-open"
+              : ""
+          }
+        >
+
+          <a
+            href="#clases"
+            onClick={cerrarMenu}
+          >
             Clases
           </a>
 
-          <a href="#horarios" onClick={cerrarMenu}>
+          <a
+            href="#horarios"
+            onClick={cerrarMenu}
+          >
             Horarios
           </a>
 
-          <a href="#profesores" onClick={cerrarMenu}>
+          <a
+            href="#profesores"
+            onClick={cerrarMenu}
+          >
             Profesores
           </a>
 
-          <a href="#escuela" onClick={cerrarMenu}>
+          <a
+            href="#escuela"
+            onClick={cerrarMenu}
+          >
             La escuela
           </a>
 
-          <a href="#contacto" onClick={cerrarMenu}>
+          <a
+            href="#contacto"
+            onClick={cerrarMenu}
+          >
             Contacto
           </a>
+
         </nav>
+
 
         <a
           className="nav-cta"
@@ -212,18 +315,27 @@ export default function Home() {
           Prueba una clase
         </a>
 
+
         <button
           type="button"
           className={`menu-toggle ${
-            menuAbierto ? "active" : ""
+            menuAbierto
+              ? "active"
+              : ""
           }`}
           aria-label="Abrir menú"
           aria-expanded={menuAbierto}
-          onClick={() => setMenuAbierto(!menuAbierto)}
+          onClick={() =>
+            setMenuAbierto(
+              !menuAbierto
+            )
+          }
         >
+
           <span></span>
           <span></span>
           <span></span>
+
         </button>
 
       </header>
@@ -233,9 +345,13 @@ export default function Home() {
           HERO
       ====================================================== */}
 
-      <section id="inicio" className="hero">
+      <section
+        id="inicio"
+        className="hero"
+      >
 
         <div className="hero-glow"></div>
+
 
         <div className="hero-copy">
 
@@ -243,22 +359,45 @@ export default function Home() {
             ESCUELA DE BAILE · LUCENA
           </p>
 
+
           <h1>
-            <span>BAILA<span className="dot">.</span></span>
+
+            <span>
+              BAILA
+              <span className="dot">
+                .
+              </span>
+            </span>
+
 
             <em>
-              DISFRUTA<span className="dot">.</span>
+              DISFRUTA
+              <span className="dot">
+                .
+              </span>
             </em>
 
-            <span>CONECTA<span className="dot">.</span></span>
+
+            <span>
+              CONECTA
+              <span className="dot">
+                .
+              </span>
+            </span>
+
           </h1>
+
 
           <div className="hero-line"></div>
 
+
           <p className="hero-text">
-            Un espacio para aprender, compartir y vivir el baile.
-            Encuentra tu estilo, conoce a tu gente y empieza a moverte.
+            Un espacio para aprender,
+            compartir y vivir el baile.
+            Encuentra tu estilo, conoce
+            a tu gente y empieza a moverte.
           </p>
+
 
           <div className="hero-actions">
 
@@ -285,17 +424,27 @@ export default function Home() {
 
           <div className="hero-photo-glow"></div>
 
+
           <img
             src="/hero.png"
             alt="Artes Escénicas Paradise"
             className="hero-image"
           />
 
+
           <div className="hero-fade"></div>
 
+
           <div className="hero-sticker">
-            <strong>BAILA</strong>
-            <span>CON NOSOTROS</span>
+
+            <strong>
+              BAILA
+            </strong>
+
+            <span>
+              CON NOSOTROS
+            </span>
+
           </div>
 
         </div>
@@ -310,36 +459,87 @@ export default function Home() {
       <section className="quick-info">
 
         <div className="quick-item">
-          <span className="quick-icon">⌖</span>
+
+          <span className="quick-icon">
+            ⌖
+          </span>
+
           <div>
-            <strong>CARRETERA DE RUTE 15</strong>
-            <span>LUCENA, CÓRDOBA</span>
+
+            <strong>
+              CARRETERA DE RUTE 15
+            </strong>
+
+            <span>
+              LUCENA, CÓRDOBA
+            </span>
+
           </div>
+
         </div>
 
-        <div className="quick-item">
-          <span className="quick-icon">◉</span>
-          <div>
-            <strong>676 421 944</strong>
-            <span className="pink-text">WHATSAPP</span>
-          </div>
-        </div>
 
         <div className="quick-item">
-          <span className="quick-icon">◎</span>
+
+          <span className="quick-icon">
+            ◉
+          </span>
+
           <div>
-            <strong>@ARTESCENICASPARADISE</strong>
-            <span className="pink-text">SÍGUENOS</span>
+
+            <strong>
+              676 421 944
+            </strong>
+
+            <span className="pink-text">
+              WHATSAPP
+            </span>
+
           </div>
+
         </div>
+
+
+        <div className="quick-item">
+
+          <span className="quick-icon">
+            ◎
+          </span>
+
+          <div>
+
+            <strong>
+              @ARTESCENICASPARADISE
+            </strong>
+
+            <span className="pink-text">
+              SÍGUENOS
+            </span>
+
+          </div>
+
+        </div>
+
 
         <div className="quick-message">
+
           <span>
+
             No se trata de ser el mejor,
             <br />
-            se trata de <em>disfrutar</em> el camino.
+
+            se trata de{" "}
+            <em>
+              disfrutar
+            </em>{" "}
+            el camino.
+
           </span>
-          <b>♡</b>
+
+          <b>
+            ♡
+          </b>
+
         </div>
 
       </section>
@@ -349,22 +549,32 @@ export default function Home() {
           ACTIVIDADES
       ====================================================== */}
 
-      <section id="clases" className="section activities-section">
+      <section
+        id="clases"
+        className="section activities-section"
+      >
 
         <div className="section-head">
 
           <div>
+
             <p className="eyebrow">
               ENCUENTRA TU ESTILO
             </p>
 
             <h2>
-              Clases para <em>todos</em>
+              Clases para{" "}
+              <em>
+                todos
+              </em>
             </h2>
+
           </div>
 
+
           <p>
-            Desde tus primeros pasos hasta perfeccionar tu técnica.
+            Desde tus primeros pasos
+            hasta perfeccionar tu técnica.
             Aquí hay un lugar para ti.
           </p>
 
@@ -380,50 +590,113 @@ export default function Home() {
         ) : actividades.length === 0 ? (
 
           <div className="vacio-web">
-            Actualmente no hay actividades disponibles.
+            Actualmente no hay actividades
+            disponibles.
           </div>
 
         ) : (
 
           <div className="cards">
 
-            {actividades.map((actividad) => (
+            {actividades.map(
+              (actividad) => {
 
-              <article
-                className="card"
-                key={actividad.id}
-              >
+                const cartel =
+                  obtenerCartel(
+                    actividad
+                  );
 
-                <div className="card-image-placeholder">
-                  <span>
-                    {obtenerIcono(actividad.nombre)}
-                  </span>
+                return (
 
-                  <small>
-                    PRÓXIMAMENTE
-                  </small>
-                </div>
+                  <article
+                    className="card card-poster"
+                    key={actividad.id}
+                  >
 
-                <div className="card-content">
+                    {cartel ? (
 
-                  <h3>
-                    {actividad.nombre}
-                  </h3>
+                      <button
+                        type="button"
+                        className="card-poster-button"
+                        onClick={() =>
+                          setCartelAbierto({
+                            src: cartel,
+                            nombre:
+                              actividad.nombre,
+                          })
+                        }
+                        aria-label={
+                          `Ver cartel de ${actividad.nombre} en grande`
+                        }
+                      >
 
-                  <p>
-                    {actividad.descripcion ||
-                      "Descubre esta actividad y disfruta del baile con nosotros."}
-                  </p>
+                        <img
+                          src={cartel}
+                          alt={
+                            `Cartel de ${actividad.nombre}`
+                          }
+                          className="card-poster-image"
+                          loading="lazy"
+                        />
 
-                  <a href="#horarios">
-                    VER HORARIOS →
-                  </a>
 
-                </div>
+                        <span className="card-poster-overlay">
 
-              </article>
+                          <strong>
+                            VER CARTEL
+                          </strong>
 
-            ))}
+                          <small>
+                            AMPLIAR
+                          </small>
+
+                        </span>
+
+                      </button>
+
+                    ) : (
+
+                      <div className="card-image-placeholder">
+
+                        <span>
+                          {obtenerIcono(
+                            actividad.nombre
+                          )}
+                        </span>
+
+                        <small>
+                          PRÓXIMAMENTE
+                        </small>
+
+                      </div>
+
+                    )}
+
+
+                    <div className="card-content">
+
+                      <h3>
+                        {actividad.nombre}
+                      </h3>
+
+
+                      <p>
+                        {actividad.descripcion ||
+                          "Descubre esta actividad y disfruta del baile con nosotros."}
+                      </p>
+
+
+                      <a href="#horarios">
+                        VER HORARIOS →
+                      </a>
+
+                    </div>
+
+                  </article>
+
+                );
+              }
+            )}
 
           </div>
 
@@ -444,6 +717,7 @@ export default function Home() {
         <div className="section-head">
 
           <div>
+
             <p className="eyebrow">
               ORGANIZA TU SEMANA
             </p>
@@ -451,54 +725,75 @@ export default function Home() {
             <h2>
               Horarios
             </h2>
+
           </div>
 
+
           <p>
-            Consulta nuestras clases, horarios,
-            niveles y profesores.
+            Consulta nuestras clases,
+            horarios, niveles y profesores.
           </p>
 
         </div>
 
 
-        {!cargando && actividades.length > 0 && (
+        {!cargando &&
+          actividades.length > 0 && (
 
-          <div className="schedule-filters">
-
-            <button
-              type="button"
-              className={
-                filtroActividad === "todas"
-                  ? "filter active"
-                  : "filter"
-              }
-              onClick={() => setFiltroActividad("todas")}
-            >
-              TODAS
-            </button>
-
-            {actividades.map((actividad) => (
+            <div className="schedule-filters">
 
               <button
-                key={actividad.id}
                 type="button"
                 className={
-                  Number(filtroActividad) === Number(actividad.id)
+                  filtroActividad === "todas"
                     ? "filter active"
                     : "filter"
                 }
                 onClick={() =>
-                  setFiltroActividad(String(actividad.id))
+                  setFiltroActividad(
+                    "todas"
+                  )
                 }
               >
-                {actividad.nombre}
+                TODAS
               </button>
 
-            ))}
 
-          </div>
+              {actividades.map(
+                (actividad) => (
 
-        )}
+                  <button
+                    key={actividad.id}
+                    type="button"
+                    className={
+                      Number(
+                        filtroActividad
+                      ) ===
+                      Number(
+                        actividad.id
+                      )
+                        ? "filter active"
+                        : "filter"
+                    }
+                    onClick={() =>
+                      setFiltroActividad(
+                        String(
+                          actividad.id
+                        )
+                      )
+                    }
+                  >
+
+                    {actividad.nombre}
+
+                  </button>
+
+                )
+              )}
+
+            </div>
+
+          )}
 
 
         <div className="schedule">
@@ -512,67 +807,83 @@ export default function Home() {
           ) : error ? (
 
             <div className="vacio-web">
-              No se pudieron cargar los horarios.
+              No se pudieron cargar
+              los horarios.
             </div>
 
-          ) : horariosFiltrados.length === 0 ? (
+          ) : horariosFiltrados.length ===
+            0 ? (
 
             <div className="vacio-web">
-              No hay horarios disponibles para esta actividad.
+              No hay horarios disponibles
+              para esta actividad.
             </div>
 
           ) : (
 
-            horariosFiltrados.map((horario) => {
+            horariosFiltrados.map(
+              (horario) => {
 
-              const profesoresHorario =
-                obtenerProfesoresHorario(horario);
+                const profesoresHorario =
+                  obtenerProfesoresHorario(
+                    horario
+                  );
 
-              return (
+                return (
 
-                <div
-                  className="schedule-row"
-                  key={horario.id}
-                >
+                  <div
+                    className="schedule-row"
+                    key={horario.id}
+                  >
 
-                  <strong>
-                    {horario.dia}
-                  </strong>
+                    <strong>
+                      {horario.dia}
+                    </strong>
 
-                  <span className="time">
-                    {formatearHora(horario.hora_inicio)}
-                    {" – "}
-                    {formatearHora(horario.hora_fin)}
-                  </span>
+                    <span className="time">
+                      {formatearHora(
+                        horario.hora_inicio
+                      )}
+                      {" – "}
+                      {formatearHora(
+                        horario.hora_fin
+                      )}
+                    </span>
 
-                  <span className="schedule-class">
-                    {horario.actividad_nombre}
+                    <span className="schedule-class">
 
-                    {horario.nivel && (
-                      <small>
-                        {horario.nivel}
-                      </small>
-                    )}
-                  </span>
+                      {horario.actividad_nombre}
 
-                  <span className="level">
-                    {profesoresHorario
-                      .map((profesor) => profesor.nombre)
-                      .join(" · ")}
-                  </span>
+                      {horario.nivel && (
+                        <small>
+                          {horario.nivel}
+                        </small>
+                      )}
 
-                </div>
+                    </span>
 
-              );
-            })
+                    <span className="level">
+
+                      {profesoresHorario
+                        .map(
+                          (profesor) =>
+                            profesor.nombre
+                        )
+                        .join(" · ")}
+
+                    </span>
+
+                  </div>
+
+                );
+              }
+            )
 
           )}
 
         </div>
 
       </section>
-
-
       {/* =====================================================
           PROFESORES
       ====================================================== */}
@@ -585,6 +896,7 @@ export default function Home() {
         <div className="section-head">
 
           <div>
+
             <p className="eyebrow">
               NUESTRO EQUIPO
             </p>
@@ -592,11 +904,14 @@ export default function Home() {
             <h2>
               Profesores
             </h2>
+
           </div>
 
+
           <p>
-            Profesionales que comparten su pasión por el baile
-            y te acompañan en cada paso.
+            Profesionales que comparten
+            su pasión por el baile y te
+            acompañan en cada paso.
           </p>
 
         </div>
@@ -611,59 +926,65 @@ export default function Home() {
         ) : profesores.length === 0 ? (
 
           <div className="vacio-web">
-            Actualmente no hay profesores disponibles.
+            Actualmente no hay profesores
+            disponibles.
           </div>
 
         ) : (
 
           <div className="teacher-grid">
 
-            {profesores.map((profesor) => (
+            {profesores.map(
+              (profesor) => (
 
-              <article
-                className="teacher-card"
-                key={profesor.id}
-              >
+                <article
+                  className="teacher-card"
+                  key={profesor.id}
+                >
 
-                <div className="teacher-photo">
+                  <div className="teacher-photo">
 
-                  {profesor.foto ? (
+                    {profesor.foto ? (
 
-                    <img
-                      src={profesor.foto}
-                      alt={profesor.nombre}
-                    />
+                      <img
+                        src={profesor.foto}
+                        alt={profesor.nombre}
+                      />
 
-                  ) : (
+                    ) : (
 
-                    <div className="teacher-placeholder">
-                      👤
-                    </div>
+                      <div className="teacher-placeholder">
+                        👤
+                      </div>
 
-                  )}
+                    )}
 
-                </div>
+                  </div>
 
-                <div className="teacher-content">
 
-                  <p className="teacher-label">
-                    PROFESOR / PROFESORA
-                  </p>
+                  <div className="teacher-content">
 
-                  <h3>
-                    {profesor.nombre}
-                  </h3>
+                    <p className="teacher-label">
+                      PROFESOR / PROFESORA
+                    </p>
 
-                  <p>
-                    {profesor.descripcion ||
-                      "Profesor de Artes Escénicas Paradise."}
-                  </p>
 
-                </div>
+                    <h3>
+                      {profesor.nombre}
+                    </h3>
 
-              </article>
 
-            ))}
+                    <p>
+                      {profesor.descripcion ||
+                        "Profesor de Artes Escénicas Paradise."}
+                    </p>
+
+                  </div>
+
+                </article>
+
+              )
+            )}
 
           </div>
 
@@ -684,8 +1005,13 @@ export default function Home() {
         <div className="story-image">
 
           <div className="story-circle">
-            <span>P</span>
+
+            <span>
+              P
+            </span>
+
           </div>
+
 
           <span className="story-caption">
             ARTES ESCÉNICAS PARADISE
@@ -693,27 +1019,39 @@ export default function Home() {
 
         </div>
 
+
         <div className="story-copy">
 
           <p className="eyebrow">
             MUCHO MÁS QUE UNA ESCUELA
           </p>
 
+
           <h2>
-            Un lugar para <em>sentirte tú</em>
+            Un lugar para{" "}
+            <em>
+              sentirte tú
+            </em>
           </h2>
 
-          <p>
-            Queremos que venir a clase sea uno de los mejores
-            momentos de tu semana. Profesores, compañeros y
-            un espacio pensado para que disfrutes del baile.
-          </p>
 
           <p>
-            En Artes Escénicas Paradise encontrarás diferentes
-            disciplinas, niveles y profesores para aprender,
-            disfrutar y compartir nuestra pasión por el baile.
+            Queremos que venir a clase
+            sea uno de los mejores momentos
+            de tu semana. Profesores,
+            compañeros y un espacio pensado
+            para que disfrutes del baile.
           </p>
+
+
+          <p>
+            En Artes Escénicas Paradise
+            encontrarás diferentes disciplinas,
+            niveles y profesores para aprender,
+            disfrutar y compartir nuestra
+            pasión por el baile.
+          </p>
+
 
           <a
             className="button primary"
@@ -737,11 +1075,18 @@ export default function Home() {
           ¿EMPEZAMOS?
         </p>
 
+
         <h2>
+
           Tu próxima clase
           <br />
-          <em>puede ser hoy.</em>
+
+          <em>
+            puede ser hoy.
+          </em>
+
         </h2>
+
 
         <a
           className="button light"
@@ -768,13 +1113,23 @@ export default function Home() {
             DA EL PRIMER PASO
           </p>
 
+
           <h2>
-            ¿Quieres <em>bailar</em> con nosotros?
+
+            ¿Quieres{" "}
+
+            <em>
+              bailar
+            </em>{" "}
+
+            con nosotros?
+
           </h2>
 
+
           <p>
-            Déjanos tus datos y te contamos qué clase
-            encaja mejor contigo.
+            Déjanos tus datos y te contamos
+            qué clase encaja mejor contigo.
           </p>
 
         </div>
@@ -782,7 +1137,9 @@ export default function Home() {
 
         <form
           className="form"
-          onSubmit={(event) => event.preventDefault()}
+          onSubmit={(event) =>
+            event.preventDefault()
+          }
         >
 
           <input
@@ -790,32 +1147,41 @@ export default function Home() {
             placeholder="Tu nombre"
           />
 
+
           <input
             aria-label="Teléfono"
             placeholder="Teléfono"
           />
+
 
           <select
             aria-label="Actividad"
             defaultValue=""
           >
 
-            <option value="" disabled>
+            <option
+              value=""
+              disabled
+            >
               ¿Qué actividad te interesa?
             </option>
 
-            {actividades.map((actividad) => (
 
-              <option
-                key={actividad.id}
-                value={actividad.id}
-              >
-                {actividad.nombre}
-              </option>
+            {actividades.map(
+              (actividad) => (
 
-            ))}
+                <option
+                  key={actividad.id}
+                  value={actividad.id}
+                >
+                  {actividad.nombre}
+                </option>
+
+              )
+            )}
 
           </select>
+
 
           <button
             className="button primary"
@@ -830,29 +1196,396 @@ export default function Home() {
 
 
       {/* =====================================================
+          VENTANA EMERGENTE DEL CARTEL
+      ====================================================== */}
+
+      {cartelAbierto && (
+
+        <div
+          className="poster-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-label={
+            `Cartel de ${cartelAbierto.nombre}`
+          }
+          onClick={() =>
+            setCartelAbierto(null)
+          }
+        >
+
+          <div
+            className="poster-modal-inner"
+            onClick={(event) =>
+              event.stopPropagation()
+            }
+          >
+
+            <button
+              type="button"
+              className="poster-modal-close"
+              onClick={() =>
+                setCartelAbierto(null)
+              }
+              aria-label="Cerrar cartel"
+            >
+              ×
+            </button>
+
+
+            <img
+              src={cartelAbierto.src}
+              alt={
+                `Cartel de ${cartelAbierto.nombre}`
+              }
+              className="poster-modal-image"
+            />
+
+          </div>
+
+        </div>
+
+      )}
+
+
+      {/* =====================================================
           FOOTER
       ====================================================== */}
 
       <footer>
 
         <div className="footer-logo">
-          <span className="footer-logo-mark">P</span>
+
+          <span className="footer-logo-mark">
+            P
+          </span>
+
 
           <div>
-            <small>ARTES ESCÉNICAS</small>
-            <strong>PARADISE</strong>
+
+            <small>
+              ARTES ESCÉNICAS
+            </small>
+
+            <strong>
+              PARADISE
+            </strong>
+
           </div>
+
         </div>
+
 
         <p>
           Escuela de baile · Lucena
         </p>
 
+
         <p>
-          © {new Date().getFullYear()} Artes Escénicas Paradise
+          © {new Date().getFullYear()}
+          {" "}
+          Artes Escénicas Paradise
         </p>
 
       </footer>
+
+
+      {/* =====================================================
+          ESTILOS DEL VISOR DE CARTELES
+      ====================================================== */}
+
+      <style jsx>{`
+
+        .card-poster {
+          overflow: hidden;
+        }
+
+
+        .card-poster-button {
+          position: relative;
+
+          display: block;
+
+          width: 100%;
+
+          padding: 0;
+
+          border: 0;
+
+          background: transparent;
+
+          cursor: pointer;
+
+          overflow: hidden;
+        }
+
+
+        .card-poster-image {
+          display: block;
+
+          width: 100%;
+
+          aspect-ratio: 2 / 3;
+
+          object-fit: cover;
+
+          transition:
+            transform .35s ease;
+        }
+
+
+        .card-poster-button:hover
+        .card-poster-image {
+          transform: scale(1.035);
+        }
+
+
+        .card-poster-overlay {
+          position: absolute;
+
+          left: 14px;
+          right: 14px;
+          bottom: 14px;
+
+          display: flex;
+
+          align-items: center;
+
+          justify-content: center;
+
+          gap: 8px;
+
+          padding: 12px 16px;
+
+          border-radius: 999px;
+
+          background:
+            rgba(235, 0, 92, .92);
+
+          color: #fff;
+
+          font-size: 13px;
+
+          font-weight: 800;
+
+          letter-spacing: .08em;
+
+          opacity: 0;
+
+          transform:
+            translateY(8px);
+
+          transition:
+            opacity .25s ease,
+            transform .25s ease;
+        }
+
+
+        .card-poster-overlay strong {
+          font-size: 13px;
+        }
+
+
+        .card-poster-overlay small {
+          font-size: 9px;
+
+          opacity: .85;
+
+          letter-spacing: .08em;
+        }
+
+
+        .card-poster-button:hover
+        .card-poster-overlay,
+
+        .card-poster-button:focus-visible
+        .card-poster-overlay {
+          opacity: 1;
+
+          transform:
+            translateY(0);
+        }
+
+
+        /* ============================
+           MODAL
+           ============================ */
+
+        .poster-modal {
+          position: fixed;
+
+          z-index: 9999;
+
+          inset: 0;
+
+          display: flex;
+
+          align-items: center;
+
+          justify-content: center;
+
+          padding: 24px;
+
+          background:
+            rgba(0, 0, 0, .88);
+
+          backdrop-filter:
+            blur(8px);
+        }
+
+
+        .poster-modal-inner {
+          position: relative;
+
+          display: flex;
+
+          align-items: center;
+
+          justify-content: center;
+
+          width: auto;
+
+          max-width:
+            min(92vw, 850px);
+
+          max-height: 94vh;
+        }
+
+
+        .poster-modal-image {
+          display: block;
+
+          width: auto;
+
+          max-width: 100%;
+
+          max-height: 94vh;
+
+          object-fit: contain;
+
+          border-radius: 10px;
+
+          box-shadow:
+            0 20px 70px
+            rgba(0, 0, 0, .65);
+        }
+
+
+        .poster-modal-close {
+          position: absolute;
+
+          z-index: 2;
+
+          top: -18px;
+
+          right: -18px;
+
+          width: 44px;
+
+          height: 44px;
+
+          display: flex;
+
+          align-items: center;
+
+          justify-content: center;
+
+          padding: 0;
+
+          border:
+            2px solid
+            rgba(255, 255, 255, .8);
+
+          border-radius: 50%;
+
+          background:
+            #ec0060;
+
+          color: #fff;
+
+          font-size: 31px;
+
+          line-height: 1;
+
+          cursor: pointer;
+
+          box-shadow:
+            0 8px 25px
+            rgba(0, 0, 0, .45);
+        }
+
+
+        .poster-modal-close:hover {
+          background:
+            #ff2b82;
+
+          transform:
+            scale(1.05);
+        }
+
+
+        /* ============================
+           MÓVIL
+           ============================ */
+
+        @media (max-width: 700px) {
+
+          .poster-modal {
+            padding: 12px;
+          }
+
+
+          .poster-modal-inner {
+            max-width: 96vw;
+
+            max-height: 92vh;
+          }
+
+
+          .poster-modal-image {
+            max-width: 96vw;
+
+            max-height: 92vh;
+
+            border-radius: 7px;
+          }
+
+
+          .poster-modal-close {
+            top: -8px;
+
+            right: -4px;
+
+            width: 40px;
+
+            height: 40px;
+
+            font-size: 28px;
+          }
+
+
+          .card-poster-overlay {
+            opacity: 1;
+
+            transform: none;
+
+            font-size: 10px;
+
+            padding: 9px 12px;
+          }
+
+
+          .card-poster-overlay strong {
+            font-size: 10px;
+          }
+
+
+          .card-poster-overlay small {
+            font-size: 8px;
+          }
+
+        }
+
+      `}</style>
 
     </main>
   );
