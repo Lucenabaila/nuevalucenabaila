@@ -116,135 +116,121 @@ button {
 
 
 /* =========================================================
-   LOGO
+   LOGO — BOCETO PARADISE
    ========================================================= */
 
 .brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-
+  display: block;
   flex-shrink: 0;
+  text-decoration: none;
 }
 
-.brand-logo {
-  position: relative;
-
-  width: 58px;
-  height: 58px;
-
-  border: 3px solid var(--white);
-
-  border-radius: 50%;
-
-  display: grid;
-  place-items: center;
-
-  background: rgba(240,0,98,.08);
-
-  box-shadow:
-    0 0 12px rgba(240,0,98,.7),
-    0 0 32px rgba(240,0,98,.32),
-    inset 0 0 20px rgba(240,0,98,.15);
-
-  transform: rotate(-4deg);
-}
-
-.brand-logo::before {
-  content: "";
-
-  position: absolute;
-
-  width: 20px;
-  height: 34px;
-
-  left: 9px;
-  top: 9px;
-
-  background: var(--white);
-
-  border-radius: 50% 0 0 50%;
-
-  opacity: .98;
-}
-
-.brand-logo::after {
-  content: "";
-
-  position: absolute;
-
-  width: 25px;
-  height: 25px;
-
-  left: 24px;
-  top: 9px;
-
-  border: 5px solid var(--white);
-
-  border-left: 0;
-
-  border-radius: 0 18px 18px 0;
-}
-
-.brand-logo-p {
-  position: relative;
-
-  z-index: 3;
-
-  color: var(--pink);
-
-  font-family: var(--display);
-
-  font-size: 35px;
-
-  line-height: 1;
-
-  transform: translateY(-1px);
-}
-
-.brand-name {
+.brand-wordmark {
   display: flex;
   flex-direction: column;
+  align-items: center;
+
+  width: 330px;
+
+  color: #fff;
 
   line-height: 1;
 }
 
-.brand-name small {
-  margin-bottom: 5px;
+.brand-wordmark small {
+  display: block;
 
-  color: var(--white);
+  margin-bottom: 4px;
 
-  font-size: 8px;
+  color: #fff;
+
+  font-family: var(--body);
+
+  font-size: 10px;
 
   font-weight: 800;
 
-  letter-spacing: 4px;
+  letter-spacing: 6px;
 }
 
-.brand-name strong {
-  color: var(--white);
+.brand-wordmark strong {
+  display: block;
+
+  color: #fff;
 
   font-family: var(--display);
 
-  font-size: 27px;
+  font-size: 50px;
+
+  line-height: .9;
 
   letter-spacing: 1px;
 }
 
-.brand-name i {
-  margin-top: 5px;
-
+.brand-wordmark strong span {
   color: var(--pink);
 
-  font-size: 7px;
+  font-family: var(--brush);
 
-  font-style: normal;
+  font-size: 1.15em;
+
+  font-weight: 400;
+
+  display: inline-block;
+
+  transform: rotate(-8deg) translateY(2px);
+}
+
+.brand-subtitle {
+  width: 100%;
+
+  margin-top: 10px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 9px;
+}
+
+.brand-subtitle i {
+  display: block;
+
+  width: 55px;
+  height: 1px;
+
+  background: var(--pink);
+}
+
+.brand-subtitle b {
+  color: var(--pink);
+
+  font-family: var(--body);
+
+  font-size: 9px;
 
   font-weight: 900;
 
   letter-spacing: 3px;
+
+  white-space: nowrap;
 }
 
+.brand-star {
+  margin-top: 9px;
+
+  color: var(--pink);
+
+  font-size: 20px;
+
+  line-height: 1;
+
+  text-shadow:
+    0 0 10px rgba(240,0,98,.7),
+    0 0 25px rgba(240,0,98,.35);
+}
 
 /* =========================================================
    MENU
