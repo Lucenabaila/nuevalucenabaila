@@ -9,8 +9,8 @@ export default function Home() {
 
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
-
   const [filtroActividad, setFiltroActividad] = useState("todas");
+  const [menuAbierto, setMenuAbierto] = useState(false);
 
   useEffect(() => {
     async function cargarDatos() {
@@ -23,33 +23,21 @@ export default function Home() {
           respuestaHorarios,
           respuestaProfesores,
         ] = await Promise.all([
-          fetch("/api/actividades", {
-            cache: "no-store",
-          }),
-          fetch("/api/horarios", {
-            cache: "no-store",
-          }),
-          fetch("/api/profesores", {
-            cache: "no-store",
-          }),
+          fetch("/api/actividades", { cache: "no-store" }),
+          fetch("/api/horarios", { cache: "no-store" }),
+          fetch("/api/profesores", { cache: "no-store" }),
         ]);
 
         if (!respuestaActividades.ok) {
-          throw new Error(
-            "No se pudieron cargar las actividades."
-          );
+          throw new Error("No se pudieron cargar las actividades.");
         }
 
         if (!respuestaHorarios.ok) {
-          throw new Error(
-            "No se pudieron cargar los horarios."
-          );
+          throw new Error("No se pudieron cargar los horarios.");
         }
 
         if (!respuestaProfesores.ok) {
-          throw new Error(
-            "No se pudieron cargar los profesores."
-          );
+          throw new Error("No se pudieron cargar los profesores.");
         }
 
         const [
@@ -64,22 +52,19 @@ export default function Home() {
 
         if (!datosActividades.correcto) {
           throw new Error(
-            datosActividades.mensaje ||
-              "Error cargando actividades."
+            datosActividades.mensaje || "Error cargando actividades."
           );
         }
 
         if (!datosHorarios.correcto) {
           throw new Error(
-            datosHorarios.mensaje ||
-              "Error cargando horarios."
+            datosHorarios.mensaje || "Error cargando horarios."
           );
         }
 
         if (!datosProfesores.correcto) {
           throw new Error(
-            datosProfesores.mensaje ||
-              "Error cargando profesores."
+            datosProfesores.mensaje || "Error cargando profesores."
           );
         }
 
@@ -101,14 +86,10 @@ export default function Home() {
             : []
         );
       } catch (err) {
-        console.error(
-          "Error cargando la web:",
-          err
-        );
+        console.error("Error cargando la web:", err);
 
         setError(
-          err.message ||
-            "No se pudieron cargar los datos."
+          err.message || "No se pudieron cargar los datos."
         );
       } finally {
         setCargando(false);
@@ -125,8 +106,7 @@ export default function Home() {
 
     return horarios.filter(
       (horario) =>
-        Number(horario.actividad_id) ===
-        Number(filtroActividad)
+        Number(horario.actividad_id) === Number(filtroActividad)
     );
   }, [horarios, filtroActividad]);
 
@@ -139,8 +119,7 @@ export default function Home() {
       .map((profesorId) =>
         profesores.find(
           (profesor) =>
-            Number(profesor.id) ===
-            Number(profesorId)
+            Number(profesor.id) === Number(profesorId)
         )
       )
       .filter(Boolean);
@@ -148,7 +127,6 @@ export default function Home() {
 
   function formatearHora(hora) {
     if (!hora) return "";
-
     return String(hora).slice(0, 5);
   }
 
@@ -168,12 +146,16 @@ export default function Home() {
     return "🎶";
   }
 
-  return (
-    <main>
+  function cerrarMenu() {
+    setMenuAbierto(false);
+  }
 
-      {/* ================================
+  return (
+    <main className="site">
+
+      {/* =====================================================
           HEADER
-      ================================= */}
+      ====================================================== */}
 
       <header className="nav">
 
@@ -181,35 +163,37 @@ export default function Home() {
           className="brand"
           href="#inicio"
           aria-label="Artes Escénicas Paradise"
+          onClick={cerrarMenu}
         >
-          <span className="brand-mark">
-            AP
+          <span className="brand-logo" aria-hidden="true">
+            <span className="brand-logo-p">P</span>
           </span>
 
-          <span>
-            Artes Escénicas{" "}
-            <strong>Paradise</strong>
+          <span className="brand-name">
+            <small>ARTES ESCÉNICAS</small>
+            <strong>PARADISE</strong>
+            <i>ESCUELA DE BAILE</i>
           </span>
         </a>
 
-        <nav>
-          <a href="#clases">
+        <nav className={menuAbierto ? "mobile-open" : ""}>
+          <a href="#clases" onClick={cerrarMenu}>
             Clases
           </a>
 
-          <a href="#horarios">
+          <a href="#horarios" onClick={cerrarMenu}>
             Horarios
           </a>
 
-          <a href="#profesores">
+          <a href="#profesores" onClick={cerrarMenu}>
             Profesores
           </a>
 
-          <a href="#escuela">
+          <a href="#escuela" onClick={cerrarMenu}>
             La escuela
           </a>
 
-          <a href="#contacto">
+          <a href="#contacto" onClick={cerrarMenu}>
             Contacto
           </a>
         </nav>
@@ -217,21 +201,35 @@ export default function Home() {
         <a
           className="nav-cta"
           href="#contacto"
+          onClick={cerrarMenu}
         >
           Prueba una clase
         </a>
 
+        <button
+          type="button"
+          className={`menu-toggle ${
+            menuAbierto ? "active" : ""
+          }`}
+          aria-label="Abrir menú"
+          aria-expanded={menuAbierto}
+          onClick={() => setMenuAbierto(!menuAbierto)}
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
       </header>
 
 
-      {/* ================================
+      {/* =====================================================
           HERO
-      ================================= */}
+      ====================================================== */}
 
-      <section
-        id="inicio"
-        className="hero"
-      >
+      <section id="inicio" className="hero">
+
+        <div className="hero-glow"></div>
 
         <div className="hero-copy">
 
@@ -240,21 +238,20 @@ export default function Home() {
           </p>
 
           <h1>
-            Baila.
-            <br />
+            <span>BAILA<span className="dot">.</span></span>
 
-            <em>Disfruta.</em>
+            <em>
+              DISFRUTA<span className="dot">.</span>
+            </em>
 
-            <br />
-
-            Conecta.
+            <span>CONECTA<span className="dot">.</span></span>
           </h1>
 
+          <div className="hero-line"></div>
+
           <p className="hero-text">
-            Un espacio para aprender,
-            compartir y vivir el baile.
-            Encuentra tu estilo, conoce a
-            tu gente y empieza a moverte.
+            Un espacio para aprender, compartir y vivir el baile.
+            Encuentra tu estilo, conoce a tu gente y empieza a moverte.
           </p>
 
           <div className="hero-actions">
@@ -263,14 +260,14 @@ export default function Home() {
               className="button primary"
               href="#clases"
             >
-              Ver actividades
+              VER ACTIVIDADES
             </a>
 
             <a
               className="button secondary"
               href="#contacto"
             >
-              Quiero probar una clase
+              QUIERO PROBAR
             </a>
 
           </div>
@@ -280,24 +277,19 @@ export default function Home() {
 
         <div className="hero-art">
 
+          <div className="hero-photo-glow"></div>
+
           <img
             src="/hero.png"
             alt="Artes Escénicas Paradise"
             className="hero-image"
           />
 
-          <div className="hero-overlay"></div>
-
-          <div className="hero-photo-note">
-            ARTES ESCÉNICAS PARADISE
-          </div>
+          <div className="hero-fade"></div>
 
           <div className="hero-sticker">
-            BAILA
-            <br />
-            <span>
-              CON NOSOTROS
-            </span>
+            <strong>BAILA</strong>
+            <span>CON NOSOTROS</span>
           </div>
 
         </div>
@@ -305,33 +297,68 @@ export default function Home() {
       </section>
 
 
-      {/* ================================
-          ACTIVIDADES
-      ================================= */}
+      {/* =====================================================
+          FRANJA INFORMACIÓN
+      ====================================================== */}
 
-      <section
-        id="clases"
-        className="section"
-      >
+      <section className="quick-info">
+
+        <div className="quick-item">
+          <span className="quick-icon">⌖</span>
+          <div>
+            <strong>CARRETERA DE RUTE 15</strong>
+            <span>LUCENA, CÓRDOBA</span>
+          </div>
+        </div>
+
+        <div className="quick-item">
+          <span className="quick-icon">◉</span>
+          <div>
+            <strong>676 421 944</strong>
+            <span className="pink-text">WHATSAPP</span>
+          </div>
+        </div>
+
+        <div className="quick-item">
+          <span className="quick-icon">◎</span>
+          <div>
+            <strong>@ARTESCENICASPARADISE</strong>
+            <span className="pink-text">SÍGUENOS</span>
+          </div>
+        </div>
+
+        <div className="quick-message">
+          <span>
+            No se trata de ser el mejor,
+            <br />
+            se trata de <em>disfrutar</em> el camino.
+          </span>
+          <b>♡</b>
+        </div>
+
+      </section>
+
+
+      {/* =====================================================
+          ACTIVIDADES
+      ====================================================== */}
+
+      <section id="clases" className="section activities-section">
 
         <div className="section-head">
 
           <div>
-
             <p className="eyebrow">
               ENCUENTRA TU ESTILO
             </p>
 
             <h2>
-              Clases para{" "}
-              <em>todos</em>
+              Clases para <em>todos</em>
             </h2>
-
           </div>
 
           <p>
-            Desde tus primeros pasos
-            hasta perfeccionar tu técnica.
+            Desde tus primeros pasos hasta perfeccionar tu técnica.
             Aquí hay un lugar para ti.
           </p>
 
@@ -347,27 +374,31 @@ export default function Home() {
         ) : actividades.length === 0 ? (
 
           <div className="vacio-web">
-            Actualmente no hay actividades
-            disponibles.
+            Actualmente no hay actividades disponibles.
           </div>
 
         ) : (
 
           <div className="cards">
 
-            {actividades.map(
-              (actividad) => (
+            {actividades.map((actividad) => (
 
-                <article
-                  className="card"
-                  key={actividad.id}
-                >
+              <article
+                className="card"
+                key={actividad.id}
+              >
 
-                  <span className="card-icon">
-                    {obtenerIcono(
-                      actividad.nombre
-                    )}
+                <div className="card-image-placeholder">
+                  <span>
+                    {obtenerIcono(actividad.nombre)}
                   </span>
+
+                  <small>
+                    PRÓXIMAMENTE
+                  </small>
+                </div>
+
+                <div className="card-content">
 
                   <h3>
                     {actividad.nombre}
@@ -378,14 +409,15 @@ export default function Home() {
                       "Descubre esta actividad y disfruta del baile con nosotros."}
                   </p>
 
-                  <a href="#contacto">
-                    Más información →
+                  <a href="#horarios">
+                    VER HORARIOS →
                   </a>
 
-                </article>
+                </div>
 
-              )
-            )}
+              </article>
+
+            ))}
 
           </div>
 
@@ -394,9 +426,9 @@ export default function Home() {
       </section>
 
 
-      {/* ================================
+      {/* =====================================================
           HORARIOS
-      ================================= */}
+      ====================================================== */}
 
       <section
         id="horarios"
@@ -406,7 +438,6 @@ export default function Home() {
         <div className="section-head">
 
           <div>
-
             <p className="eyebrow">
               ORGANIZA TU SEMANA
             </p>
@@ -414,72 +445,54 @@ export default function Home() {
             <h2>
               Horarios
             </h2>
-
           </div>
 
           <p>
-            Consulta nuestras clases,
-            horarios, niveles y profesores.
+            Consulta nuestras clases, horarios,
+            niveles y profesores.
           </p>
 
         </div>
 
 
-        {!cargando &&
-          actividades.length > 0 && (
+        {!cargando && actividades.length > 0 && (
 
-            <div className="schedule-filters">
+          <div className="schedule-filters">
+
+            <button
+              type="button"
+              className={
+                filtroActividad === "todas"
+                  ? "filter active"
+                  : "filter"
+              }
+              onClick={() => setFiltroActividad("todas")}
+            >
+              TODAS
+            </button>
+
+            {actividades.map((actividad) => (
 
               <button
+                key={actividad.id}
                 type="button"
                 className={
-                  filtroActividad === "todas"
+                  Number(filtroActividad) === Number(actividad.id)
                     ? "filter active"
                     : "filter"
                 }
                 onClick={() =>
-                  setFiltroActividad(
-                    "todas"
-                  )
+                  setFiltroActividad(String(actividad.id))
                 }
               >
-                TODAS
+                {actividad.nombre}
               </button>
 
+            ))}
 
-              {actividades.map(
-                (actividad) => (
+          </div>
 
-                  <button
-                    key={actividad.id}
-                    type="button"
-                    className={
-                      Number(
-                        filtroActividad
-                      ) ===
-                      Number(
-                        actividad.id
-                      )
-                        ? "filter active"
-                        : "filter"
-                    }
-                    onClick={() =>
-                      setFiltroActividad(
-                        String(
-                          actividad.id
-                        )
-                      )
-                    }
-                  >
-                    {actividad.nombre}
-                  </button>
-
-                )
-              )}
-
-            </div>
-
-          )}
+        )}
 
 
         <div className="schedule">
@@ -493,75 +506,59 @@ export default function Home() {
           ) : error ? (
 
             <div className="vacio-web">
-              No se pudieron cargar
-              los horarios.
+              No se pudieron cargar los horarios.
             </div>
 
-          ) : horariosFiltrados.length ===
-            0 ? (
+          ) : horariosFiltrados.length === 0 ? (
 
             <div className="vacio-web">
-              No hay horarios disponibles
-              para esta actividad.
+              No hay horarios disponibles para esta actividad.
             </div>
 
           ) : (
 
-            horariosFiltrados.map(
-              (horario) => {
+            horariosFiltrados.map((horario) => {
 
-                const profesoresHorario =
-                  obtenerProfesoresHorario(
-                    horario
-                  );
+              const profesoresHorario =
+                obtenerProfesoresHorario(horario);
 
-                return (
+              return (
 
-                  <div
-                    className="schedule-row"
-                    key={horario.id}
-                  >
+                <div
+                  className="schedule-row"
+                  key={horario.id}
+                >
 
-                    <strong>
-                      {horario.dia}
-                    </strong>
+                  <strong>
+                    {horario.dia}
+                  </strong>
 
-                    <span className="time">
-                      {formatearHora(
-                        horario.hora_inicio
-                      )}
-                      {" – "}
-                      {formatearHora(
-                        horario.hora_fin
-                      )}
-                    </span>
+                  <span className="time">
+                    {formatearHora(horario.hora_inicio)}
+                    {" – "}
+                    {formatearHora(horario.hora_fin)}
+                  </span>
 
-                    <span>
-                      {horario.actividad_nombre}
+                  <span className="schedule-class">
+                    {horario.actividad_nombre}
 
-                      {horario.nivel && (
-                        <small>
-                          {horario.nivel}
-                        </small>
-                      )}
-                    </span>
+                    {horario.nivel && (
+                      <small>
+                        {horario.nivel}
+                      </small>
+                    )}
+                  </span>
 
-                    <span className="level">
+                  <span className="level">
+                    {profesoresHorario
+                      .map((profesor) => profesor.nombre)
+                      .join(" · ")}
+                  </span>
 
-                      {profesoresHorario
-                        .map(
-                          (profesor) =>
-                            profesor.nombre
-                        )
-                        .join(" · ")}
+                </div>
 
-                    </span>
-
-                  </div>
-
-                );
-              }
-            )
+              );
+            })
 
           )}
 
@@ -570,19 +567,18 @@ export default function Home() {
       </section>
 
 
-      {/* ================================
+      {/* =====================================================
           PROFESORES
-      ================================= */}
+      ====================================================== */}
 
       <section
         id="profesores"
-        className="section"
+        className="section teachers-section"
       >
 
         <div className="section-head">
 
           <div>
-
             <p className="eyebrow">
               NUESTRO EQUIPO
             </p>
@@ -590,13 +586,11 @@ export default function Home() {
             <h2>
               Profesores
             </h2>
-
           </div>
 
           <p>
-            Profesionales que comparten
-            su pasión por el baile y te
-            acompañan en cada paso.
+            Profesionales que comparten su pasión por el baile
+            y te acompañan en cada paso.
           </p>
 
         </div>
@@ -611,60 +605,59 @@ export default function Home() {
         ) : profesores.length === 0 ? (
 
           <div className="vacio-web">
-            Actualmente no hay profesores
-            disponibles.
+            Actualmente no hay profesores disponibles.
           </div>
 
         ) : (
 
           <div className="teacher-grid">
 
-            {profesores.map(
-              (profesor) => (
+            {profesores.map((profesor) => (
 
-                <article
-                  className="teacher-card"
-                  key={profesor.id}
-                >
+              <article
+                className="teacher-card"
+                key={profesor.id}
+              >
 
-                  <div className="teacher-photo">
+                <div className="teacher-photo">
 
-                    {profesor.foto ? (
+                  {profesor.foto ? (
 
-                      <img
-                        src={profesor.foto}
-                        alt={
-                          profesor.nombre
-                        }
-                      />
+                    <img
+                      src={profesor.foto}
+                      alt={profesor.nombre}
+                    />
 
-                    ) : (
+                  ) : (
 
-                      <div className="teacher-placeholder">
-                        👤
-                      </div>
+                    <div className="teacher-placeholder">
+                      👤
+                    </div>
 
-                    )}
+                  )}
 
-                  </div>
+                </div>
 
-                  <div className="teacher-content">
+                <div className="teacher-content">
 
-                    <h3>
-                      {profesor.nombre}
-                    </h3>
+                  <p className="teacher-label">
+                    PROFESOR / PROFESORA
+                  </p>
 
-                    <p>
-                      {profesor.descripcion ||
-                        "Profesor de Artes Escénicas Paradise."}
-                    </p>
+                  <h3>
+                    {profesor.nombre}
+                  </h3>
 
-                  </div>
+                  <p>
+                    {profesor.descripcion ||
+                      "Profesor de Artes Escénicas Paradise."}
+                  </p>
 
-                </article>
+                </div>
 
-              )
-            )}
+              </article>
+
+            ))}
 
           </div>
 
@@ -673,9 +666,9 @@ export default function Home() {
       </section>
 
 
-      {/* ================================
+      {/* =====================================================
           LA ESCUELA
-      ================================= */}
+      ====================================================== */}
 
       <section
         id="escuela"
@@ -684,7 +677,11 @@ export default function Home() {
 
         <div className="story-image">
 
-          <span>
+          <div className="story-circle">
+            <span>P</span>
+          </div>
+
+          <span className="story-caption">
             ARTES ESCÉNICAS PARADISE
           </span>
 
@@ -697,26 +694,19 @@ export default function Home() {
           </p>
 
           <h2>
-            Un lugar para{" "}
-            <em>sentirte tú</em>
+            Un lugar para <em>sentirte tú</em>
           </h2>
 
           <p>
-            Queremos que venir a clase
-            sea uno de los mejores
-            momentos de tu semana.
-            Profesores, compañeros y un
-            espacio pensado para que
-            disfrutes del baile.
+            Queremos que venir a clase sea uno de los mejores
+            momentos de tu semana. Profesores, compañeros y
+            un espacio pensado para que disfrutes del baile.
           </p>
 
           <p>
-            En Artes Escénicas Paradise
-            encontrarás diferentes
-            disciplinas, niveles y
-            profesores para aprender,
-            disfrutar y compartir nuestra
-            pasión por el baile.
+            En Artes Escénicas Paradise encontrarás diferentes
+            disciplinas, niveles y profesores para aprender,
+            disfrutar y compartir nuestra pasión por el baile.
           </p>
 
           <a
@@ -731,9 +721,9 @@ export default function Home() {
       </section>
 
 
-      {/* ================================
+      {/* =====================================================
           BANNER
-      ================================= */}
+      ====================================================== */}
 
       <section className="banner">
 
@@ -744,9 +734,7 @@ export default function Home() {
         <h2>
           Tu próxima clase
           <br />
-          <em>
-            puede ser hoy.
-          </em>
+          <em>puede ser hoy.</em>
         </h2>
 
         <a
@@ -759,9 +747,9 @@ export default function Home() {
       </section>
 
 
-      {/* ================================
+      {/* =====================================================
           CONTACTO
-      ================================= */}
+      ====================================================== */}
 
       <section
         id="contacto"
@@ -775,14 +763,12 @@ export default function Home() {
           </p>
 
           <h2>
-            ¿Quieres{" "}
-            <em>bailar</em>{" "}
-            con nosotros?
+            ¿Quieres <em>bailar</em> con nosotros?
           </h2>
 
           <p>
-            Déjanos tus datos y te contamos
-            qué clase encaja mejor contigo.
+            Déjanos tus datos y te contamos qué clase
+            encaja mejor contigo.
           </p>
 
         </div>
@@ -790,9 +776,7 @@ export default function Home() {
 
         <form
           className="form"
-          onSubmit={(event) =>
-            event.preventDefault()
-          }
+          onSubmit={(event) => event.preventDefault()}
         >
 
           <input
@@ -810,25 +794,20 @@ export default function Home() {
             defaultValue=""
           >
 
-            <option
-              value=""
-              disabled
-            >
+            <option value="" disabled>
               ¿Qué actividad te interesa?
             </option>
 
-            {actividades.map(
-              (actividad) => (
+            {actividades.map((actividad) => (
 
-                <option
-                  key={actividad.id}
-                  value={actividad.id}
-                >
-                  {actividad.nombre}
-                </option>
+              <option
+                key={actividad.id}
+                value={actividad.id}
+              >
+                {actividad.nombre}
+              </option>
 
-              )
-            )}
+            ))}
 
           </select>
 
@@ -844,23 +823,19 @@ export default function Home() {
       </section>
 
 
-      {/* ================================
+      {/* =====================================================
           FOOTER
-      ================================= */}
+      ====================================================== */}
 
       <footer>
 
-        <div className="brand footer-brand">
+        <div className="footer-logo">
+          <span className="footer-logo-mark">P</span>
 
-          <span className="brand-mark">
-            AP
-          </span>
-
-          <span>
-            Artes Escénicas{" "}
-            <strong>Paradise</strong>
-          </span>
-
+          <div>
+            <small>ARTES ESCÉNICAS</small>
+            <strong>PARADISE</strong>
+          </div>
         </div>
 
         <p>
@@ -868,8 +843,7 @@ export default function Home() {
         </p>
 
         <p>
-          © {new Date().getFullYear()}{" "}
-          Artes Escénicas Paradise
+          © {new Date().getFullYear()} Artes Escénicas Paradise
         </p>
 
       </footer>
