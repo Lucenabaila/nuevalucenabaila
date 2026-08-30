@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Anton&family=DM+Sans:wght@400;500;600;700;800;900&family=Permanent+Marker&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=DM+Sans:wght@400;500;600;700;800;900&family=Permanent+Marker&family=Rock+Salt&display=swap');
 
 
 /* =========================================================
@@ -26,7 +26,7 @@
 
   --display: "Anton", Impact, sans-serif;
   --body: "DM Sans", Arial, sans-serif;
-  --brush: "Permanent Marker", "Brush Script MT", cursive;
+  --brush: "Permanent Marker", "Rock Salt", "Brush Script MT", cursive;
 }
 
 
@@ -520,21 +520,23 @@ button {
 
   font-size: .88em;
 
-  line-height: .95;
+  line-height: .88;
 
   font-style: normal;
 
   font-weight: 400;
 
-  letter-spacing: -1px;
+  letter-spacing: -2px;
 
   transform: rotate(-2deg);
 
   transform-origin: left center;
 
-  margin-left: -4px;
-}
+  margin-left: -5px;
 
+  text-shadow:
+    0 2px 0 rgba(0,0,0,.15);
+}
 .hero h1 .dot {
   color: var(--pink);
 
@@ -705,9 +707,9 @@ button {
 
   width: auto;
 
-  height: min(660px, 48vw);
+  height: min(735px, 55vw);
 
-  max-width: 100%;
+  max-width: 112%;
 
   object-fit: contain;
 
@@ -2067,26 +2069,25 @@ footer {
 
   /* FOTO */
 
-  .hero-art {
-    width: calc(100% + 14vw);
+.hero-art {
+  width: calc(100% + 14vw);
 
-    height: 440px;
+  height: 430px;
 
-    margin-left: -7vw;
+  margin-left: -7vw;
 
-    margin-top: 5px;
-  }
+  margin-top: 5px;
+}
 
-  .hero-image {
-    width: 100%;
+.hero-image {
+  width: 110%;
 
-    height: 425px;
+  height: 430px;
 
-    max-width: 100%;
+  max-width: none;
 
-    object-fit: contain;
-  }
-
+  object-fit: contain;
+}
   .hero-photo-glow {
     width: 400px;
     height: 350px;
@@ -2393,6 +2394,40 @@ footer {
 
   .teacher-photo {
     height: 410px;
+  }
+
+}
+@media (max-width: 760px) {
+
+  .brand-wordmark {
+    width: 225px;
+  }
+
+  .brand-wordmark small {
+    font-size: 6px;
+    letter-spacing: 3px;
+  }
+
+  .brand-wordmark strong {
+    font-size: 34px;
+  }
+
+  .brand-subtitle {
+    margin-top: 7px;
+  }
+
+  .brand-subtitle i {
+    width: 30px;
+  }
+
+  .brand-subtitle b {
+    font-size: 6px;
+    letter-spacing: 1.5px;
+  }
+
+  .brand-star {
+    margin-top: 5px;
+    font-size: 14px;
   }
 
 }
