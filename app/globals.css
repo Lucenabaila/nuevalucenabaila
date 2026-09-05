@@ -2726,3 +2726,38 @@ footer {
   }
 
 }
+/* =========================================================
+   AJUSTES FINALES MÓVIL
+   ========================================================= */
+
+@media (max-width: 760px) {
+
+  /* PROFESORES */
+  .teacher-photo {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    height: auto;
+    overflow: hidden;
+  }
+
+  .teacher-photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* LA ESCUELA */
+  .story-image {
+    min-height: 300px;
+    padding: 25px;
+  }
+
+  .story-image img {
+    width: 100%;
+    max-width: 340px;
+    height: auto;
+    object-fit: contain;
+  }
+
+}
