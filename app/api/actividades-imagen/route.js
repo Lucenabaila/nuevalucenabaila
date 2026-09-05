@@ -1,54 +1,29 @@
-import { writeFile, mkdir } from "fs/promises";
+import { NextResponse } from "next/server";
+import { mkdir, writeFile } from "fs/promises";
 import path from "path";
-
-// =========================================================
-// CONFIGURACIÓN
-// =========================================================
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// =========================================================
-// POST — SUBIR CARTEL DE ACTIVIDAD
-// =========================================================
+const UPLOAD_DIR = path.resolve(
+  process.cwd(),
+  "../../../uploads/actividades"
+);
 
 export async function POST(request) {
   try {
-    console.log("========================================");
-    console.log("INICIO SUBIDA CARTEL ACTIVIDAD");
-    console.log("========================================");
-
-    // -----------------------------------------------------
-    // RECIBIR FORMULARIO
-    // -----------------------------------------------------
-
     const formData = await request.formData();
+    const file = formData.get("file");
 
-    const archivo = formData.get("imagen");
-
-    console.log("Archivo recibido:", archivo?.name);
-    console.log("Tipo:", archivo?.type);
-    console.log("Tamaño:", archivo?.size);
-
-    // -----------------------------------------------------
-    // COMPROBAR ARCHIVO
-    // -----------------------------------------------------
-
-    if (!archivo || typeof archivo === "string") {
-      return Response.json(
+    if (!file || typeof file === "string") {
+      return NextResponse.json(
         {
           correcto: false,
-          mensaje: "No se ha seleccionado ningún cartel.",
+          error: "No se ha recibido ningún archivo.",
         },
-        {
-          status: 400,
-        }
+        { status: 400 }
       );
     }
-
-    // -----------------------------------------------------
-    // COMPROBAR TIPO
-    // -----------------------------------------------------
 
     const tiposPermitidos = [
       "image/jpeg",
@@ -56,216 +31,64 @@ export async function POST(request) {
       "image/webp",
     ];
 
-    if (!tiposPermitidos.includes(archivo.type)) {
-      return Response.json(
+    if (!tiposPermitidos.includes(file.type)) {
+      return NextResponse.json(
         {
           correcto: false,
-          mensaje:
-            "El archivo debe ser una imagen JPG, PNG o WEBP.",
-          tipoRecibido: archivo.type || "desconocido",
+          error: "Formato de imagen no permitido.",
         },
-        {
-          status: 400,
-        }
+        { status: 400 }
       );
     }
 
-    // -----------------------------------------------------
-    // COMPROBAR TAMAÑO
-    // -----------------------------------------------------
+    const MAX_SIZE = 15 * 1024 * 1024;
 
-    const tamañoMaximo = 15 * 1024 * 1024;
-
-    if (archivo.size > tamañoMaximo) {
-      return Response.json(
+    if (file.size > MAX_SIZE) {
+      return NextResponse.json(
         {
           correcto: false,
-          mensaje:
-            "El cartel no puede superar los 15 MB.",
+          error: "La imagen no puede superar los 15 MB.",
         },
-        {
-          status: 400,
-        }
+        { status: 400 }
       );
     }
 
-    // -----------------------------------------------------
-    // CARPETA DE DESTINO
-    // -----------------------------------------------------
+    await mkdir(UPLOAD_DIR, { recursive: true });
 
-    const carpeta = path.join(
-      process.cwd(),
-      "public",
-      "uploads",
-      "actividades"
-    );
+    const extension =
+      file.type === "image/jpeg"
+        ? ".jpg"
+        : file.type === "image/png"
+        ? ".png"
+        : ".webp";
 
-    console.log("Carpeta destino:", carpeta);
+    const nombreSeguro = `actividad-${Date.now()}${extension}`;
 
-    await mkdir(carpeta, {
-      recursive: true,
-    });
-
-    // -----------------------------------------------------
-    // EXTENSIÓN
-    // -----------------------------------------------------
-
-    let extension = path
-      .extname(archivo.name || "")
-      .toLowerCase();
-
-    // Si por algún motivo no viene extensión,
-    // la obtenemos a partir del tipo MIME.
-
-    if (!extension) {
-      if (archivo.type === "image/jpeg") {
-        extension = ".jpg";
-      } else if (archivo.type === "image/png") {
-        extension = ".png";
-      } else if (archivo.type === "image/webp") {
-        extension = ".webp";
-      }
-    }
-
-    const extensionesPermitidas = [
-      ".jpg",
-      ".jpeg",
-      ".png",
-      ".webp",
-    ];
-
-    if (!extensionesPermitidas.includes(extension)) {
-      return Response.json(
-        {
-          correcto: false,
-          mensaje:
-            "La extensión del archivo no es válida.",
-        },
-        {
-          status: 400,
-        }
-      );
-    }
-
-    // -----------------------------------------------------
-    // CREAR NOMBRE SEGURO
-    // -----------------------------------------------------
-
-    let nombreOriginal = path.basename(
-      archivo.name || "actividad"
-    );
-
-    nombreOriginal = nombreOriginal
-      .replace(/\.[^/.]+$/, "")
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-zA-Z0-9-_]/g, "-")
-      .replace(/-+/g, "-")
-      .replace(/^-+|-+$/g, "")
-      .toLowerCase()
-      .slice(0, 50);
-
-    if (!nombreOriginal) {
-      nombreOriginal = "actividad";
-    }
-
-    // -----------------------------------------------------
-    // NOMBRE ÚNICO
-    // -----------------------------------------------------
-
-    const nombreArchivo =
-      `${nombreOriginal}-${Date.now()}${extension}`;
-
-    // -----------------------------------------------------
-    // RUTA COMPLETA
-    // -----------------------------------------------------
+    const buffer = Buffer.from(await file.arrayBuffer());
 
     const rutaCompleta = path.join(
-      carpeta,
-      nombreArchivo
+      UPLOAD_DIR,
+      nombreSeguro
     );
 
-    console.log("Archivo final:", nombreArchivo);
-    console.log("Ruta completa:", rutaCompleta);
+    await writeFile(rutaCompleta, buffer);
 
-    // -----------------------------------------------------
-    // CONVERTIR ARCHIVO
-    // -----------------------------------------------------
+    const url = `/uploads/actividades/${nombreSeguro}`;
 
-    const bytes = await archivo.arrayBuffer();
-
-    const buffer = Buffer.from(bytes);
-
-    console.log(
-      "Bytes preparados:",
-      buffer.length
-    );
-
-    // -----------------------------------------------------
-    // GUARDAR ARCHIVO
-    // -----------------------------------------------------
-
-    await writeFile(
-      rutaCompleta,
-      buffer
-    );
-
-    console.log(
-      "ARCHIVO GUARDADO CORRECTAMENTE"
-    );
-
-    // -----------------------------------------------------
-    // RUTA PÚBLICA
-    // -----------------------------------------------------
-
-    const rutaPublica =
-      `/uploads/actividades/${nombreArchivo}`;
-
-    console.log(
-      "Ruta pública:",
-      rutaPublica
-    );
-
-    // -----------------------------------------------------
-    // RESPUESTA
-    // -----------------------------------------------------
-
-    return Response.json({
+    return NextResponse.json({
       correcto: true,
-      mensaje:
-        "Cartel subido correctamente.",
-      ruta: rutaPublica,
-      imagen: rutaPublica,
+      url,
+      imagen: url,
     });
-
   } catch (error) {
-    console.error(
-      "========================================"
-    );
+    console.error("Error subiendo imagen de actividad:", error);
 
-    console.error(
-      "ERROR SUBIENDO CARTEL DE ACTIVIDAD"
-    );
-
-    console.error(error);
-
-    console.error(
-      "========================================"
-    );
-
-    return Response.json(
+    return NextResponse.json(
       {
         correcto: false,
-        mensaje:
-          "Error interno al subir el cartel.",
-        error:
-          error?.message || "Error desconocido",
-        codigo:
-          error?.code || null,
+        error: "No se pudo guardar la imagen.",
       },
-      {
-        status: 500,
-      }
+      { status: 500 }
     );
   }
 }
