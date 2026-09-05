@@ -933,92 +933,91 @@ const horariosAgrupados = useMemo(() => {
 
         <div className="schedule">
 
-          {cargando ? (
+  {cargando ? (
 
-            <div className="vacio-web">
-              Cargando horarios...
-            </div>
+    <div className="vacio-web">
+      Cargando horarios...
+    </div>
 
-          ) : error ? (
+  ) : error ? (
 
-            <div className="vacio-web">
-              No se pudieron cargar
-              los horarios.
-            </div>
+    <div className="vacio-web">
+      No se pudieron cargar
+      los horarios.
+    </div>
 
-          ) : horariosFiltrados.length ===
-            0 ? (
+  ) : horariosAgrupados.length ===
+    0 ? (
 
-            <div className="vacio-web">
-              No hay horarios disponibles
-              para esta actividad.
-            </div>
+    <div className="vacio-web">
+      No hay horarios disponibles
+      para esta actividad.
+    </div>
 
-          ) : (
+  ) : (
 
-            horariosFiltrados.map(
-              (horario) => {
+    horariosAgrupados.map(
+      (horario) => {
 
-                const profesoresHorario =
-                  obtenerProfesoresHorario(
-                    horario
-                  );
+        const profesoresHorario =
+          obtenerProfesoresHorario(
+            horario
+          );
 
-                return (
+        return (
 
-                  <div
-                    className="schedule-row"
-                    key={horario.id}
-                  >
+          <div
+            className="schedule-row"
+            key={`${horario.actividad_id}-${horario.hora_inicio}-${horario.hora_fin}-${horario.nivel || ""}-${horario.diasTexto}`}
+          >
 
-                    <strong>
-                      {horario.dia}
-                    </strong>
+            <strong>
+              {horario.diasTexto}
+            </strong>
 
-                    <span className="time">
-                      {formatearHora(
-                        horario.hora_inicio
-                      )}
-                      {" – "}
-                      {formatearHora(
-                        horario.hora_fin
-                      )}
-                    </span>
+            <span className="time">
+              {formatearHora(
+                horario.hora_inicio
+              )}
+              {" – "}
+              {formatearHora(
+                horario.hora_fin
+              )}
+            </span>
 
-                    <span className="schedule-class">
+            <span className="schedule-class">
 
-                      {horario.actividad_nombre}
+              {horario.actividad_nombre}
 
-                      {horario.nivel && (
-                        <small>
-                          {horario.nivel}
-                        </small>
-                      )}
+              {horario.nivel && (
+                <small>
+                  {horario.nivel}
+                </small>
+              )}
 
-                    </span>
+            </span>
 
-                    <span className="level">
+            <span className="level">
 
-                      {profesoresHorario
-                        .map(
-                          (profesor) =>
-                            profesor.nombre
-                        )
-                        .join(" · ")}
+              {profesoresHorario
+                .map(
+                  (profesor) =>
+                    profesor.nombre
+                )
+                .join(" · ")}
 
-                    </span>
+            </span>
 
-                  </div>
+          </div>
 
-                );
-              }
-            )
+        );
 
-          )}
+      }
+    )
 
-        </div>
+  )}
 
-      </section>
+</div>
       {/* =====================================================
           PROFESORES
       ====================================================== */}
