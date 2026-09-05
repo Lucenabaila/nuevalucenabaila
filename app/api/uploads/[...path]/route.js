@@ -17,7 +17,10 @@ export async function GET(request, { params }) {
 
     const tipo = filePath[0];
 
-    if (tipo !== "profesores" && tipo !== "actividades") {
+    if (
+      tipo !== "profesores" &&
+      tipo !== "actividades"
+    ) {
       return new NextResponse("Ruta no permitida", {
         status: 404,
       });
@@ -37,9 +40,11 @@ export async function GET(request, { params }) {
       });
     }
 
+    // Las imágenes están realmente en:
+    // hbuilds/uploads/
     const rutaBase = path.resolve(
       process.cwd(),
-      "../../../uploads",
+      "../../uploads",
       tipo
     );
 
@@ -50,18 +55,23 @@ export async function GET(request, { params }) {
 
     if (
       rutaArchivo !== rutaBase &&
-      !rutaArchivo.startsWith(rutaBase + path.sep)
+      !rutaArchivo.startsWith(
+        rutaBase + path.sep
+      )
     ) {
-      return new NextResponse("Ruta no permitida", {
-        status: 403,
-      });
+      return new NextResponse(
+        "Ruta no permitida",
+        { status: 403 }
+      );
     }
 
-    const archivo = await readFile(rutaArchivo);
+    const archivo =
+      await readFile(rutaArchivo);
 
-    const extension = path
-      .extname(rutaArchivo)
-      .toLowerCase();
+    const extension =
+      path
+        .extname(rutaArchivo)
+        .toLowerCase();
 
     const tipos = {
       ".jpg": "image/jpeg",
@@ -72,21 +82,32 @@ export async function GET(request, { params }) {
     };
 
     const contentType =
-      tipos[extension] || "application/octet-stream";
+      tipos[extension] ||
+      "application/octet-stream";
 
-    return new NextResponse(archivo, {
-      status: 200,
-      headers: {
-        "Content-Type": contentType,
-        "Cache-Control":
-          "public, max-age=31536000, immutable",
-      },
-    });
+    return new NextResponse(
+      archivo,
+      {
+        status: 200,
+        headers: {
+          "Content-Type":
+            contentType,
+          "Cache-Control":
+            "public, max-age=31536000, immutable",
+        },
+      }
+    );
+
   } catch (error) {
-    console.error("Error sirviendo imagen:", error);
 
-    return new NextResponse("Imagen no encontrada", {
-      status: 404,
-    });
+    console.error(
+      "Error sirviendo imagen:",
+      error
+    );
+
+    return new NextResponse(
+      "Imagen no encontrada",
+      { status: 404 }
+    );
   }
 }
