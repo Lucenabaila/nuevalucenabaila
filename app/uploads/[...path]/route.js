@@ -36,10 +36,10 @@ export async function GET(request, { params }) {
     }
 
     const rutaBase = path.resolve(
-      process.cwd(),
-      "../../uploads",
-      tipo
-    );
+  process.cwd(),
+  "../../../uploads",
+  tipo
+);
 
     const rutaArchivo = path.resolve(
       rutaBase,
