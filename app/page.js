@@ -1105,22 +1105,14 @@ const horariosAgrupados = useMemo(() => {
         className="story"
       >
 
-        <div className="story-image">
+      <div className="story-image">
 
-          <div className="story-circle">
+  <img
+    src="/footer-paradise.png"
+    alt="Artes Escénicas Paradise"
+  />
 
-            <span>
-              P
-            </span>
-
-          </div>
-
-
-          <span className="story-caption">
-            ARTES ESCÉNICAS PARADISE
-          </span>
-
-        </div>
+</div>
 
 
         <div className="story-copy">
