@@ -1356,26 +1356,14 @@ const horariosAgrupados = useMemo(() => {
 
       <footer>
 
-        <div className="footer-logo">
+<div className="footer-image">
 
-          <span className="footer-logo-mark">
-            P
-          </span>
+  <img
+    src="/footer-paradise.png"
+    alt="Artes Escénicas Paradise"
+  />
 
-
-          <div>
-
-            <small>
-              ARTES ESCÉNICAS
-            </small>
-
-            <strong>
-              PARADISE
-            </strong>
-
-          </div>
-
-        </div>
+</div>
 
 
         <p>
