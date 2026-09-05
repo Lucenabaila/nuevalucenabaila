@@ -1194,100 +1194,275 @@ const horariosAgrupados = useMemo(() => {
 
 
       {/* =====================================================
-          CONTACTO
-      ====================================================== */}
+    CONTACTO
+====================================================== */}
 
-      <section
-        id="contacto"
-        className="contact section"
+<section
+  id="contacto"
+  className="contact section"
+>
+
+  <div className="contact-info">
+
+    <p className="eyebrow">
+      DA EL PRIMER PASO
+    </p>
+
+    <h2>
+      ¿Quieres{" "}
+      <em>
+        bailar
+      </em>{" "}
+      con nosotros?
+    </h2>
+
+    <p>
+      Ponte en contacto con nosotros.
+      Te ayudaremos a encontrar la clase
+      que mejor se adapte a ti.
+    </p>
+
+
+    <div className="contact-details">
+
+      <a
+        href="tel:+34676421944"
+        className="contact-detail"
       >
+
+        <span className="contact-detail-icon">
+          📞
+        </span>
+
+        <span>
+          <strong>
+            676 421 944
+          </strong>
+
+          <small>
+            LLÁMANOS
+          </small>
+        </span>
+
+      </a>
+
+
+      <a
+        href="https://wa.me/34676421944?text=Hola%2C%20estoy%20interesado%2Fa%20en%20las%20clases%20de%20Artes%20Esc%C3%A9nicas%20Paradise."
+        target="_blank"
+        rel="noopener noreferrer"
+        className="contact-detail contact-whatsapp"
+      >
+
+        <span className="contact-detail-icon">
+          💬
+        </span>
+
+        <span>
+          <strong>
+            WhatsApp
+          </strong>
+
+          <small>
+            RESPUESTA RÁPIDA
+          </small>
+        </span>
+
+      </a>
+
+
+      <a
+        href="mailto:info@lucenabaila.com"
+        className="contact-detail"
+      >
+
+        <span className="contact-detail-icon">
+          ✉
+        </span>
+
+        <span>
+          <strong>
+            info@lucenabaila.com
+          </strong>
+
+          <small>
+            ENVÍANOS UN EMAIL
+          </small>
+        </span>
+
+      </a>
+
+
+      <div className="contact-detail">
+
+        <span className="contact-detail-icon">
+          📍
+        </span>
+
+        <span>
+          <strong>
+            Carretera de Rute, 15
+          </strong>
+
+          <small>
+            14900 LUCENA · CÓRDOBA
+          </small>
+        </span>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div className="contact-right">
+
+    <form
+      className="form"
+      onSubmit={(event) => {
+
+        event.preventDefault();
+
+        const formData =
+          new FormData(event.currentTarget);
+
+        const nombre =
+          formData.get("nombre") || "";
+
+        const telefono =
+          formData.get("telefono") || "";
+
+        const actividadId =
+          formData.get("actividad") || "";
+
+        const actividadSeleccionada =
+          actividades.find(
+            (actividad) =>
+              String(actividad.id) ===
+              String(actividadId)
+          );
+
+        const actividadNombre =
+          actividadSeleccionada?.nombre ||
+          "una actividad de la escuela";
+
+        const mensaje =
+          `Hola, soy ${nombre}. Estoy interesado/a en ${actividadNombre}. Mi teléfono es ${telefono}.`;
+
+        const whatsappUrl =
+          `https://wa.me/34676421944?text=${encodeURIComponent(
+            mensaje
+          )}`;
+
+        window.open(
+          whatsappUrl,
+          "_blank",
+          "noopener,noreferrer"
+        );
+
+      }}
+    >
+
+      <input
+        name="nombre"
+        aria-label="Nombre"
+        placeholder="Tu nombre"
+        required
+      />
+
+
+      <input
+        name="telefono"
+        aria-label="Teléfono"
+        placeholder="Teléfono"
+        type="tel"
+        required
+      />
+
+
+      <select
+        name="actividad"
+        aria-label="Actividad"
+        defaultValue=""
+        required
+      >
+
+        <option
+          value=""
+          disabled
+        >
+          ¿Qué actividad te interesa?
+        </option>
+
+
+        {actividades.map(
+          (actividad) => (
+
+            <option
+              key={actividad.id}
+              value={actividad.id}
+            >
+              {actividad.nombre}
+            </option>
+
+          )
+        )}
+
+      </select>
+
+
+      <button
+        className="button primary"
+        type="submit"
+      >
+        💬 SOLICITAR INFORMACIÓN POR WHATSAPP
+      </button>
+
+    </form>
+
+
+    <div className="contact-map">
+
+      <div className="contact-map-header">
 
         <div>
 
           <p className="eyebrow">
-            DA EL PRIMER PASO
+            ENCUÉNTRANOS
           </p>
 
-
-          <h2>
-
-            ¿Quieres{" "}
-
-            <em>
-              bailar
-            </em>{" "}
-
-            con nosotros?
-
-          </h2>
-
-
-          <p>
-            Déjanos tus datos y te contamos
-            qué clase encaja mejor contigo.
-          </p>
+          <strong>
+            Carretera de Rute, 15 · Lucena
+          </strong>
 
         </div>
 
 
-        <form
-          className="form"
-          onSubmit={(event) =>
-            event.preventDefault()
-          }
+        <a
+          href="https://www.google.com/maps/dir/?api=1&destination=Carretera%20de%20Rute%2C%2015%2C%2014900%20Lucena%2C%20C%C3%B3rdoba&travelmode=driving"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="map-button"
         >
+          📍 CÓMO LLEGAR
+        </a>
 
-          <input
-            aria-label="Nombre"
-            placeholder="Tu nombre"
-          />
-
-
-          <input
-            aria-label="Teléfono"
-            placeholder="Teléfono"
-          />
+      </div>
 
 
-          <select
-            aria-label="Actividad"
-            defaultValue=""
-          >
+      <iframe
+        title="Mapa de Artes Escénicas Paradise"
+        src="https://www.google.com/maps?q=Carretera%20de%20Rute%2C%2015%2C%2014900%20Lucena%2C%20C%C3%B3rdoba&output=embed"
+        loading="lazy"
+        referrerPolicy="no-referrer-when-downgrade"
+      ></iframe>
 
-            <option
-              value=""
-              disabled
-            >
-              ¿Qué actividad te interesa?
-            </option>
+    </div>
 
+  </div>
 
-            {actividades.map(
-              (actividad) => (
-
-                <option
-                  key={actividad.id}
-                  value={actividad.id}
-                >
-                  {actividad.nombre}
-                </option>
-
-              )
-            )}
-
-          </select>
-
-
-          <button
-            className="button primary"
-            type="submit"
-          >
-            SOLICITAR INFORMACIÓN
-          </button>
-
-        </form>
-
-      </section>
+</section>
 
 
       {/* =====================================================
