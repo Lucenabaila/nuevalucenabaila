@@ -1348,28 +1348,39 @@ const horariosAgrupados = useMemo(() => {
 
       <footer>
 
-<div className="footer-image">
+  <div className="footer-logo">
 
-  <img
-    src="/footer-paradise.png"
-    alt="Artes Escénicas Paradise"
-  />
+    <span className="footer-logo-mark">
+      P
+    </span>
 
-</div>
+    <div>
+
+      <small>
+        ARTES ESCÉNICAS
+      </small>
+
+      <strong>
+        PARADISE
+      </strong>
+
+    </div>
+
+  </div>
 
 
-        <p>
-          Escuela de baile · Lucena
-        </p>
+  <p>
+    Escuela de baile · Lucena
+  </p>
 
 
-        <p>
-          © {new Date().getFullYear()}
-          {" "}
-          Artes Escénicas Paradise
-        </p>
+  <p>
+    © {new Date().getFullYear()}
+    {" "}
+    Artes Escénicas Paradise
+  </p>
 
-      </footer>
+</footer>
 
 
       {/* =====================================================
