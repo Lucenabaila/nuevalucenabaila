@@ -1050,9 +1050,16 @@ const horariosAgrupados = useMemo(() => {
                     {profesor.foto ? (
 
                       <img
-                        src={profesor.foto}
-                        alt={profesor.nombre}
-                      />
+  src={profesor.foto}
+  alt={profesor.nombre}
+  loading="eager"
+  style={{
+    display: "block",
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+  }}
+/>
 
                     ) : (
 
