@@ -40,8 +40,6 @@ export async function GET(request, { params }) {
       });
     }
 
-    // Las imágenes están realmente en:
-    // hbuilds/uploads/
     const rutaBase = path.resolve(
       process.cwd(),
       "../../uploads",
@@ -65,13 +63,11 @@ export async function GET(request, { params }) {
       );
     }
 
-    const archivo =
-      await readFile(rutaArchivo);
+    const archivo = await readFile(rutaArchivo);
 
-    const extension =
-      path
-        .extname(rutaArchivo)
-        .toLowerCase();
+    const extension = path
+      .extname(rutaArchivo)
+      .toLowerCase();
 
     const tipos = {
       ".jpg": "image/jpeg",
@@ -85,21 +81,15 @@ export async function GET(request, { params }) {
       tipos[extension] ||
       "application/octet-stream";
 
-    return new NextResponse(
-      archivo,
-      {
-        status: 200,
-        headers: {
-          "Content-Type":
-            contentType,
-          "Cache-Control":
-            "public, max-age=31536000, immutable",
-        },
-      }
-    );
-
+    return new NextResponse(archivo, {
+      status: 200,
+      headers: {
+        "Content-Type": contentType,
+        "Cache-Control":
+          "public, max-age=31536000, immutable",
+      },
+    });
   } catch (error) {
-
     console.error(
       "Error sirviendo imagen:",
       error
