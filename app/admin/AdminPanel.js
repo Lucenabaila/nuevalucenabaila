@@ -76,10 +76,22 @@ export default function AdminPage() {
       />
     );
   }
-  const [seccionActiva, setSeccionActiva] = useState("inicio");
-  const [profesores, setProfesores] = useState([]);
-  const [actividades, setActividades] = useState([]);
-  const [cargando, setCargando] = useState(true);
+
+  return <AdminPanel />;
+}
+
+function AdminPanel() {
+  const [seccionActiva, setSeccionActiva] =
+    useState("inicio");
+
+  const [profesores, setProfesores] =
+    useState([]);
+
+  const [actividades, setActividades] =
+    useState([]);
+
+  const [cargando, setCargando] =
+    useState(true);
 
   useEffect(() => {
     cargarDatos();
@@ -89,41 +101,96 @@ export default function AdminPage() {
     try {
       setCargando(true);
 
-      const [respuestaProfesores, respuestaActividades] =
-        await Promise.all([
-          fetch("/api/profesores?admin=true", { cache: "no-store" }),
-          fetch("/api/actividades?admin=true", { cache: "no-store" }),
-        ]);
+      const [
+        respuestaProfesores,
+        respuestaActividades,
+      ] = await Promise.all([
+        fetch(
+          "/api/profesores?admin=true",
+          {
+            cache: "no-store",
+          }
+        ),
+        fetch(
+          "/api/actividades?admin=true",
+          {
+            cache: "no-store",
+          }
+        ),
+      ]);
 
-      const datosProfesores = await respuestaProfesores.json();
-      const datosActividades = await respuestaActividades.json();
+      const datosProfesores =
+        await respuestaProfesores.json();
+
+      const datosActividades =
+        await respuestaActividades.json();
 
       if (datosProfesores.correcto) {
-        setProfesores(datosProfesores.profesores || []);
+        setProfesores(
+          datosProfesores.profesores || []
+        );
       }
 
       if (datosActividades.correcto) {
-        setActividades(datosActividades.actividades || []);
+        setActividades(
+          datosActividades.actividades || []
+        );
       }
+
     } catch (error) {
-      console.error("Error cargando datos:", error);
+
+      console.error(
+        "Error cargando datos:",
+        error
+      );
+
     } finally {
+
       setCargando(false);
+
     }
   }
 
   const menu = [
-    { id: "inicio", nombre: "Inicio", icono: "🏠" },
-    { id: "actividades", nombre: "Actividades", icono: "💃" },
-    { id: "profesores", nombre: "Profesores", icono: "👥" },
-    { id: "horarios", nombre: "Horarios", icono: "🕐" },
-    { id: "eventos", nombre: "Eventos", icono: "📅" },
-    { id: "galeria", nombre: "Galería", icono: "🖼️" },
-    { id: "mensajes", nombre: "Mensajes", icono: "💌" },
+    {
+      id: "inicio",
+      nombre: "Inicio",
+      icono: "🏠",
+    },
+    {
+      id: "actividades",
+      nombre: "Actividades",
+      icono: "💃",
+    },
+    {
+      id: "profesores",
+      nombre: "Profesores",
+      icono: "👥",
+    },
+    {
+      id: "horarios",
+      nombre: "Horarios",
+      icono: "🕐",
+    },
+    {
+      id: "eventos",
+      nombre: "Eventos",
+      icono: "📅",
+    },
+    {
+      id: "galeria",
+      nombre: "Galería",
+      icono: "🖼️",
+    },
+    {
+      id: "mensajes",
+      nombre: "Mensajes",
+      icono: "💌",
+    },
   ];
 
   return (
-    <div style={estilos.pagina}>
+        <div style={estilos.pagina}>
 
       {/* MENÚ LATERAL */}
 
@@ -290,9 +357,7 @@ export default function AdminPage() {
     </div>
   );
 }
-
-
-/* =========================================================
+           /* =========================================================
    INICIO
 ========================================================= */
 
@@ -310,17 +375,14 @@ function Inicio({
         RESUMEN
       </div>
 
-
       <h2 style={estilos.tituloSeccion}>
         Panel de administración
       </h2>
-
 
       <p style={estilos.descripcionSeccion}>
         Desde aquí puedes gestionar profesores,
         actividades, horarios y eventos de la escuela.
       </p>
-
 
       <div style={estilos.tarjetas}>
 
@@ -383,9 +445,7 @@ function Inicio({
     </div>
   );
 }
-
-
-/* =========================================================
+        /* =========================================================
    ACTIVIDADES
 ========================================================= */
 
@@ -516,10 +576,6 @@ function Actividades({
     }
 
 
-    // -----------------------------------------------------
-    // TIPOS PERMITIDOS
-    // -----------------------------------------------------
-
     const tiposPermitidos = [
       "image/jpeg",
       "image/png",
@@ -544,10 +600,6 @@ function Actividades({
     }
 
 
-    // -----------------------------------------------------
-    // TAMAÑO MÁXIMO
-    // -----------------------------------------------------
-
     if (
       archivo.size >
       15 * 1024 * 1024
@@ -564,10 +616,6 @@ function Actividades({
     }
 
 
-    // -----------------------------------------------------
-    // VISTA PREVIA
-    // -----------------------------------------------------
-
     const preview =
       URL.createObjectURL(
         archivo
@@ -577,10 +625,6 @@ function Actividades({
       preview
     );
 
-
-    // -----------------------------------------------------
-    // SUBIR
-    // -----------------------------------------------------
 
     try {
 
@@ -954,9 +998,7 @@ function Actividades({
 
 
     if (!confirmar) {
-
       return;
-
     }
 
 
@@ -1033,10 +1075,6 @@ function Actividades({
 
     <div>
 
-      {/* =================================================
-          CABECERA
-      ================================================= */}
-
       <div style={estilos.cabeceraSeccion}>
 
         <div>
@@ -1071,10 +1109,6 @@ function Actividades({
       </div>
 
 
-      {/* =================================================
-          FORMULARIO
-      ================================================= */}
-
       {mostrandoFormulario && (
 
         <div style={estilos.editor}>
@@ -1095,8 +1129,6 @@ function Actividades({
               guardarActividad
             }
           >
-
-            {/* NOMBRE */}
 
             <label style={estilos.label}>
               Nombre
@@ -1119,8 +1151,6 @@ function Actividades({
             />
 
 
-            {/* DESCRIPCIÓN */}
-
             <label style={estilos.label}>
               Descripción
             </label>
@@ -1142,10 +1172,6 @@ function Actividades({
               }
             />
 
-
-            {/* =================================================
-                CARTEL
-            ================================================= */}
 
             <label style={estilos.label}>
               Cartel de la actividad
@@ -1378,8 +1404,6 @@ function Actividades({
             </div>
 
 
-            {/* ORDEN */}
-
             <label style={estilos.label}>
               Orden
             </label>
@@ -1400,8 +1424,6 @@ function Actividades({
               }
             />
 
-
-            {/* BOTONES */}
 
             <div style={estilos.botonesEditor}>
 
@@ -1450,10 +1472,6 @@ function Actividades({
       )}
 
 
-      {/* =================================================
-          LISTA
-      ================================================= */}
-
       <div style={estilos.lista}>
 
         {actividades.length === 0 ? (
@@ -1485,8 +1503,6 @@ function Actividades({
                   )}
                 </div>
 
-
-                {/* MINIATURA DEL CARTEL */}
 
                 <div
                   style={{
@@ -1740,10 +1756,6 @@ function Profesores({
     useState(false);
 
 
-  // =======================================================
-  // LIMPIAR FORMULARIO
-  // =======================================================
-
   function limpiarFormulario() {
 
     setNombre("");
@@ -1755,10 +1767,6 @@ function Profesores({
 
   }
 
-
-  // =======================================================
-  // NUEVO PROFESOR
-  // =======================================================
 
   function nuevoProfesor() {
 
@@ -1777,24 +1785,15 @@ function Profesores({
   }
 
 
-  // =======================================================
-  // SUBIR FOTO
-  // =======================================================
-
   async function subirFoto(event) {
 
     const archivo =
       event.target.files?.[0];
 
-
     if (!archivo) {
       return;
     }
 
-
-    // -----------------------------------------------------
-    // COMPROBAR TIPO
-    // -----------------------------------------------------
 
     const tiposPermitidos = [
       "image/jpeg",
@@ -1821,10 +1820,6 @@ function Profesores({
     }
 
 
-    // -----------------------------------------------------
-    // COMPROBAR TAMAÑO
-    // -----------------------------------------------------
-
     if (
       archivo.size >
       10 * 1024 * 1024
@@ -1841,10 +1836,6 @@ function Profesores({
     }
 
 
-    // -----------------------------------------------------
-    // VISTA PREVIA INMEDIATA
-    // -----------------------------------------------------
-
     const preview =
       URL.createObjectURL(
         archivo
@@ -1854,10 +1845,6 @@ function Profesores({
       preview
     );
 
-
-    // -----------------------------------------------------
-    // SUBIR AL SERVIDOR
-    // -----------------------------------------------------
 
     try {
 
@@ -1949,10 +1936,6 @@ function Profesores({
   }
 
 
-  // =======================================================
-  // QUITAR FOTO
-  // =======================================================
-
   function quitarFoto() {
 
     setFoto("");
@@ -1960,10 +1943,6 @@ function Profesores({
 
   }
 
-
-  // =======================================================
-  // CAMBIAR ACTIVIDAD
-  // =======================================================
 
   function cambiarActividadNuevoProfesor(id) {
 
@@ -1993,10 +1972,6 @@ function Profesores({
   }
 
 
-  // =======================================================
-  // GUARDAR PROFESOR
-  // =======================================================
-
   async function guardarProfesor(event) {
 
     event.preventDefault();
@@ -2012,9 +1987,6 @@ function Profesores({
 
     }
 
-
-    // No permitimos guardar mientras se está subiendo
-    // la fotografía.
 
     if (subiendoFoto) {
 
@@ -2121,10 +2093,6 @@ function Profesores({
 
     <div>
 
-      {/* =================================================
-          CABECERA
-      ================================================= */}
-
       <div style={estilos.cabeceraSeccion}>
 
         <div>
@@ -2155,10 +2123,6 @@ function Profesores({
       </div>
 
 
-      {/* =================================================
-          FORMULARIO NUEVO PROFESOR
-      ================================================= */}
-
       {mostrandoFormulario && (
 
         <div style={estilos.editor}>
@@ -2177,10 +2141,6 @@ function Profesores({
               guardarProfesor
             }
           >
-
-            {/* ===========================================
-                NOMBRE
-            =========================================== */}
 
             <label style={estilos.label}>
               Nombre
@@ -2203,10 +2163,6 @@ function Profesores({
             />
 
 
-            {/* ===========================================
-                DESCRIPCIÓN
-            =========================================== */}
-
             <label style={estilos.label}>
               Descripción
             </label>
@@ -2228,10 +2184,6 @@ function Profesores({
               }
             />
 
-
-            {/* ===========================================
-                FOTOGRAFÍA
-            =========================================== */}
 
             <label style={estilos.label}>
               Fotografía del profesor
@@ -2414,10 +2366,6 @@ function Profesores({
             </div>
 
 
-            {/* ===========================================
-                ACTIVIDADES
-            =========================================== */}
-
             <label style={estilos.label}>
               Actividades que imparte
             </label>
@@ -2485,10 +2433,6 @@ function Profesores({
             </div>
 
 
-            {/* ===========================================
-                BOTONES
-            =========================================== */}
-
             <div
               style={
                 estilos.botonesEditor
@@ -2538,10 +2482,6 @@ function Profesores({
       )}
 
 
-      {/* =================================================
-          LISTA DE PROFESORES
-      ================================================= */}
-
       <div style={estilos.lista}>
 
         {profesores.length === 0 ? (
@@ -2586,6 +2526,7 @@ function Profesores({
 
 }
 
+
 /* =========================================================
    FILA PROFESOR
 ========================================================= */
@@ -2613,10 +2554,6 @@ function ProfesorFila({
       profesor.descripcion || ""
     );
 
-  // =======================================================
-  // FOTO
-  // =======================================================
-
   const [foto, setFoto] =
     useState(
       profesor.foto || ""
@@ -2630,7 +2567,6 @@ function ProfesorFila({
   const [subiendoFoto, setSubiendoFoto] =
     useState(false);
 
-
   const [
     actividadesSeleccionadas,
     setActividadesSeleccionadas,
@@ -2638,10 +2574,6 @@ function ProfesorFila({
     profesor.actividad_ids || []
   );
 
-
-  // =======================================================
-  // CAMBIAR ACTIVIDAD
-  // =======================================================
 
   function cambiarActividad(id) {
 
@@ -2670,10 +2602,6 @@ function ProfesorFila({
 
   }
 
-
-  // =======================================================
-  // SUBIR FOTO
-  // =======================================================
 
   async function subirFoto(event) {
 
@@ -2731,7 +2659,6 @@ function ProfesorFila({
       URL.createObjectURL(
         archivo
       );
-
 
     setVistaPrevia(
       preview
@@ -2838,10 +2765,6 @@ function ProfesorFila({
   }
 
 
-  // =======================================================
-  // QUITAR FOTO
-  // =======================================================
-
   function quitarFoto() {
 
     setFoto("");
@@ -2849,10 +2772,6 @@ function ProfesorFila({
 
   }
 
-
-  // =======================================================
-  // GUARDAR CAMBIOS
-  // =======================================================
 
   async function guardarCambios() {
 
@@ -2980,10 +2899,6 @@ function ProfesorFila({
   }
 
 
-  // =======================================================
-  // CAMBIAR ESTADO
-  // =======================================================
-
   async function cambiarEstadoProfesor() {
 
     try {
@@ -3080,10 +2995,6 @@ function ProfesorFila({
   }
 
 
-  // =======================================================
-  // ELIMINAR PROFESOR
-  // =======================================================
-
   async function eliminarProfesor() {
 
     const confirmar =
@@ -3093,9 +3004,7 @@ function ProfesorFila({
 
 
     if (!confirmar) {
-
       return;
-
     }
 
 
@@ -3169,10 +3078,6 @@ function ProfesorFila({
   }
 
 
-  // =======================================================
-  // MODO EDICIÓN
-  // =======================================================
-
   if (editando) {
 
     return (
@@ -3198,10 +3103,6 @@ function ProfesorFila({
         </div>
 
 
-        {/* ===============================================
-            NOMBRE
-        =============================================== */}
-
         <label style={estilos.label}>
           Nombre
         </label>
@@ -3221,10 +3122,6 @@ function ProfesorFila({
           }
         />
 
-
-        {/* ===============================================
-            DESCRIPCIÓN
-        =============================================== */}
 
         <label style={estilos.label}>
           Descripción
@@ -3246,10 +3143,6 @@ function ProfesorFila({
           }
         />
 
-
-        {/* ===============================================
-            FOTO
-        =============================================== */}
 
         <label style={estilos.label}>
           Fotografía del profesor
@@ -3479,10 +3372,6 @@ function ProfesorFila({
         </div>
 
 
-        {/* ===============================================
-            ACTIVIDADES
-        =============================================== */}
-
         <label style={estilos.label}>
           Actividades que imparte
         </label>
@@ -3548,10 +3437,6 @@ function ProfesorFila({
         </div>
 
 
-        {/* ===============================================
-            BOTONES
-        =============================================== */}
-
         <div
           style={
             estilos.botonesEditor
@@ -3604,10 +3489,6 @@ function ProfesorFila({
   }
 
 
-  // =======================================================
-  // VISTA NORMAL
-  // =======================================================
-
   return (
 
     <div style={estilos.fila}>
@@ -3622,7 +3503,6 @@ function ProfesorFila({
       </div>
 
 
-      {/* FOTO PEQUEÑA */}
       <div
         style={{
           width:
@@ -3839,8 +3719,6 @@ function ProfesorFila({
   );
 
 }
-
-
 /* =========================================================
    HORARIOS
 ========================================================= */
@@ -4160,10 +4038,12 @@ function Horarios({
           "/api/horarios",
           {
             method: "DELETE",
+
             headers: {
               "Content-Type":
                 "application/json",
             },
+
             body:
               JSON.stringify({
                 id,
@@ -5030,25 +4910,9 @@ function Eventos() {
         !datos.correcto
       ) {
 
-        console.error(
-          "Error guardando evento:",
-          datos
-        );
-
-
         alert(
-          [
-            datos.mensaje ||
-              "No se pudo guardar el evento.",
-
-            datos.error
-              ? `\n\nError: ${datos.error}`
-              : "",
-
-            datos.sqlMessage
-              ? `\n\nMySQL: ${datos.sqlMessage}`
-              : "",
-          ].join("")
+          datos.mensaje ||
+          "No se pudo guardar el evento."
         );
 
         return;
@@ -5069,7 +4933,7 @@ function Eventos() {
 
 
       alert(
-        "Ha ocurrido un error al guardar el evento."
+        "Error guardando el evento."
       );
 
 
@@ -5149,7 +5013,7 @@ function Eventos() {
 
 
       alert(
-        "Ha ocurrido un error al eliminar el evento."
+        "Error eliminando el evento."
       );
 
 
@@ -5193,22 +5057,13 @@ function Eventos() {
                   evento.descripcion || "",
 
                 fecha:
-                  String(
-                    evento.fecha
-                  ).slice(0, 10),
+                  evento.fecha,
 
                 hora:
-                  evento.hora
-                    ? String(
-                        evento.hora
-                      ).slice(0, 5)
-                    : "",
+                  evento.hora || null,
 
                 lugar:
                   evento.lugar || "",
-
-                imagen:
-                  evento.imagen || "",
 
                 activa:
                   Number(
@@ -5244,13 +5099,13 @@ function Eventos() {
     } catch (error) {
 
       console.error(
-        "Error cambiando estado:",
+        "Error cambiando estado del evento:",
         error
       );
 
 
       alert(
-        "Error cambiando el estado del evento."
+        "Error cambiando el estado."
       );
 
 
@@ -5272,7 +5127,7 @@ function Eventos() {
         <div>
 
           <div style={estilos.etiquetaSeccion}>
-            AGENDA
+            ACTIVIDADES
           </div>
 
           <h2 style={estilos.tituloSeccion}>
@@ -5280,7 +5135,7 @@ function Eventos() {
           </h2>
 
           <p style={estilos.descripcionSeccion}>
-            Gestiona los eventos, actuaciones y actividades especiales de la escuela.
+            Gestiona los eventos que aparecerán en la web.
           </p>
 
         </div>
@@ -5288,8 +5143,12 @@ function Eventos() {
 
         <button
           type="button"
-          onClick={nuevoEvento}
-          style={estilos.botonNuevo}
+          onClick={
+            nuevoEvento
+          }
+          style={
+            estilos.botonNuevo
+          }
         >
           + Añadir evento
         </button>
@@ -5312,7 +5171,11 @@ function Eventos() {
           </div>
 
 
-          <form onSubmit={guardarEvento}>
+          <form
+            onSubmit={
+              guardarEvento
+            }
+          >
 
             <label style={estilos.label}>
               Título
@@ -5323,13 +5186,12 @@ function Eventos() {
               value={
                 formulario.titulo
               }
-              onChange={(e) =>
+              onChange={(event) =>
                 cambiarCampo(
                   "titulo",
-                  e.target.value
+                  event.target.value
                 )
               }
-              placeholder="Ej.: Festival de Fin de Curso"
               style={estilos.input}
               disabled={guardando}
             />
@@ -5344,15 +5206,14 @@ function Eventos() {
               value={
                 formulario.descripcion
               }
-              onChange={(e) =>
+              onChange={(event) =>
                 cambiarCampo(
                   "descripcion",
-                  e.target.value
+                  event.target.value
                 )
               }
-              placeholder="Describe el evento..."
               style={estilos.textarea}
-              rows={5}
+              rows={4}
               disabled={guardando}
             />
 
@@ -5367,10 +5228,10 @@ function Eventos() {
               value={
                 formulario.fecha
               }
-              onChange={(e) =>
+              onChange={(event) =>
                 cambiarCampo(
                   "fecha",
-                  e.target.value
+                  event.target.value
                 )
               }
               style={estilos.input}
@@ -5388,10 +5249,10 @@ function Eventos() {
               value={
                 formulario.hora
               }
-              onChange={(e) =>
+              onChange={(event) =>
                 cambiarCampo(
                   "hora",
-                  e.target.value
+                  event.target.value
                 )
               }
               style={estilos.input}
@@ -5408,69 +5269,22 @@ function Eventos() {
               value={
                 formulario.lugar
               }
-              onChange={(e) =>
+              onChange={(event) =>
                 cambiarCampo(
                   "lugar",
-                  e.target.value
+                  event.target.value
                 )
               }
-              placeholder="Ej.: Teatro Palacio Erisana"
               style={estilos.input}
               disabled={guardando}
             />
 
 
-            <label style={estilos.label}>
-              Imagen / cartel
-            </label>
-
-
-            <input
-              value={
-                formulario.imagen
+            <div
+              style={
+                estilos.botonesEditor
               }
-              onChange={(e) =>
-                cambiarCampo(
-                  "imagen",
-                  e.target.value
-                )
-              }
-              placeholder="URL de la imagen o cartel"
-              style={estilos.input}
-              disabled={guardando}
-            />
-
-
-            <div style={estilos.checkboxSimple}>
-
-              <label
-                style={estilos.checkEstado}
-              >
-
-                <input
-                  type="checkbox"
-                  checked={
-                    formulario.activa
-                  }
-                  onChange={(e) =>
-                    cambiarCampo(
-                      "activa",
-                      e.target.checked
-                    )
-                  }
-                  disabled={guardando}
-                />
-
-                <span>
-                  Evento visible / activo
-                </span>
-
-              </label>
-
-            </div>
-
-
-            <div style={estilos.botonesEditor}>
+            >
 
               <button
                 type="button"
@@ -5480,7 +5294,9 @@ function Eventos() {
                 style={
                   estilos.botonCancelar
                 }
-                disabled={guardando}
+                disabled={
+                  guardando
+                }
               >
                 Cancelar
               </button>
@@ -5491,7 +5307,9 @@ function Eventos() {
                 style={
                   estilos.botonGuardar
                 }
-                disabled={guardando}
+                disabled={
+                  guardando
+                }
               >
                 {guardando
                   ? "Guardando..."
@@ -5530,7 +5348,7 @@ function Eventos() {
             </div>
 
             <div style={estilos.vacioTexto}>
-              Añade el primer evento utilizando el botón de arriba.
+              Añade un evento para mostrarlo en la web.
             </div>
 
           </div>
@@ -5541,14 +5359,21 @@ function Eventos() {
             (evento, indice) => (
 
               <div
-                key={evento.id}
-                style={estilos.fila}
+                key={
+                  evento.id
+                }
+                style={
+                  estilos.fila
+                }
               >
 
                 <div style={estilos.numero}>
                   {String(
                     indice + 1
-                  ).padStart(2, "0")}
+                  ).padStart(
+                    2,
+                    "0"
+                  )}
                 </div>
 
 
@@ -5573,10 +5398,11 @@ function Eventos() {
                     }
                   >
 
-                    📅{" "}
-                    {String(
-                      evento.fecha
-                    ).slice(0, 10)}
+                    {evento.fecha
+                      ? String(
+                          evento.fecha
+                        ).slice(0, 10)
+                      : ""}
 
                     {evento.hora
                       ? ` · ${String(
@@ -5594,27 +5420,13 @@ function Eventos() {
                   {evento.descripcion && (
 
                     <div
-                      style={{
-                        ...estilos.filaDescripcion,
-                        marginTop: "7px",
-                      }}
+                      style={
+                        estilos.filaDescripcion
+                      }
                     >
-                      {evento.descripcion}
-                    </div>
-
-                  )}
-
-
-                  {evento.imagen && (
-
-                    <div
-                      style={{
-                        marginTop: "10px",
-                        color: "#ff9aa5",
-                        fontSize: "11px",
-                      }}
-                    >
-                      🖼️ Cartel / imagen añadida
+                      {
+                        evento.descripcion
+                      }
                     </div>
 
                   )}
@@ -5637,16 +5449,22 @@ function Eventos() {
                     }
                     style={{
                       ...estilos.estadoActivo,
-                      border: "0",
-                      cursor: "pointer",
+                      border:
+                        "0",
+                      cursor:
+                        "pointer",
                     }}
-                    disabled={guardando}
+                    disabled={
+                      guardando
+                    }
                   >
+
                     {Number(
                       evento.activa
                     ) !== 0
                       ? "ACTIVO"
                       : "OCULTO"}
+
                   </button>
 
 
@@ -5660,7 +5478,9 @@ function Eventos() {
                     style={
                       estilos.botonEditar
                     }
-                    disabled={guardando}
+                    disabled={
+                      guardando
+                    }
                   >
                     Editar
                   </button>
@@ -5675,9 +5495,12 @@ function Eventos() {
                     }
                     style={{
                       ...estilos.botonEditar,
-                      color: "#ff8995",
+                      color:
+                        "#ff8995",
                     }}
-                    disabled={guardando}
+                    disabled={
+                      guardando
+                    }
                   >
                     Eliminar
                   </button>
@@ -5687,6 +5510,7 @@ function Eventos() {
               </div>
 
             )
+
           )
 
         )}
@@ -5696,8 +5520,6 @@ function Eventos() {
     </div>
   );
 }
-
-
 /* =========================================================
    GALERÍA
 ========================================================= */
@@ -5785,6 +5607,7 @@ function Galeria() {
         );
 
         return;
+
       }
 
 
@@ -5954,21 +5777,22 @@ function Galeria() {
 
       const cuerpo = {
 
-  titulo:
-    formulario.titulo.trim(),
+        titulo:
+          formulario.titulo.trim(),
 
-  descripcion:
-    formulario.descripcion.trim(),
+        descripcion:
+          formulario.descripcion.trim(),
 
-  activa:
-    formulario.activa,
+        activa:
+          formulario.activa,
 
-  orden:
-    Number(
-      formulario.orden
-    ) || 0,
+        orden:
+          Number(
+            formulario.orden
+          ) || 0,
 
-};
+      };
+
 
       if (editando) {
 
@@ -5994,6 +5818,7 @@ function Galeria() {
               JSON.stringify(
                 cuerpo
               ),
+
           }
         );
 
@@ -6261,6 +6086,7 @@ function Galeria() {
           "Algunas fotografías no se pudieron subir:",
           datos.errores
         );
+
 
         alert(
           `${datos.mensaje}\n\nAlgunas fotografías no se pudieron subir.`
@@ -6898,377 +6724,373 @@ function Galeria() {
           }
           style={estilos.botonNuevo}
         >
-          + Añadir galería
+          + Nueva galería
         </button>
 
       </div>
+        {mostrandoFormulario && (
 
+          <div style={estilos.editor}>
 
-      {mostrandoFormulario && (
+            <div style={estilos.editorCabecera}>
 
-        <div style={estilos.editor}>
+              <div style={estilos.editorTitulo}>
+                {editando
+                  ? "Editar galería"
+                  : "Nueva galería"}
+              </div>
 
-          <div style={estilos.editorCabecera}>
-
-            <div style={estilos.editorTitulo}>
-              {editando
-                ? "Editar galería"
-                : "Nueva galería"}
             </div>
 
-          </div>
 
-
-          <form
-            onSubmit={
-              guardarGaleria
-            }
-          >
-
-            <label style={estilos.label}>
-              Título
-            </label>
-
-
-            <input
-              value={
-                formulario.titulo
-              }
-              onChange={(e) =>
-                cambiarCampo(
-                  "titulo",
-                  e.target.value
-                )
-              }
-              placeholder="Ej.: Festival de Fin de Curso 2026"
-              style={estilos.input}
-              disabled={guardando}
-            />
-
-
-            <label style={estilos.label}>
-              Descripción
-            </label>
-
-
-            <textarea
-              value={
-                formulario.descripcion
-              }
-              onChange={(e) =>
-                cambiarCampo(
-                  "descripcion",
-                  e.target.value
-                )
-              }
-              placeholder="Descripción del álbum..."
-              style={estilos.textarea}
-              rows={4}
-              disabled={guardando}
-            />
-
-
-            <label style={estilos.label}>
-              Orden
-            </label>
-
-
-            <input
-              type="number"
-              value={
-                formulario.orden
-              }
-              onChange={(e) =>
-                cambiarCampo(
-                  "orden",
-                  e.target.value
-                )
-              }
-              style={estilos.input}
-              disabled={guardando}
-            />
-
-
-            <div
-              style={
-                estilos.checkboxSimple
+            <form
+              onSubmit={
+                guardarGaleria
               }
             >
 
-              <label
-                style={
-                  estilos.checkEstado
-                }
-              >
-
-                <input
-                  type="checkbox"
-                  checked={
-                    formulario.activa
-                  }
-                  onChange={(e) =>
-                    cambiarCampo(
-                      "activa",
-                      e.target.checked
-                    )
-                  }
-                  disabled={guardando}
-                />
-
-                <span>
-                  Galería visible / activa
-                </span>
-
+              <label style={estilos.label}>
+                Título
               </label>
 
-            </div>
 
-
-            <div
-              style={
-                estilos.botonesEditor
-              }
-            >
-
-              <button
-                type="button"
-                onClick={
-                  cerrarFormulario
+              <input
+                value={
+                  formulario.titulo
                 }
-                style={
-                  estilos.botonCancelar
+                onChange={(e) =>
+                  cambiarCampo(
+                    "titulo",
+                    e.target.value
+                  )
                 }
+                placeholder="Ej.: Festival de Fin de Curso 2026"
+                style={estilos.input}
                 disabled={guardando}
-              >
-                Cancelar
-              </button>
+              />
 
 
-              <button
-                type="submit"
-                style={
-                  estilos.botonGuardar
+              <label style={estilos.label}>
+                Descripción
+              </label>
+
+
+              <textarea
+                value={
+                  formulario.descripcion
                 }
+                onChange={(e) =>
+                  cambiarCampo(
+                    "descripcion",
+                    e.target.value
+                  )
+                }
+                placeholder="Descripción del álbum..."
+                style={estilos.textarea}
+                rows={4}
                 disabled={guardando}
-              >
-                {guardando
-                  ? "Guardando..."
-                  : editando
-                  ? "Guardar cambios"
-                  : "Crear galería"}
-              </button>
-
-            </div>
-
-          </form>
-
-        </div>
-
-      )}
+              />
 
 
-      <div style={estilos.lista}>
+              <label style={estilos.label}>
+                Orden
+              </label>
 
-        {cargando ? (
 
-          <div style={estilos.vacio}>
-            Cargando galerías...
-          </div>
+              <input
+                type="number"
+                value={
+                  formulario.orden
+                }
+                onChange={(e) =>
+                  cambiarCampo(
+                    "orden",
+                    e.target.value
+                  )
+                }
+                style={estilos.input}
+                disabled={guardando}
+              />
 
-        ) : galerias.length === 0 ? (
-
-          <div style={estilos.vacio}>
-
-            <div style={estilos.vacioIcono}>
-              🖼️
-            </div>
-
-            <div style={estilos.vacioTitulo}>
-              No hay galerías todavía.
-            </div>
-
-            <div style={estilos.vacioTexto}>
-              Crea el primer álbum utilizando el botón de arriba.
-            </div>
-
-          </div>
-
-        ) : (
-
-          galerias.map(
-            (galeria, indice) => (
 
               <div
-                key={
-                  galeria.id
-                }
                 style={
-                  estilos.fila
+                  estilos.checkboxSimple
                 }
               >
 
-                <div
+                <label
                   style={
-                    estilos.numero
+                    estilos.checkEstado
                   }
                 >
-                  {String(
-                    indice + 1
-                  ).padStart(
-                    2,
-                    "0"
-                  )}
-                </div>
 
+                  <input
+                    type="checkbox"
+                    checked={
+                      formulario.activa
+                    }
+                    onChange={(e) =>
+                      cambiarCampo(
+                        "activa",
+                        e.target.checked
+                      )
+                    }
+                    disabled={guardando}
+                  />
+
+                  <span>
+                    Galería visible / activa
+                  </span>
+
+                </label>
+
+              </div>
+
+
+              <div
+                style={
+                  estilos.botonesEditor
+                }
+              >
+
+                <button
+                  type="button"
+                  onClick={
+                    cerrarFormulario
+                  }
+                  style={
+                    estilos.botonCancelar
+                  }
+                  disabled={guardando}
+                >
+                  Cancelar
+                </button>
+
+
+                <button
+                  type="submit"
+                  style={
+                    estilos.botonGuardar
+                  }
+                  disabled={guardando}
+                >
+                  {guardando
+                    ? "Guardando..."
+                    : editando
+                    ? "Guardar cambios"
+                    : "Crear galería"}
+                </button>
+
+              </div>
+
+            </form>
+
+          </div>
+
+        )}
+
+
+        <div style={estilos.lista}>
+
+          {cargando ? (
+
+            <div style={estilos.vacio}>
+              Cargando galerías...
+            </div>
+
+          ) : galerias.length === 0 ? (
+
+            <div style={estilos.vacio}>
+
+              <div style={estilos.vacioIcono}>
+                🖼️
+              </div>
+
+              <div style={estilos.vacioTitulo}>
+                No hay galerías todavía.
+              </div>
+
+              <div style={estilos.vacioTexto}>
+                Crea el primer álbum utilizando el botón de arriba.
+              </div>
+
+            </div>
+
+          ) : (
+
+            galerias.map(
+              (galeria, indice) => (
 
                 <div
+                  key={
+                    galeria.id
+                  }
                   style={
-                    estilos.filaContenido
+                    estilos.fila
                   }
                 >
 
                   <div
                     style={
-                      estilos.filaTitulo
+                      estilos.numero
                     }
                   >
-                    {galeria.titulo}
+                    {String(
+                      indice + 1
+                    ).padStart(
+                      2,
+                      "0"
+                    )}
                   </div>
 
 
-                  {galeria.descripcion && (
+                  <div
+                    style={
+                      estilos.filaContenido
+                    }
+                  >
 
                     <div
                       style={
-                        estilos.filaDescripcion
+                        estilos.filaTitulo
                       }
                     >
-                      {galeria.descripcion}
+                      {galeria.titulo}
                     </div>
 
-                  )}
+
+                    {galeria.descripcion && (
+
+                      <div
+                        style={
+                          estilos.filaDescripcion
+                        }
+                      >
+                        {galeria.descripcion}
+                      </div>
+
+                    )}
 
 
-                  {galeria.imagen && (
+                    {galeria.imagen && (
 
-                    <div
-                      style={{
-                        ...estilos.filaDescripcion,
-                        marginTop: "8px",
-                      }}
-                    >
-                      🖼️ Imagen de portada añadida
-                    </div>
+                      <div
+                        style={{
+                          ...estilos.filaDescripcion,
+                          marginTop: "8px",
+                        }}
+                      >
+                        🖼️ Imagen de portada añadida
+                      </div>
 
-                  )}
+                    )}
 
-                </div>
-
-
-                <div
-                  style={
-                    estilos.filaAcciones
-                  }
-                >
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      cambiarEstadoGaleria(
-                        galeria
-                      )
-                    }
-                    style={{
-                      ...estilos.estadoActivo,
-                      border: "0",
-                      cursor: "pointer",
-                    }}
-                    disabled={
-                      guardando
-                    }
-                  >
-                    {Number(
-                      galeria.activa
-                    ) !== 0
-                      ? "ACTIVA"
-                      : "OCULTA"}
-                  </button>
+                  </div>
 
 
-                  <button
-                    type="button"
-                    onClick={() =>
-                      abrirGaleria(
-                        galeria
-                      )
-                    }
-                    style={{
-                      ...estilos.botonEditar,
-                      color: "#fff2cf",
-                    }}
-                    disabled={
-                      guardando
-                    }
-                  >
-                    📷 Gestionar fotos
-                  </button>
-
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      editarGaleria(
-                        galeria
-                      )
-                    }
+                  <div
                     style={
-                      estilos.botonEditar
-                    }
-                    disabled={
-                      guardando
+                      estilos.filaAcciones
                     }
                   >
-                    Editar
-                  </button>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        cambiarEstadoGaleria(
+                          galeria
+                        )
+                      }
+                      style={{
+                        ...estilos.estadoActivo,
+                        border: "0",
+                        cursor: "pointer",
+                      }}
+                      disabled={
+                        guardando
+                      }
+                    >
+                      {Number(
+                        galeria.activa
+                      ) !== 0
+                        ? "ACTIVA"
+                        : "OCULTA"}
+                    </button>
 
 
-                  <button
-                    type="button"
-                    onClick={() =>
-                      eliminarGaleria(
-                        galeria.id
-                      )
-                    }
-                    style={{
-                      ...estilos.botonEditar,
-                      color:
-                        "#ff8995",
-                    }}
-                    disabled={
-                      guardando
-                    }
-                  >
-                    Eliminar
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        abrirGaleria(
+                          galeria
+                        )
+                      }
+                      style={{
+                        ...estilos.botonEditar,
+                        color: "#fff2cf",
+                      }}
+                      disabled={
+                        guardando
+                      }
+                    >
+                      📷 Gestionar fotos
+                    </button>
+
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        editarGaleria(
+                          galeria
+                        )
+                      }
+                      style={
+                        estilos.botonEditar
+                      }
+                      disabled={
+                        guardando
+                      }
+                    >
+                      Editar
+                    </button>
+
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        eliminarGaleria(
+                          galeria.id
+                        )
+                      }
+                      style={{
+                        ...estilos.botonEditar,
+                        color:
+                          "#ff8995",
+                      }}
+                      disabled={
+                        guardando
+                      }
+                    >
+                      Eliminar
+                    </button>
+
+                  </div>
 
                 </div>
 
-              </div>
-
+              )
             )
 
-          )
+          )}
 
-        )}
+        </div>
 
       </div>
-
-    </div>
 
   );
 
 }
-
 /* =========================================================
    SECCIONES FUTURAS
 ========================================================= */
