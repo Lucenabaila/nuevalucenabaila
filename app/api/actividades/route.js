@@ -8,8 +8,7 @@ import pool from "../../lib/db";
 export async function GET(request) {
   try {
 
-    const url =
-      new URL(request.url);
+    const url = new URL(request.url);
 
     const admin =
       url.searchParams.get("admin") === "true";
@@ -20,6 +19,7 @@ export async function GET(request) {
         id,
         nombre,
         descripcion,
+        imagen,
         activa,
         orden
       FROM actividades
@@ -43,9 +43,7 @@ export async function GET(request) {
 
 
     const [rows] =
-      await pool.query(
-        consulta
-      );
+      await pool.query(consulta);
 
 
     return Response.json({
@@ -97,6 +95,9 @@ export async function POST(request) {
     const descripcion =
       body.descripcion?.trim() || null;
 
+    const imagen =
+      body.imagen?.trim() || null;
+
     const orden =
       Number(body.orden) || 0;
 
@@ -124,15 +125,17 @@ export async function POST(request) {
           (
             nombre,
             descripcion,
+            imagen,
             activa,
             orden
           )
         VALUES
-          (?, ?, TRUE, ?)
+          (?, ?, ?, TRUE, ?)
         `,
         [
           nombre,
           descripcion,
+          imagen,
           orden,
         ]
       );
@@ -198,6 +201,9 @@ export async function PUT(request) {
 
     const descripcion =
       body.descripcion?.trim() || null;
+
+    const imagen =
+      body.imagen?.trim() || null;
 
     const orden =
       Number(body.orden) || 0;
@@ -293,6 +299,7 @@ export async function PUT(request) {
       SET
         nombre = ?,
         descripcion = ?,
+        imagen = ?,
         activa = ?,
         orden = ?
       WHERE id = ?
@@ -300,6 +307,7 @@ export async function PUT(request) {
       [
         nombre,
         descripcion,
+        imagen,
         activa,
         orden,
         id,
