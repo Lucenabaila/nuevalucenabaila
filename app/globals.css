@@ -2258,9 +2258,9 @@ footer {
     gap: 16px;
   }
 
-  .teacher-photo {
-    height: 450px;
-  }
+.teacher-photo {
+  aspect-ratio: 1 / 1;
+}
 
 
   /* ESCUELA */
