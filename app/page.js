@@ -1305,6 +1305,8 @@ const horariosAgrupados = useMemo(() => {
 
 </div>
 
+</div>
+
   <div className="contact-right">
 
     <form
