@@ -188,11 +188,6 @@ const horariosAgrupados = useMemo(() => {
       diasTexto,
     };
   });
-}, [horariosFiltrados]);
-
-}, [
-  horariosFiltrados,
-]);
 
   function obtenerProfesoresHorario(horario) {
     if (!Array.isArray(horario.profesor_ids)) {
