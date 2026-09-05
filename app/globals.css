@@ -2762,3 +2762,39 @@ footer {
   }
 
 }
+/* =========================================================
+   LA ESCUELA - TAMAÑO DE LA FOTO
+   ========================================================= */
+
+.story-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.story-image img {
+  display: block;
+  width: 100%;
+  max-width: 520px;
+  height: auto;
+  object-fit: contain;
+}
+
+
+/* MÓVIL */
+
+@media (max-width: 760px) {
+
+  .story-image {
+    min-height: 300px;
+    padding: 25px;
+  }
+
+  .story-image img {
+    width: 100%;
+    max-width: 340px;
+    height: auto;
+    object-fit: contain;
+  }
+
+}
