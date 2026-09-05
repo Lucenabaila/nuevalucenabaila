@@ -131,117 +131,64 @@ export default function Home() {
 // =======================================================
 
 const horariosAgrupados = useMemo(() => {
-
-  const grupos = new Map();
+  const grupos = {};
 
   const ordenDias = {
-    "Lunes": 1,
-    "Martes": 2,
-    "Miércoles": 3,
-    "Jueves": 4,
-    "Viernes": 5,
-    "Sábado": 6,
-    "Domingo": 7,
+    Lunes: 1,
+    Martes: 2,
+    Miércoles: 3,
+    Jueves: 4,
+    Viernes: 5,
+    Sábado: 6,
+    Domingo: 7,
   };
 
-
   horariosFiltrados.forEach((horario) => {
+    const clave = [
+      horario.actividad_id,
+      horario.hora_inicio,
+      horario.hora_fin,
+      horario.nivel || "",
+      JSON.stringify(horario.profesor_ids || []),
+    ].join("|");
 
-    /*
-     * Dos horarios se agrupan únicamente cuando
-     * pertenecen a la misma actividad, tienen
-     * la misma hora, el mismo nivel y los mismos
-     * profesores.
-     */
-
-    const profesoresIds =
-      Array.isArray(horario.profesor_ids)
-        ? [...horario.profesor_ids]
-            .map(Number)
-            .sort((a, b) => a - b)
-            .join(",")
-        : "";
-
-
-    const clave =
-      [
-        Number(horario.actividad_id),
-        String(horario.hora_inicio || ""),
-        String(horario.hora_fin || ""),
-        String(horario.nivel || ""),
-        profesoresIds,
-      ].join("|");
-
-
-    if (!grupos.has(clave)) {
-
-      grupos.set(clave, {
+    if (!grupos[clave]) {
+      grupos[clave] = {
         ...horario,
         dias: [],
-      });
-
+      };
     }
-
-
-    const grupo =
-      grupos.get(clave);
-
 
     if (
       horario.dia &&
-      !grupo.dias.includes(horario.dia)
+      !grupos[clave].dias.includes(horario.dia)
     ) {
-
-      grupo.dias.push(horario.dia);
-
+      grupos[clave].dias.push(horario.dia);
     }
-
   });
 
-
-  return Array.from(
-    grupos.values()
-  ).map((grupo) => {
-
+  return Object.values(grupos).map((grupo) => {
     grupo.dias.sort(
       (a, b) =>
         (ordenDias[a] || 99) -
         (ordenDias[b] || 99)
     );
 
+    let diasTexto = grupo.dias.join(" y ");
 
-    let diasTexto = "";
-
-    if (grupo.dias.length === 1) {
-
+    if (grupo.dias.length > 2) {
       diasTexto =
-        grupo.dias[0];
-
-    } else if (grupo.dias.length === 2) {
-
-      diasTexto =
-        `${grupo.dias[0]} y ${grupo.dias[1]}`;
-
-    } else {
-
-      diasTexto =
-        grupo.dias
-          .slice(0, -1)
-          .join(", ") +
+        grupo.dias.slice(0, -1).join(", ") +
         " y " +
-        grupo.dias[
-          grupo.dias.length - 1
-        ];
-
+        grupo.dias[grupo.dias.length - 1];
     }
-
 
     return {
       ...grupo,
       diasTexto,
     };
-
   });
+}, [horariosFiltrados]);
 
 }, [
   horariosFiltrados,
