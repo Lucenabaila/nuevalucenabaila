@@ -1,49 +1,29 @@
-import { writeFile, mkdir } from "fs/promises";
+import { NextResponse } from "next/server";
+import { mkdir, writeFile } from "fs/promises";
 import path from "path";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
-// =========================================================
-// POST — SUBIR FOTO DE PROFESOR
-// =========================================================
+const UPLOAD_DIR = path.resolve(
+  process.cwd(),
+  "../../../uploads/profesores"
+);
 
 export async function POST(request) {
-
   try {
+    const formData = await request.formData();
+    const file = formData.get("file");
 
-    const formData =
-      await request.formData();
-
-
-    const archivo =
-      formData.get("foto");
-
-
-    // -----------------------------------------------------
-    // COMPROBAR ARCHIVO
-    // -----------------------------------------------------
-
-    if (
-      !archivo ||
-      typeof archivo === "string"
-    ) {
-
-      return Response.json(
+    if (!file || typeof file === "string") {
+      return NextResponse.json(
         {
           correcto: false,
-          mensaje:
-            "No se ha seleccionado ninguna fotografía.",
+          error: "No se ha recibido ningún archivo.",
         },
-        {
-          status: 400,
-        }
+        { status: 400 }
       );
-
     }
-
-
-    // -----------------------------------------------------
-    // COMPROBAR TIPO DE ARCHIVO
-    // -----------------------------------------------------
 
     const tiposPermitidos = [
       "image/jpeg",
@@ -52,223 +32,66 @@ export async function POST(request) {
       "image/gif",
     ];
 
-
-    if (
-      !tiposPermitidos.includes(
-        archivo.type
-      )
-    ) {
-
-      return Response.json(
+    if (!tiposPermitidos.includes(file.type)) {
+      return NextResponse.json(
         {
           correcto: false,
-          mensaje:
-            "El archivo debe ser una imagen JPG, PNG, WEBP o GIF.",
+          error: "Formato de imagen no permitido.",
         },
-        {
-          status: 400,
-        }
+        { status: 400 }
       );
-
     }
 
+    const MAX_SIZE = 10 * 1024 * 1024;
 
-    // -----------------------------------------------------
-    // COMPROBAR TAMAÑO
-    // -----------------------------------------------------
-
-    const tamañoMaximo =
-      10 * 1024 * 1024;
-
-
-    if (
-      archivo.size >
-      tamañoMaximo
-    ) {
-
-      return Response.json(
+    if (file.size > MAX_SIZE) {
+      return NextResponse.json(
         {
           correcto: false,
-          mensaje:
-            "La fotografía no puede superar los 10 MB.",
+          error: "La imagen no puede superar los 10 MB.",
         },
-        {
-          status: 400,
-        }
+        { status: 400 }
       );
-
     }
 
-
-    // -----------------------------------------------------
-    // CREAR CARPETA
-    // -----------------------------------------------------
-
-    const carpeta =
-      path.join(
-        process.cwd(),
-        "public",
-        "uploads",
-        "profesores"
-      );
-
-
-    await mkdir(
-      carpeta,
-      {
-        recursive: true,
-      }
-    );
-
-
-    // -----------------------------------------------------
-    // EXTENSIÓN
-    // -----------------------------------------------------
+    await mkdir(UPLOAD_DIR, { recursive: true });
 
     const extension =
-      path
-        .extname(
-          archivo.name
-        )
-        .toLowerCase();
+      file.type === "image/jpeg"
+        ? ".jpg"
+        : file.type === "image/png"
+        ? ".png"
+        : file.type === "image/webp"
+        ? ".webp"
+        : ".gif";
 
+    const nombreSeguro = `profesor-${Date.now()}${extension}`;
 
-    const extensionesPermitidas = [
-      ".jpg",
-      ".jpeg",
-      ".png",
-      ".webp",
-      ".gif",
-    ];
+    const buffer = Buffer.from(await file.arrayBuffer());
 
-
-    if (
-      !extensionesPermitidas.includes(
-        extension
-      )
-    ) {
-
-      return Response.json(
-        {
-          correcto: false,
-          mensaje:
-            "La extensión del archivo no es válida.",
-        },
-        {
-          status: 400,
-        }
-      );
-
-    }
-
-
-    // -----------------------------------------------------
-    // NOMBRE ÚNICO
-    // -----------------------------------------------------
-
-    const nombreSeguro =
-      archivo.name
-        .replace(
-          extension,
-          ""
-        )
-        .normalize("NFD")
-        .replace(
-          /[\u0300-\u036f]/g,
-          ""
-        )
-        .replace(
-          /[^a-zA-Z0-9-_]/g,
-          "-"
-        )
-        .replace(
-          /-+/g,
-          "-"
-        )
-        .toLowerCase()
-        .slice(0, 50);
-
-
-    const nombreArchivo =
-      `${nombreSeguro || "profesor"}-${Date.now()}${extension}`;
-
-
-    // -----------------------------------------------------
-    // GUARDAR ARCHIVO
-    // -----------------------------------------------------
-
-    const rutaCompleta =
-      path.join(
-        carpeta,
-        nombreArchivo
-      );
-
-
-    const bytes =
-      await archivo.arrayBuffer();
-
-
-    const buffer =
-      Buffer.from(bytes);
-
-
-    await writeFile(
-      rutaCompleta,
-      buffer
+    const rutaCompleta = path.join(
+      UPLOAD_DIR,
+      nombreSeguro
     );
 
+    await writeFile(rutaCompleta, buffer);
 
-    // -----------------------------------------------------
-    // RUTA PÚBLICA
-    // -----------------------------------------------------
+    const url = `/uploads/profesores/${nombreSeguro}`;
 
-    const rutaPublica =
-      `/uploads/profesores/${nombreArchivo}`;
-
-
-    return Response.json({
-
+    return NextResponse.json({
       correcto: true,
-
-      mensaje:
-        "Fotografía subida correctamente.",
-
-      ruta:
-        rutaPublica,
-
-      foto:
-        rutaPublica,
-
+      url,
+      foto: url,
     });
-
-
   } catch (error) {
+    console.error("Error subiendo imagen de profesor:", error);
 
-    console.error(
-      "ERROR SUBIENDO FOTO DE PROFESOR:",
-      error
-    );
-
-
-    return Response.json(
+    return NextResponse.json(
       {
         correcto: false,
-
-        mensaje:
-          "Error subiendo la fotografía.",
-
-        error:
-          error.message,
-
-        codigo:
-          error.code || null,
-
+        error: "No se pudo guardar la imagen.",
       },
-      {
-        status: 500,
-      }
+      { status: 500 }
     );
-
   }
-
 }
