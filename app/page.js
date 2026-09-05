@@ -693,10 +693,16 @@ export default function Home() {
                       </p>
 
 
-                      <a href="#horarios">
-                        VER HORARIOS →
-                      </a>
-
+                      <a
+  href="#horarios"
+  onClick={() =>
+    setFiltroActividad(
+      String(actividad.id)
+    )
+  }
+>
+  VER HORARIOS →
+</a>
                     </div>
 
                   </article>
