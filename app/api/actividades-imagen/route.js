@@ -13,13 +13,17 @@ const UPLOAD_DIR = path.resolve(
 export async function POST(request) {
   try {
     const formData = await request.formData();
-    const file = formData.get("file");
+
+    // El administrador envía el cartel con el nombre "imagen"
+    const file =
+      formData.get("imagen") ||
+      formData.get("file");
 
     if (!file || typeof file === "string") {
       return NextResponse.json(
         {
           correcto: false,
-          error: "No se ha recibido ningún archivo.",
+          mensaje: "No se ha recibido ningún archivo.",
         },
         { status: 400 }
       );
@@ -35,7 +39,8 @@ export async function POST(request) {
       return NextResponse.json(
         {
           correcto: false,
-          error: "Formato de imagen no permitido.",
+          mensaje:
+            "El cartel debe ser JPG, PNG o WEBP.",
         },
         { status: 400 }
       );
@@ -47,13 +52,16 @@ export async function POST(request) {
       return NextResponse.json(
         {
           correcto: false,
-          error: "La imagen no puede superar los 15 MB.",
+          mensaje:
+            "El cartel no puede superar los 15 MB.",
         },
         { status: 400 }
       );
     }
 
-    await mkdir(UPLOAD_DIR, { recursive: true });
+    await mkdir(UPLOAD_DIR, {
+      recursive: true,
+    });
 
     const extension =
       file.type === "image/jpeg"
@@ -62,31 +70,49 @@ export async function POST(request) {
         ? ".png"
         : ".webp";
 
-    const nombreSeguro = `actividad-${Date.now()}${extension}`;
+    const nombreSeguro =
+      `actividad-${Date.now()}${extension}`;
 
-    const buffer = Buffer.from(await file.arrayBuffer());
+    const buffer =
+      Buffer.from(
+        await file.arrayBuffer()
+      );
 
-    const rutaCompleta = path.join(
-      UPLOAD_DIR,
-      nombreSeguro
+    const rutaCompleta =
+      path.join(
+        UPLOAD_DIR,
+        nombreSeguro
+      );
+
+    await writeFile(
+      rutaCompleta,
+      buffer
     );
 
-    await writeFile(rutaCompleta, buffer);
-
-    const url = `/uploads/actividades/${nombreSeguro}`;
+    const url =
+      `/uploads/actividades/${nombreSeguro}`;
 
     return NextResponse.json({
       correcto: true,
-      url,
+      ruta: url,
+      url: url,
       imagen: url,
     });
+
   } catch (error) {
-    console.error("Error subiendo imagen de actividad:", error);
+
+    console.error(
+      "Error subiendo cartel:",
+      error
+    );
 
     return NextResponse.json(
       {
         correcto: false,
-        error: "No se pudo guardar la imagen.",
+        mensaje:
+          "No se pudo guardar el cartel.",
+        error:
+          error?.message || "Error desconocido",
       },
       { status: 500 }
     );
