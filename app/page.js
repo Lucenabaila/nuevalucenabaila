@@ -164,54 +164,61 @@ export default function Home() {
   }
 
   function obtenerCartel(actividad) {
-    const nombre = String(
-      actividad?.nombre || ""
-    ).toLowerCase();
-
-    if (nombre.includes("bachata")) {
-      return "/actividades/bachata.webp";
-    }
-
-    if (nombre.includes("salsa")) {
-      return "/actividades/salsa.webp";
-    }
-
-    if (
-      nombre.includes("salón") ||
-      nombre.includes("salon")
-    ) {
-      return "/actividades/bailes-de-salon.webp";
-    }
-
-    if (nombre.includes("ladies")) {
-      return "/actividades/ladies-style.webp";
-    }
-
-    if (nombre.includes("ballet")) {
-      return "/actividades/ballet.webp";
-    }
-
-    if (
-      nombre.includes("barré") ||
-      nombre.includes("barre")
-    ) {
-      return "/actividades/fitness-barre.webp";
-    }
-
-    if (nombre.includes("urbano")) {
-      return "/actividades/baile-urbano.webp";
-    }
-
-    if (
-      nombre.includes("k-pop") ||
-      nombre.includes("kpop")
-    ) {
-      return "/actividades/kpop.webp";
-    }
-
-    return null;
+  // Primero utilizamos el cartel guardado
+  // desde Administración.
+  if (actividad?.imagen) {
+    return actividad.imagen;
   }
 
+  // Respaldo para las actividades que todavía
+  // no tengan imagen guardada en MySQL.
+  const nombre = String(
+    actividad?.nombre || ""
+  ).toLowerCase();
+
+  if (nombre.includes("bachata")) {
+    return "/actividades/bachata.webp";
+  }
+
+  if (nombre.includes("salsa")) {
+    return "/actividades/salsa.webp";
+  }
+
+  if (
+    nombre.includes("salón") ||
+    nombre.includes("salon")
+  ) {
+    return "/actividades/bailes-de-salon.webp";
+  }
+
+  if (nombre.includes("ladies")) {
+    return "/actividades/ladies-style.webp";
+  }
+
+  if (nombre.includes("ballet")) {
+    return "/actividades/ballet.webp";
+  }
+
+  if (
+    nombre.includes("barré") ||
+    nombre.includes("barre")
+  ) {
+    return "/actividades/fitness-barre.webp";
+  }
+
+  if (nombre.includes("urbano")) {
+    return "/actividades/baile-urbano.webp";
+  }
+
+  if (
+    nombre.includes("k-pop") ||
+    nombre.includes("kpop")
+  ) {
+    return "/actividades/kpop.webp";
+  }
+
+  return null;
+}
   function cerrarMenu() {
     setMenuAbierto(false);
   }
