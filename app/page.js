@@ -144,12 +144,21 @@ const horariosAgrupados = useMemo(() => {
   };
 
   horariosFiltrados.forEach((horario) => {
+    const profesoresIds = Array.isArray(
+      horario.profesor_ids
+    )
+      ? [...horario.profesor_ids]
+          .map(Number)
+          .sort((a, b) => a - b)
+          .join(",")
+      : "";
+
     const clave = [
       horario.actividad_id,
       horario.hora_inicio,
       horario.hora_fin,
       horario.nivel || "",
-      JSON.stringify(horario.profesor_ids || []),
+      profesoresIds,
     ].join("|");
 
     if (!grupos[clave]) {
@@ -161,33 +170,49 @@ const horariosAgrupados = useMemo(() => {
 
     if (
       horario.dia &&
-      !grupos[clave].dias.includes(horario.dia)
+      !grupos[clave].dias.includes(
+        horario.dia
+      )
     ) {
-      grupos[clave].dias.push(horario.dia);
+      grupos[clave].dias.push(
+        horario.dia
+      );
     }
   });
 
-  return Object.values(grupos).map((grupo) => {
-    grupo.dias.sort(
-      (a, b) =>
-        (ordenDias[a] || 99) -
-        (ordenDias[b] || 99)
-    );
+  return Object.values(grupos).map(
+    (grupo) => {
+      grupo.dias.sort(
+        (a, b) =>
+          (ordenDias[a] || 99) -
+          (ordenDias[b] || 99)
+      );
 
-    let diasTexto = grupo.dias.join(" y ");
+      let diasTexto = "";
 
-    if (grupo.dias.length > 2) {
-      diasTexto =
-        grupo.dias.slice(0, -1).join(", ") +
-        " y " +
-        grupo.dias[grupo.dias.length - 1];
+      if (grupo.dias.length === 1) {
+        diasTexto = grupo.dias[0];
+      } else if (grupo.dias.length === 2) {
+        diasTexto =
+          `${grupo.dias[0]} y ${grupo.dias[1]}`;
+      } else {
+        diasTexto =
+          grupo.dias
+            .slice(0, -1)
+            .join(", ") +
+          " y " +
+          grupo.dias[
+            grupo.dias.length - 1
+          ];
+      }
+
+      return {
+        ...grupo,
+        diasTexto,
+      };
     }
-
-    return {
-      ...grupo,
-      diasTexto,
-    };
-  });
+  );
+}, [horariosFiltrados]);
 
   function obtenerProfesoresHorario(horario) {
     if (!Array.isArray(horario.profesor_ids)) {
