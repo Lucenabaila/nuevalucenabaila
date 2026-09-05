@@ -336,31 +336,61 @@ function Actividades({
   const [orden, setOrden] =
     useState(0);
 
+  const [imagen, setImagen] =
+    useState("");
+
+  const [vistaPrevia, setVistaPrevia] =
+    useState("");
+
+  const [subiendoImagen, setSubiendoImagen] =
+    useState(false);
+
   const [guardando, setGuardando] =
     useState(false);
 
+
+  // =======================================================
+  // LIMPIAR FORMULARIO
+  // =======================================================
 
   function limpiarFormulario() {
 
     setNombre("");
     setDescripcion("");
     setOrden(0);
+    setImagen("");
+    setVistaPrevia("");
     setEditando(null);
     setMostrandoFormulario(false);
 
   }
 
 
+  // =======================================================
+  // NUEVA ACTIVIDAD
+  // =======================================================
+
   function nuevaActividad() {
 
     setNombre("");
     setDescripcion("");
     setOrden(0);
+    setImagen("");
+    setVistaPrevia("");
     setEditando(null);
     setMostrandoFormulario(true);
 
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+
   }
 
+
+  // =======================================================
+  // EDITAR ACTIVIDAD
+  // =======================================================
 
   function editarActividad(actividad) {
 
@@ -374,6 +404,14 @@ function Actividades({
 
     setOrden(
       actividad.orden || 0
+    );
+
+    setImagen(
+      actividad.imagen || ""
+    );
+
+    setVistaPrevia(
+      actividad.imagen || ""
     );
 
     setEditando(
@@ -390,6 +428,206 @@ function Actividades({
   }
 
 
+  // =======================================================
+  // SUBIR CARTEL
+  // =======================================================
+
+  async function subirImagen(event) {
+
+    const archivo =
+      event.target.files?.[0];
+
+
+    if (!archivo) {
+      return;
+    }
+
+
+    // -----------------------------------------------------
+    // TIPOS PERMITIDOS
+    // -----------------------------------------------------
+
+    const tiposPermitidos = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+    ];
+
+
+    if (
+      !tiposPermitidos.includes(
+        archivo.type
+      )
+    ) {
+
+      alert(
+        "El cartel debe ser JPG, PNG o WEBP."
+      );
+
+      event.target.value = "";
+
+      return;
+
+    }
+
+
+    // -----------------------------------------------------
+    // TAMAÑO MÁXIMO
+    // -----------------------------------------------------
+
+    if (
+      archivo.size >
+      15 * 1024 * 1024
+    ) {
+
+      alert(
+        "El cartel no puede superar los 15 MB."
+      );
+
+      event.target.value = "";
+
+      return;
+
+    }
+
+
+    // -----------------------------------------------------
+    // VISTA PREVIA
+    // -----------------------------------------------------
+
+    const preview =
+      URL.createObjectURL(
+        archivo
+      );
+
+    setVistaPrevia(
+      preview
+    );
+
+
+    // -----------------------------------------------------
+    // SUBIR
+    // -----------------------------------------------------
+
+    try {
+
+      setSubiendoImagen(true);
+
+
+      const formData =
+        new FormData();
+
+
+      formData.append(
+        "imagen",
+        archivo
+      );
+
+
+      const respuesta =
+        await fetch(
+          "/api/actividades-imagen",
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+
+
+      const datos =
+        await respuesta.json();
+
+
+      if (
+        !respuesta.ok ||
+        !datos.correcto
+      ) {
+
+        console.error(
+          "Error subiendo cartel:",
+          datos
+        );
+
+
+        setImagen("");
+
+        setVistaPrevia(
+          editando?.imagen || ""
+        );
+
+
+        alert(
+          datos.mensaje ||
+          "No se pudo subir el cartel."
+        );
+
+        return;
+
+      }
+
+
+      const nuevaImagen =
+        datos.ruta ||
+        datos.imagen ||
+        "";
+
+
+      setImagen(
+        nuevaImagen
+      );
+
+      setVistaPrevia(
+        nuevaImagen
+      );
+
+
+    } catch (error) {
+
+      console.error(
+        "Error subiendo cartel:",
+        error
+      );
+
+
+      setImagen("");
+
+      setVistaPrevia(
+        editando?.imagen || ""
+      );
+
+
+      alert(
+        "Ha ocurrido un error al subir el cartel."
+      );
+
+
+    } finally {
+
+      setSubiendoImagen(false);
+
+      event.target.value = "";
+
+    }
+
+  }
+
+
+  // =======================================================
+  // QUITAR CARTEL
+  // =======================================================
+
+  function quitarImagen() {
+
+    setImagen("");
+    setVistaPrevia("");
+
+  }
+
+
+  // =======================================================
+  // GUARDAR ACTIVIDAD
+  // =======================================================
+
   async function guardarActividad(event) {
 
     event.preventDefault();
@@ -399,6 +637,17 @@ function Actividades({
 
       alert(
         "El nombre de la actividad es obligatorio."
+      );
+
+      return;
+
+    }
+
+
+    if (subiendoImagen) {
+
+      alert(
+        "Espera a que termine de subir el cartel."
       );
 
       return;
@@ -424,6 +673,9 @@ function Actividades({
 
         descripcion:
           descripcion.trim(),
+
+        imagen:
+          imagen || null,
 
         orden:
           Number(orden) || 0,
@@ -473,6 +725,12 @@ function Actividades({
         !datos.correcto
       ) {
 
+        console.error(
+          "Error guardando actividad:",
+          datos
+        );
+
+
         alert(
           datos.mensaje ||
           "No se pudo guardar la actividad."
@@ -510,6 +768,10 @@ function Actividades({
   }
 
 
+  // =======================================================
+  // CAMBIAR ESTADO
+  // =======================================================
+
   async function cambiarEstadoActividad(
     actividad
   ) {
@@ -541,6 +803,9 @@ function Actividades({
 
                 descripcion:
                   actividad.descripcion || "",
+
+                imagen:
+                  actividad.imagen || null,
 
                 activa:
                   Number(
@@ -600,6 +865,10 @@ function Actividades({
 
   }
 
+
+  // =======================================================
+  // ELIMINAR ACTIVIDAD
+  // =======================================================
 
   async function eliminarActividad(
     actividad
@@ -691,6 +960,10 @@ function Actividades({
 
     <div>
 
+      {/* =================================================
+          CABECERA
+      ================================================= */}
+
       <div style={estilos.cabeceraSeccion}>
 
         <div>
@@ -725,6 +998,10 @@ function Actividades({
       </div>
 
 
+      {/* =================================================
+          FORMULARIO
+      ================================================= */}
+
       {mostrandoFormulario && (
 
         <div style={estilos.editor}>
@@ -746,9 +1023,12 @@ function Actividades({
             }
           >
 
+            {/* NOMBRE */}
+
             <label style={estilos.label}>
               Nombre
             </label>
+
 
             <input
               value={nombre}
@@ -759,13 +1039,19 @@ function Actividades({
               }
               placeholder="Ej.: Bachata"
               style={estilos.input}
-              disabled={guardando}
+              disabled={
+                guardando ||
+                subiendoImagen
+              }
             />
 
+
+            {/* DESCRIPCIÓN */}
 
             <label style={estilos.label}>
               Descripción
             </label>
+
 
             <textarea
               value={descripcion}
@@ -777,13 +1063,254 @@ function Actividades({
               placeholder="Descripción de la actividad"
               style={estilos.textarea}
               rows={3}
-              disabled={guardando}
+              disabled={
+                guardando ||
+                subiendoImagen
+              }
             />
 
+
+            {/* =================================================
+                CARTEL
+            ================================================= */}
+
+            <label style={estilos.label}>
+              Cartel de la actividad
+            </label>
+
+
+            <div
+              style={{
+                border:
+                  "1px dashed rgba(255,255,255,0.18)",
+                borderRadius:
+                  "16px",
+                padding:
+                  "18px",
+                marginBottom:
+                  "20px",
+              }}
+            >
+
+              {vistaPrevia ? (
+
+                <div
+                  style={{
+                    display:
+                      "flex",
+                    alignItems:
+                      "center",
+                    gap:
+                      "18px",
+                    flexWrap:
+                      "wrap",
+                  }}
+                >
+
+                  <img
+                    src={vistaPrevia}
+                    alt={
+                      `Cartel de ${nombre}`
+                    }
+                    style={{
+                      width:
+                        "150px",
+                      maxHeight:
+                        "210px",
+                      objectFit:
+                        "contain",
+                      borderRadius:
+                        "12px",
+                      display:
+                        "block",
+                      background:
+                        "rgba(255,255,255,0.05)",
+                    }}
+                  />
+
+
+                  <div>
+
+                    <div
+                      style={{
+                        color:
+                          "#ffffff",
+                        fontWeight:
+                          "700",
+                        marginBottom:
+                          "8px",
+                      }}
+                    >
+                      Cartel seleccionado
+                    </div>
+
+
+                    {subiendoImagen && (
+
+                      <div
+                        style={{
+                          color:
+                            "#ff9aa5",
+                          fontSize:
+                            "13px",
+                          marginBottom:
+                            "12px",
+                        }}
+                      >
+                        📤 Subiendo cartel...
+                      </div>
+
+                    )}
+
+
+                    {!subiendoImagen &&
+                      imagen && (
+
+                        <div
+                          style={{
+                            color:
+                              "#9ff0b2",
+                            fontSize:
+                              "13px",
+                            marginBottom:
+                              "12px",
+                          }}
+                        >
+                          ✓ Cartel subido correctamente
+                        </div>
+
+                      )}
+
+
+                    <div
+                      style={{
+                        display:
+                          "flex",
+                        gap:
+                          "10px",
+                        flexWrap:
+                          "wrap",
+                      }}
+                    >
+
+                      <label
+                        style={{
+                          ...estilos.botonNuevo,
+                          display:
+                            "inline-flex",
+                          cursor:
+                            "pointer",
+                          fontSize:
+                            "12px",
+                        }}
+                      >
+
+                        Cambiar cartel
+
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp"
+                          onChange={
+                            subirImagen
+                          }
+                          style={{
+                            display:
+                              "none",
+                          }}
+                          disabled={
+                            guardando ||
+                            subiendoImagen
+                          }
+                        />
+
+                      </label>
+
+
+                      <button
+                        type="button"
+                        onClick={
+                          quitarImagen
+                        }
+                        style={{
+                          ...estilos.botonCancelar,
+                          fontSize:
+                            "12px",
+                        }}
+                        disabled={
+                          guardando ||
+                          subiendoImagen
+                        }
+                      >
+                        Quitar cartel
+                      </button>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              ) : (
+
+                <div>
+
+                  <div
+                    style={{
+                      color:
+                        "rgba(255,255,255,0.65)",
+                      fontSize:
+                        "13px",
+                      marginBottom:
+                        "14px",
+                    }}
+                  >
+                    Añade el cartel A4 de esta actividad.
+                  </div>
+
+
+                  <label
+                    style={{
+                      ...estilos.botonNuevo,
+                      display:
+                        "inline-flex",
+                      cursor:
+                        "pointer",
+                    }}
+                  >
+
+                    📷 Seleccionar cartel
+
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      onChange={
+                        subirImagen
+                      }
+                      style={{
+                        display:
+                          "none",
+                      }}
+                      disabled={
+                        guardando ||
+                        subiendoImagen
+                      }
+                    />
+
+                  </label>
+
+                </div>
+
+              )}
+
+            </div>
+
+
+            {/* ORDEN */}
 
             <label style={estilos.label}>
               Orden
             </label>
+
 
             <input
               type="number"
@@ -794,9 +1321,14 @@ function Actividades({
                 )
               }
               style={estilos.input}
-              disabled={guardando}
+              disabled={
+                guardando ||
+                subiendoImagen
+              }
             />
 
+
+            {/* BOTONES */}
 
             <div style={estilos.botonesEditor}>
 
@@ -808,7 +1340,10 @@ function Actividades({
                 style={
                   estilos.botonCancelar
                 }
-                disabled={guardando}
+                disabled={
+                  guardando ||
+                  subiendoImagen
+                }
               >
                 Cancelar
               </button>
@@ -819,9 +1354,14 @@ function Actividades({
                 style={
                   estilos.botonGuardar
                 }
-                disabled={guardando}
+                disabled={
+                  guardando ||
+                  subiendoImagen
+                }
               >
-                {guardando
+                {subiendoImagen
+                  ? "Subiendo cartel..."
+                  : guardando
                   ? "Guardando..."
                   : editando
                   ? "Guardar cambios"
@@ -836,6 +1376,10 @@ function Actividades({
 
       )}
 
+
+      {/* =================================================
+          LISTA
+      ================================================= */}
 
       <div style={estilos.lista}>
 
@@ -869,6 +1413,70 @@ function Actividades({
                 </div>
 
 
+                {/* MINIATURA DEL CARTEL */}
+
+                <div
+                  style={{
+                    width:
+                      "58px",
+                    height:
+                      "78px",
+                    borderRadius:
+                      "10px",
+                    overflow:
+                      "hidden",
+                    flexShrink:
+                      0,
+                    background:
+                      "rgba(255,255,255,0.06)",
+                    display:
+                      "flex",
+                    alignItems:
+                      "center",
+                    justifyContent:
+                      "center",
+                    marginRight:
+                      "16px",
+                  }}
+                >
+
+                  {actividad.imagen ? (
+
+                    <img
+                      src={
+                        actividad.imagen
+                      }
+                      alt={
+                        actividad.nombre
+                      }
+                      style={{
+                        width:
+                          "100%",
+                        height:
+                          "100%",
+                        objectFit:
+                          "cover",
+                      }}
+                    />
+
+                  ) : (
+
+                    <span
+                      style={{
+                        fontSize:
+                          "22px",
+                        opacity:
+                          0.45,
+                      }}
+                    >
+                      🖼️
+                    </span>
+
+                  )}
+
+                </div>
+
+
                 <div
                   style={
                     estilos.filaContenido
@@ -898,6 +1506,37 @@ function Actividades({
 
                   )}
 
+
+                  {actividad.imagen ? (
+
+                    <div
+                      style={{
+                        ...estilos.filaDescripcion,
+                        color:
+                          "#9ff0b2",
+                        marginTop:
+                          "5px",
+                      }}
+                    >
+                      ✓ Cartel configurado
+                    </div>
+
+                  ) : (
+
+                    <div
+                      style={{
+                        ...estilos.filaDescripcion,
+                        color:
+                          "#ff9aa5",
+                        marginTop:
+                          "5px",
+                      }}
+                    >
+                      ⚠ Sin cartel
+                    </div>
+
+                  )}
+
                 </div>
 
 
@@ -916,8 +1555,10 @@ function Actividades({
                     }
                     style={{
                       ...estilos.estadoActivo,
-                      border: "0",
-                      cursor: "pointer",
+                      border:
+                        "0",
+                      cursor:
+                        "pointer",
                     }}
                     disabled={
                       guardando
@@ -960,7 +1601,8 @@ function Actividades({
                     }
                     style={{
                       ...estilos.botonEditar,
-                      color: "#ff8995",
+                      color:
+                        "#ff8995",
                     }}
                     disabled={
                       guardando
@@ -986,7 +1628,6 @@ function Actividades({
   );
 
 }
-
 /* =========================================================
    PROFESORES
 ========================================================= */
