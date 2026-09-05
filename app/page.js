@@ -1225,96 +1225,85 @@ const horariosAgrupados = useMemo(() => {
 
     <div className="contact-details">
 
-      <a
-        href="tel:+34676421944"
-        className="contact-detail"
-      >
+  <a
+    href="tel:+34676421944"
+    className="contact-detail"
+  >
+    <span className="contact-detail-icon">
+      📞
+    </span>
 
-        <span className="contact-detail-icon">
-          📞
-        </span>
+    <span className="contact-detail-text">
+      <strong>
+        676 421 944
+      </strong>
 
-        <span>
-          <strong>
-            676 421 944
-          </strong>
-
-          <small>
-            LLÁMANOS
-          </small>
-        </span>
-
-      </a>
+      <small>
+        LLÁMANOS
+      </small>
+    </span>
+  </a>
 
 
-      <a
-        href="https://wa.me/34676421944?text=Hola%2C%20estoy%20interesado%2Fa%20en%20las%20clases%20de%20Artes%20Esc%C3%A9nicas%20Paradise."
-        target="_blank"
-        rel="noopener noreferrer"
-        className="contact-detail contact-whatsapp"
-      >
+  <a
+    href="https://wa.me/34676421944?text=Hola%2C%20estoy%20interesado%2Fa%20en%20las%20clases%20de%20Artes%20Esc%C3%A9nicas%20Paradise."
+    target="_blank"
+    rel="noopener noreferrer"
+    className="contact-detail contact-whatsapp"
+  >
+    <span className="contact-detail-icon">
+      💬
+    </span>
 
-        <span className="contact-detail-icon">
-          💬
-        </span>
+    <span className="contact-detail-text">
+      <strong>
+        WhatsApp
+      </strong>
 
-        <span>
-          <strong>
-            WhatsApp
-          </strong>
-
-          <small>
-            RESPUESTA RÁPIDA
-          </small>
-        </span>
-
-      </a>
+      <small>
+        RESPUESTA RÁPIDA
+      </small>
+    </span>
+  </a>
 
 
-      <a
-        href="mailto:info@lucenabaila.com"
-        className="contact-detail"
-      >
+  <a
+    href="mailto:info@lucenabaila.com"
+    className="contact-detail"
+  >
+    <span className="contact-detail-icon">
+      ✉
+    </span>
 
-        <span className="contact-detail-icon">
-          ✉
-        </span>
+    <span className="contact-detail-text">
+      <strong>
+        info@lucenabaila.com
+      </strong>
 
-        <span>
-          <strong>
-            info@lucenabaila.com
-          </strong>
-
-          <small>
-            ENVÍANOS UN EMAIL
-          </small>
-        </span>
-
-      </a>
+      <small>
+        ENVÍANOS UN EMAIL
+      </small>
+    </span>
+  </a>
 
 
-      <div className="contact-detail">
+  <div className="contact-detail">
+    <span className="contact-detail-icon">
+      📍
+    </span>
 
-        <span className="contact-detail-icon">
-          📍
-        </span>
+    <span className="contact-detail-text">
+      <strong>
+        Carretera de Rute, 15
+      </strong>
 
-        <span>
-          <strong>
-            Carretera de Rute, 15
-          </strong>
-
-          <small>
-            14900 LUCENA · CÓRDOBA
-          </small>
-        </span>
-
-      </div>
-
-    </div>
-
+      <small>
+        14900 LUCENA · CÓRDOBA
+      </small>
+    </span>
   </div>
 
+</div>
 
   <div className="contact-right">
 
@@ -1346,9 +1335,14 @@ const horariosAgrupados = useMemo(() => {
         const actividadNombre =
           actividadSeleccionada?.nombre ||
           "una actividad de la escuela";
+        const mensajePersonalizado =
+  formData.get("mensaje") || "";
 
         const mensaje =
-          `Hola, soy ${nombre}. Estoy interesado/a en ${actividadNombre}. Mi teléfono es ${telefono}.`;
+  `Hola, soy ${nombre}. Estoy interesado/a en ${actividadNombre}. Mi teléfono es ${telefono}.` +
+  (mensajePersonalizado
+    ? `\n\nMensaje:\n${mensajePersonalizado}`
+    : "");
 
         const whatsappUrl =
           `https://wa.me/34676421944?text=${encodeURIComponent(
@@ -1410,6 +1404,12 @@ const horariosAgrupados = useMemo(() => {
         )}
 
       </select>
+            <textarea
+  name="mensaje"
+  aria-label="Mensaje"
+  placeholder="Cuéntanos qué necesitas o qué quieres preguntarnos..."
+  rows="5"
+/>
 
 
       <button
