@@ -13,6 +13,17 @@ export async function GET(request) {
 
     const admin =
       url.searchParams.get("admin") === "true";
+    if (admin && !esAdministrador(request)) {
+  return Response.json(
+    {
+      correcto: false,
+      mensaje: "No autorizado.",
+    },
+    {
+      status: 401,
+    }
+  );
+}
 
 
     let consulta = `
