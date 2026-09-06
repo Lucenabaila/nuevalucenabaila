@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { mkdir, writeFile } from "fs/promises";
 import path from "path";
+import { esAdministrador } from "../../lib/admin-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -11,6 +12,17 @@ const UPLOAD_DIR = path.resolve(
 );
 
 export async function POST(request) {
+
+  if (!esAdministrador(request)) {
+    return NextResponse.json(
+      {
+        correcto: false,
+        mensaje: "No autorizado.",
+      },
+      { status: 401 }
+    );
+  }
+
   try {
     const formData = await request.formData();
 
