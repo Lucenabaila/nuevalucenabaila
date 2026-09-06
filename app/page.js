@@ -1637,7 +1637,7 @@ const horariosAgrupados = useMemo(() => {
           border-radius: 999px;
 
           background:
-            rgba(235, 0, 92, .92);
+            rgba(255, 138, 0, .92)
 
           color: #fff;
 
@@ -1776,7 +1776,7 @@ const horariosAgrupados = useMemo(() => {
           border-radius: 50%;
 
           background:
-            #ec0060;
+            #ff8a00;
 
           color: #fff;
 
@@ -1794,7 +1794,7 @@ const horariosAgrupados = useMemo(() => {
 
         .poster-modal-close:hover {
           background:
-            #ff2b82;
+            #ffad33;
 
           transform:
             scale(1.05);
