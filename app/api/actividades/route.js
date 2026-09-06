@@ -85,6 +85,18 @@ export async function GET(request) {
 
 export async function POST(request) {
 
+  if (!esAdministrador(request)) {
+    return Response.json(
+      {
+        correcto: false,
+        mensaje: "No autorizado.",
+      },
+      {
+        status: 401,
+      }
+    );
+  }
+
   try {
 
     const body =
@@ -188,6 +200,18 @@ export async function POST(request) {
 // =========================================================
 
 export async function PUT(request) {
+
+  if (!esAdministrador(request)) {
+    return Response.json(
+      {
+        correcto: false,
+        mensaje: "No autorizado.",
+      },
+      {
+        status: 401,
+      }
+    );
+  }
 
   try {
 
@@ -360,9 +384,20 @@ export async function PUT(request) {
 
 export async function DELETE(request) {
 
+  if (!esAdministrador(request)) {
+    return Response.json(
+      {
+        correcto: false,
+        mensaje: "No autorizado.",
+      },
+      {
+        status: 401,
+      }
+    );
+  }
+
   const connection =
     await pool.getConnection();
-
 
   try {
 
