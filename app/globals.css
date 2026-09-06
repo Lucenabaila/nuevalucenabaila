@@ -1411,13 +1411,15 @@ button {
       rgba(229,161,26,.3),
       transparent 35%
     ),
-    linear-gradient(
+  linear-gradient(
       135deg,
       #100911,
       #4a102b,
       #050509
     );
-   .story-circle {
+}
+
+.story-circle {
   position: relative;
 
   width: 260px;
