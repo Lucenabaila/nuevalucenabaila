@@ -228,8 +228,8 @@ button {
   line-height: 1;
 
   text-shadow:
-    0 0 10px rgba(240,0,98,.7),
-    0 0 25px rgba(240,0,98,.35);
+    0 0 10px rgba(229,161,26,.7),
+    0 0 25px rgba(229,161,26,.35);
 }
 
 /* =========================================================
@@ -309,7 +309,7 @@ button {
   text-transform: uppercase;
 
   box-shadow:
-    0 10px 35px rgba(240,0,98,.28);
+    0 10px 35px rgba(229,161,26,.28);
 
   transition:
     transform .2s ease,
@@ -323,7 +323,7 @@ button {
   transform: translateY(-2px);
 
   box-shadow:
-    0 15px 45px rgba(240,0,98,.4);
+    0 15px 45px rgba(229,161,26,.4);
 }
 
 
@@ -405,7 +405,7 @@ button {
   background:
     radial-gradient(
       circle at 75% 48%,
-      rgba(240,0,98,.20),
+      rgba(229,161,26,.20),
       transparent 30%
     ),
     radial-gradient(
@@ -451,7 +451,7 @@ button {
   background:
     radial-gradient(
       circle,
-      rgba(240,0,98,.18),
+      rgba(229,161,26,.18),
       transparent 67%
     );
 
@@ -625,14 +625,14 @@ button {
   border-radius: 9px;
 
   box-shadow:
-    0 10px 30px rgba(240,0,98,.28);
+    0 10px 30px rgba(229,161,26,.28);
 }
 
 .button.primary:hover {
   background: var(--pink-light);
 
   box-shadow:
-    0 15px 40px rgba(240,0,98,.42);
+    0 15px 40px rgba(229,161,26,.42);
 }
 
 .button.secondary {
@@ -689,7 +689,7 @@ button {
   background:
     radial-gradient(
       ellipse,
-      rgba(240,0,98,.25),
+      rgba(229,161,26,.25),
       transparent 65%
     );
 
@@ -1028,7 +1028,7 @@ button {
   transform: translateY(-7px);
 
   border-color:
-    rgba(240,0,98,.55);
+    rgba(229,161,26,.55);
 }
 
 .card-image-placeholder {
@@ -1048,7 +1048,7 @@ button {
   background:
     radial-gradient(
       circle at 50% 45%,
-      rgba(240,0,98,.23),
+      rgba(229,161,26,.23),
       transparent 42%
     ),
     linear-gradient(
@@ -1069,7 +1069,7 @@ button {
     linear-gradient(
       135deg,
       transparent 0 45%,
-      rgba(240,0,98,.08) 46%,
+      rgba(229,161,26,.08) 46%,
       transparent 47%
     );
 
@@ -1302,7 +1302,7 @@ button {
   transform: translateY(-6px);
 
   border-color:
-    rgba(240,0,98,.55);
+    rgba(229,161,26,.55);
 }
 
 .teacher-photo {
@@ -1408,7 +1408,7 @@ button {
   background:
     radial-gradient(
       circle at 50% 45%,
-      rgba(240,0,98,.3),
+      rgba(229,161,26,.3),
       transparent 35%
     ),
     linear-gradient(
@@ -1417,9 +1417,7 @@ button {
       #4a102b,
       #050509
     );
-}
-
-.story-circle {
+   .story-circle {
   position: relative;
 
   width: 260px;
@@ -1435,8 +1433,8 @@ button {
   border-radius: 50%;
 
   box-shadow:
-    0 0 20px rgba(240,0,98,.8),
-    0 0 80px rgba(240,0,98,.35);
+    0 0 20px rgba(229,161,26,.8),
+    0 0 80px rgba(229,161,26,.35);
 }
 
 .story-circle span {
@@ -1520,9 +1518,9 @@ button {
     ),
     linear-gradient(
       135deg,
-      #d40055,
-      #f00062 55%,
-      #bc004e
+      #C98708,
+      #E5A11A 55%,
+      #C98708
     );
 }
 
@@ -1620,7 +1618,7 @@ button {
   background:
     radial-gradient(
       circle at 15% 45%,
-      rgba(240,0,98,.08),
+      rgba(229,161,26,.08),
       transparent 35%
     ),
     #050509;
@@ -1692,18 +1690,18 @@ button {
 
   border:
     1px solid
-    rgba(240,0,98,.45);
+    rgba(229,161,26,.45);
 
   border-radius: 50%;
 
   background:
-    rgba(240,0,98,.08);
+    rgba(229,161,26,.08);
 
   font-size: 20px;
 
   box-shadow:
     0 0 20px
-    rgba(240,0,98,.08);
+    rgba(229,161,26,.08);
 }
 
 .contact-detail-text {
@@ -1740,14 +1738,14 @@ button {
 
 .contact-whatsapp:hover .contact-detail-icon {
   background:
-    rgba(240,0,98,.18);
+    rgba(229,161,26,.18);
 
   border-color:
     var(--pink);
 
   box-shadow:
     0 0 25px
-    rgba(240,0,98,.2);
+    rgba(229,161,26,.2);
 }
 
 
@@ -1850,7 +1848,7 @@ button {
 
   box-shadow:
     0 10px 25px
-    rgba(240,0,98,.3);
+    rgba(229,161,26,.3);
 }
 
 .contact-map iframe {
@@ -1905,7 +1903,7 @@ button {
   border-color: var(--pink);
 
   background:
-    rgba(240,0,98,.06);
+    rgba(229,161,26,.06);
 }
 
 
@@ -2010,7 +2008,7 @@ button {
   border-color: var(--pink);
 
   background:
-    rgba(240,0,98,.06);
+    rgba(229,161,26,.06);
 }
 
 .form button {
@@ -2326,7 +2324,7 @@ footer {
     background:
       radial-gradient(
         circle at 50% 48%,
-        rgba(240,0,98,.16),
+        rgba(229,161,26,.16),
         transparent 42%
       ),
       #050509;
