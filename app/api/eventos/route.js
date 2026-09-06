@@ -1,29 +1,11 @@
-if (!esAdministrador(request)) {
-  return Response.json(
-    {
-      correcto: false,
-      mensaje: "No autorizado.",
-    },
-    {
-      status: 401,
-    }
-  );
-}
 import pool from "../../lib/db";
 import { esAdministrador } from "../../lib/admin-auth";
-
 
 // =========================================================
 // GET — OBTENER EVENTOS
 // =========================================================
 
-export async function GET(request) {
-
 export async function GET() {
-  try {
-    );
-  }
-
   try {
     const [eventos] = await pool.query(`
       SELECT
@@ -50,7 +32,6 @@ export async function GET() {
     });
 
   } catch (error) {
-
     console.error(
       "Error obteniendo eventos:",
       error
@@ -59,10 +40,8 @@ export async function GET() {
     return Response.json(
       {
         correcto: false,
-        mensaje:
-          "Error obteniendo eventos",
-        error:
-          error.message,
+        mensaje: "Error obteniendo eventos",
+        error: error.message,
       },
       {
         status: 500,
@@ -71,17 +50,27 @@ export async function GET() {
   }
 }
 
-
 // =========================================================
 // POST — CREAR EVENTO
 // =========================================================
 
 export async function POST(request) {
 
+  if (!esAdministrador(request)) {
+    return Response.json(
+      {
+        correcto: false,
+        mensaje: "No autorizado.",
+      },
+      {
+        status: 401,
+      }
+    );
+  }
+
   try {
 
-    const body =
-      await request.json();
+    const body = await request.json();
 
     const titulo =
       body.titulo?.trim();
@@ -101,13 +90,7 @@ export async function POST(request) {
     const imagen =
       body.imagen?.trim() || null;
 
-
-    // -----------------------------------------------------
-    // VALIDACIONES
-    // -----------------------------------------------------
-
     if (!titulo) {
-
       return Response.json(
         {
           correcto: false,
@@ -120,9 +103,7 @@ export async function POST(request) {
       );
     }
 
-
     if (!fecha) {
-
       return Response.json(
         {
           correcto: false,
@@ -134,11 +115,6 @@ export async function POST(request) {
         }
       );
     }
-
-
-    // -----------------------------------------------------
-    // CREAR EVENTO
-    // -----------------------------------------------------
 
     const [resultado] =
       await pool.query(
@@ -166,7 +142,6 @@ export async function POST(request) {
         ]
       );
 
-
     return Response.json(
       {
         correcto: true,
@@ -179,7 +154,6 @@ export async function POST(request) {
         status: 201,
       }
     );
-
 
   } catch (error) {
 
@@ -203,12 +177,23 @@ export async function POST(request) {
   }
 }
 
-
 // =========================================================
 // PUT — MODIFICAR EVENTO
 // =========================================================
 
 export async function PUT(request) {
+
+  if (!esAdministrador(request)) {
+    return Response.json(
+      {
+        correcto: false,
+        mensaje: "No autorizado.",
+      },
+      {
+        status: 401,
+      }
+    );
+  }
 
   try {
 
@@ -241,13 +226,7 @@ export async function PUT(request) {
         ? false
         : true;
 
-
-    // -----------------------------------------------------
-    // VALIDACIONES
-    // -----------------------------------------------------
-
     if (!id) {
-
       return Response.json(
         {
           correcto: false,
@@ -260,9 +239,7 @@ export async function PUT(request) {
       );
     }
 
-
     if (!titulo) {
-
       return Response.json(
         {
           correcto: false,
@@ -270,14 +247,12 @@ export async function PUT(request) {
             "El título del evento es obligatorio.",
         },
         {
-          status: 400
+          status: 400,
         }
       );
     }
 
-
     if (!fecha) {
-
       return Response.json(
         {
           correcto: false,
@@ -290,16 +265,10 @@ export async function PUT(request) {
       );
     }
 
-
-    // -----------------------------------------------------
-    // ACTUALIZAR
-    // -----------------------------------------------------
-
     const [resultado] =
       await pool.query(
         `
         UPDATE eventos
-
         SET
           titulo = ?,
           descripcion = ?,
@@ -308,7 +277,6 @@ export async function PUT(request) {
           lugar = ?,
           imagen = ?,
           activa = ?
-
         WHERE id = ?
         `,
         [
@@ -323,11 +291,9 @@ export async function PUT(request) {
         ]
       );
 
-
     if (
       resultado.affectedRows === 0
     ) {
-
       return Response.json(
         {
           correcto: false,
@@ -340,13 +306,11 @@ export async function PUT(request) {
       );
     }
 
-
     return Response.json({
       correcto: true,
       mensaje:
         "Evento actualizado correctamente.",
     });
-
 
   } catch (error) {
 
@@ -370,12 +334,23 @@ export async function PUT(request) {
   }
 }
 
-
 // =========================================================
 // DELETE — ELIMINAR EVENTO
 // =========================================================
 
 export async function DELETE(request) {
+
+  if (!esAdministrador(request)) {
+    return Response.json(
+      {
+        correcto: false,
+        mensaje: "No autorizado.",
+      },
+      {
+        status: 401,
+      }
+    );
+  }
 
   try {
 
@@ -385,9 +360,7 @@ export async function DELETE(request) {
     const id =
       Number(body.id);
 
-
     if (!id) {
-
       return Response.json(
         {
           correcto: false,
@@ -400,7 +373,6 @@ export async function DELETE(request) {
       );
     }
 
-
     const [resultado] =
       await pool.query(
         `
@@ -410,11 +382,9 @@ export async function DELETE(request) {
         [id]
       );
 
-
     if (
       resultado.affectedRows === 0
     ) {
-
       return Response.json(
         {
           correcto: false,
@@ -427,13 +397,11 @@ export async function DELETE(request) {
       );
     }
 
-
     return Response.json({
       correcto: true,
       mensaje:
         "Evento eliminado correctamente.",
     });
-
 
   } catch (error) {
 
