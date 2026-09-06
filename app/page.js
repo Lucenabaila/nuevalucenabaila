@@ -1618,44 +1618,42 @@ const horariosAgrupados = useMemo(() => {
 
 
         .card-poster-overlay {
-          position: absolute;
+  position: absolute;
 
-          left: 14px;
-          right: 14px;
-          bottom: 14px;
+  left: 14px;
+  right: 14px;
+  bottom: 14px;
 
-          display: flex;
+  display: flex;
 
-          align-items: center;
+  align-items: center;
 
-          justify-content: center;
+  justify-content: center;
 
-          gap: 8px;
+  gap: 8px;
 
-          padding: 12px 16px;
+  padding: 12px 16px;
 
-          border-radius: 999px;
+  border-radius: 999px;
 
-          background:
-            rgba(255, 138, 0, .92)
+  background: #ff8a00;
 
-          color: #fff;
+  color: #fff;
 
-          font-size: 13px;
+  font-size: 13px;
 
-          font-weight: 800;
+  font-weight: 800;
 
-          letter-spacing: .08em;
+  letter-spacing: .08em;
 
-          opacity: 0;
+  opacity: 1;
 
-          transform:
-            translateY(8px);
+  transform: translateY(0);
 
-          transition:
-            opacity .25s ease,
-            transform .25s ease;
-        }
+  transition:
+    background .25s ease,
+    transform .25s ease;
+}
 
 
         .card-poster-overlay strong {
