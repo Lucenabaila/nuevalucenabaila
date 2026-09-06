@@ -1,11 +1,25 @@
 import pool from "../../lib/db";
+import { esAdministrador } from "../../lib/admin-auth";
 
 
 // =========================================================
 // GET — OBTENER EVENTOS
 // =========================================================
 
-export async function GET() {
+export async function GET(request) {
+
+  if (!esAdministrador(request)) {
+    return Response.json(
+      {
+        correcto: false,
+        mensaje: "No autorizado.",
+      },
+      {
+        status: 401,
+      }
+    );
+  }
+
   try {
     const [eventos] = await pool.query(`
       SELECT
