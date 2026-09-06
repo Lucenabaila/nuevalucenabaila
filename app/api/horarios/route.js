@@ -1,11 +1,28 @@
 import pool from "../../lib/db";
+import { esAdministrador } from "../../lib/admin-auth";
 
 
 // =========================================================
 // GET — OBTENER HORARIOS
 // =========================================================
 
-export async function GET() {
+export async function GET(request) {
+
+  if (
+    new URL(request.url).searchParams.get("admin") === "true" &&
+    !esAdministrador(request)
+  ) {
+    return Response.json(
+      {
+        correcto: false,
+        mensaje: "No autorizado.",
+      },
+      {
+        status: 401,
+      }
+    );
+  }
+
   try {
 
     const [horarios] = await pool.query(`
@@ -146,6 +163,18 @@ export async function GET() {
 // =========================================================
 
 export async function POST(request) {
+
+  if (!esAdministrador(request)) {
+    return Response.json(
+      {
+        correcto: false,
+        mensaje: "No autorizado.",
+      },
+      {
+        status: 401,
+      }
+    );
+  }
 
   const connection =
     await pool.getConnection();
@@ -452,6 +481,18 @@ export async function POST(request) {
 
 export async function PUT(request) {
 
+  if (!esAdministrador(request)) {
+    return Response.json(
+      {
+        correcto: false,
+        mensaje: "No autorizado.",
+      },
+      {
+        status: 401,
+      }
+    );
+  }
+
   const connection =
     await pool.getConnection();
 
@@ -697,6 +738,18 @@ export async function PUT(request) {
 // =========================================================
 
 export async function DELETE(request) {
+
+  if (!esAdministrador(request)) {
+    return Response.json(
+      {
+        correcto: false,
+        mensaje: "No autorizado.",
+      },
+      {
+        status: 401,
+      }
+    );
+  }
 
   const connection =
     await pool.getConnection();
