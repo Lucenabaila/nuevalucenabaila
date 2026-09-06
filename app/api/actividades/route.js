@@ -1,6 +1,5 @@
 import pool from "../../lib/db";
 import { esAdministrador } from "../../lib/admin-auth";
-import pool from "../../lib/db";
 
 
 // =========================================================
