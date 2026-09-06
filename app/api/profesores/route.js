@@ -1,4 +1,5 @@
 import pool from "../../lib/db";
+import { esAdministrador } from "../../lib/admin-auth";
 
 
 // =========================================================
@@ -14,6 +15,17 @@ export async function GET(request) {
 
     const admin =
       url.searchParams.get("admin") === "true";
+    if (admin && !esAdministrador(request)) {
+  return Response.json(
+    {
+      correcto: false,
+      mensaje: "No autorizado.",
+    },
+    {
+      status: 401,
+    }
+  );
+}
 
 
     let consulta = `
@@ -137,6 +149,18 @@ export async function GET(request) {
 // =========================================================
 
 export async function POST(request) {
+
+  if (!esAdministrador(request)) {
+    return Response.json(
+      {
+        correcto: false,
+        mensaje: "No autorizado.",
+      },
+      {
+        status: 401,
+      }
+    );
+  }
 
   const connection =
     await pool.getConnection();
@@ -378,6 +402,18 @@ export async function POST(request) {
 // =========================================================
 
 export async function PUT(request) {
+
+  if (!esAdministrador(request)) {
+    return Response.json(
+      {
+        correcto: false,
+        mensaje: "No autorizado.",
+      },
+      {
+        status: 401,
+      }
+    );
+  }
 
   const connection =
     await pool.getConnection();
@@ -743,6 +779,18 @@ export async function PUT(request) {
 // =========================================================
 
 export async function DELETE(request) {
+
+  if (!esAdministrador(request)) {
+    return Response.json(
+      {
+        correcto: false,
+        mensaje: "No autorizado.",
+      },
+      {
+        status: 401,
+      }
+    );
+  }
 
   const connection =
     await pool.getConnection();
