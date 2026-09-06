@@ -1,3 +1,14 @@
+if (!esAdministrador(request)) {
+  return Response.json(
+    {
+      correcto: false,
+      mensaje: "No autorizado.",
+    },
+    {
+      status: 401,
+    }
+  );
+}
 import pool from "../../lib/db";
 import { esAdministrador } from "../../lib/admin-auth";
 
@@ -8,15 +19,8 @@ import { esAdministrador } from "../../lib/admin-auth";
 
 export async function GET(request) {
 
-  if (!esAdministrador(request)) {
-    return Response.json(
-      {
-        correcto: false,
-        mensaje: "No autorizado.",
-      },
-      {
-        status: 401,
-      }
+export async function GET() {
+  try {
     );
   }
 
