@@ -456,32 +456,26 @@ const horariosAgrupados = useMemo(() => {
           </p>
 
 
-          <h1>
+         <h1 aria-label="Escuela de baile en Lucena">
+  <span aria-hidden="true">
+    BAILA
+    <span className="dot">.</span>
+  </span>
 
-            <span>
-              BAILA
-              <span className="dot">
-                .
-              </span>
-            </span>
+  <em aria-hidden="true">
+    DISFRUTA
+    <span className="dot">.</span>
+  </em>
 
+  <span aria-hidden="true">
+    CONECTA
+    <span className="dot">.</span>
+  </span>
+</h1>
 
-            <em>
-              DISFRUTA
-              <span className="dot">
-                .
-              </span>
-            </em>
-
-
-            <span>
-              CONECTA
-              <span className="dot">
-                .
-              </span>
-            </span>
-
-          </h1>
+<p className="seo-title">
+  Escuela de baile en Lucena
+</p>
 
 
           <div className="hero-line"></div>
