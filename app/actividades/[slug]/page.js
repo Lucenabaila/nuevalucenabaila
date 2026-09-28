@@ -36,16 +36,23 @@ async function obtenerDatos() {
     throw new Error("No se han podido cargar los datos.");
   }
 
-  const actividades = await actividadesRes.json();
-  const horarios = await horariosRes.json();
-  const profesores = await profesoresRes.json();
+const actividadesData = await actividadesRes.json();
+const horariosData = await horariosRes.json();
+const profesoresData = await profesoresRes.json();
 
-  return {
-    actividades,
-    horarios,
-    profesores,
-  };
-}
+return {
+  actividades: Array.isArray(actividadesData)
+    ? actividadesData
+    : actividadesData.actividades || [],
+
+  horarios: Array.isArray(horariosData)
+    ? horariosData
+    : horariosData.horarios || [],
+
+  profesores: Array.isArray(profesoresData)
+    ? profesoresData
+    : profesoresData.profesores || [],
+};
 
 async function obtenerActividad(slug) {
   const { actividades, horarios, profesores } =
