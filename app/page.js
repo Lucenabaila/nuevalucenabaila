@@ -110,8 +110,31 @@ export default function Home() {
       }
     }
 
-    cargarDatos();
+       cargarDatos();
   }, []);
+
+
+  // =======================================================
+  // CORREGIR NAVEGACIÓN A #CONTACTO
+  // =======================================================
+
+  useEffect(() => {
+    if (!cargando && window.location.hash === "#contacto") {
+      const elemento = document.getElementById("contacto");
+
+      if (elemento) {
+        setTimeout(() => {
+          elemento.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }, 150);
+      }
+    }
+  }, [cargando]);
+
+
+  const horariosFiltrados = useMemo(() => {
 
   const horariosFiltrados = useMemo(() => {
   if (filtroActividad === "todas") {
