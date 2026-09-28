@@ -49,9 +49,34 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "DanceSchool",
+    name: "Artes Escénicas Paradise",
+    url: "https://www.lucenabaila.es",
+    telephone: "+34 676 421 944",
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "Carretera de Rute, 15",
+      addressLocality: "Lucena",
+      addressRegion: "Córdoba",
+      postalCode: "14900",
+      addressCountry: "ES",
+    },
+  };
+
   return (
     <html lang="es">
-      <body>{children}</body>
+      <body>
+        {children}
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(structuredData),
+          }}
+        />
+      </body>
     </html>
   );
 }
