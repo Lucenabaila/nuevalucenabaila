@@ -1097,7 +1097,7 @@ const horariosAgrupados = useMemo(() => {
       </section>
 
 
-      {/* =====================================================
+            {/* =====================================================
           LA ESCUELA
       ====================================================== */}
 
@@ -1106,14 +1106,14 @@ const horariosAgrupados = useMemo(() => {
         className="story"
       >
 
-      <div className="story-image">
+        <div className="story-image">
 
-  <img
-    src="/footer-paradise.png"
-    alt="Artes Escénicas Paradise"
-  />
+          <img
+            src="/footer-paradise.png"
+            alt="Artes Escénicas Paradise, escuela de baile en Lucena"
+          />
 
-</div>
+        </div>
 
 
         <div className="story-copy">
@@ -1124,28 +1124,27 @@ const horariosAgrupados = useMemo(() => {
 
 
           <h2>
-            Un lugar para{" "}
+            Tu escuela de{" "}
             <em>
-              sentirte tú
+              baile en Lucena
             </em>
           </h2>
 
 
           <p>
-            Queremos que venir a clase
-            sea uno de los mejores momentos
-            de tu semana. Profesores,
-            compañeros y un espacio pensado
-            para que disfrutes del baile.
+            En Artes Escénicas Paradise somos una escuela de baile en Lucena
+            donde puedes aprender, disfrutar y compartir tu pasión por el baile.
+            Creamos un espacio cercano y dinámico para que cada persona encuentre
+            su estilo y disfrute de cada clase.
           </p>
 
 
           <p>
-            En Artes Escénicas Paradise
-            encontrarás diferentes disciplinas,
-            niveles y profesores para aprender,
-            disfrutar y compartir nuestra
-            pasión por el baile.
+            Ofrecemos clases de Bachata, Salsa, Bailes de Salón, Ballet Clásico,
+            K-Pop, Baile Urbano, Ladies Style, Fitness Barré y otras actividades
+            para diferentes edades y niveles. Nuestro equipo de profesores te
+            acompaña desde tus primeros pasos hasta el perfeccionamiento de tu
+            técnica.
           </p>
 
 
@@ -1159,7 +1158,6 @@ const horariosAgrupados = useMemo(() => {
         </div>
 
       </section>
-
 
       {/* =====================================================
           BANNER
