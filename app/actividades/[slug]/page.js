@@ -27,6 +27,7 @@ async function obtenerDatos() {
         cache: "no-store",
       }),
     ]);
+  }
 
   if (
     !actividadesRes.ok ||
