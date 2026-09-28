@@ -149,7 +149,7 @@ async function obtenerActividad(slug) {
 
 
 // ======================================================
-// METADATA SEO
+// SEO
 // ======================================================
 
 export async function generateMetadata({
@@ -255,6 +255,24 @@ export default async function ActividadPage({
 
       <section className="activity-hero">
 
+
+        {/* FONDO DEL CARTEL DIFUMINADO */}
+
+        {actividad.imagen && (
+          <div
+            className="hero-poster-background"
+            style={{
+              backgroundImage:
+                `url("${actividad.imagen}")`,
+            }}
+          />
+        )}
+
+
+        {/* CAPAS DE LUZ */}
+
+        <div className="hero-overlay" />
+
         <div className="hero-glow hero-glow-one" />
         <div className="hero-glow hero-glow-two" />
 
@@ -262,7 +280,9 @@ export default async function ActividadPage({
         <div className="activity-container">
 
 
-          {/* LOGO */}
+          {/* ==================================================
+              LOGO
+          ================================================== */}
 
           <div className="activity-logo">
 
@@ -281,7 +301,9 @@ export default async function ActividadPage({
           </div>
 
 
-          {/* VOLVER */}
+          {/* ==================================================
+              VOLVER
+          ================================================== */}
 
           <a
             href="/"
@@ -294,7 +316,9 @@ export default async function ActividadPage({
           <div className="hero-layout">
 
 
-            {/* TEXTO */}
+            {/* ==================================================
+                TEXTO
+            ================================================== */}
 
             <div className="hero-copy">
 
@@ -343,7 +367,9 @@ export default async function ActividadPage({
             </div>
 
 
-            {/* IMAGEN */}
+            {/* ==================================================
+                CARTEL
+            ================================================== */}
 
             <div className="hero-visual">
 
@@ -457,6 +483,7 @@ export default async function ActividadPage({
                   </div>
 
                   <div>
+
                     <strong>
                       Todos los niveles
                     </strong>
@@ -464,6 +491,7 @@ export default async function ActividadPage({
                     <span>
                       Aprende y evoluciona
                     </span>
+
                   </div>
 
                 </div>
@@ -476,6 +504,7 @@ export default async function ActividadPage({
                   </div>
 
                   <div>
+
                     <strong>
                       Ritmo y técnica
                     </strong>
@@ -483,6 +512,7 @@ export default async function ActividadPage({
                     <span>
                       Mejora en cada clase
                     </span>
+
                   </div>
 
                 </div>
@@ -495,6 +525,7 @@ export default async function ActividadPage({
                   </div>
 
                   <div>
+
                     <strong>
                       Disfruta bailando
                     </strong>
@@ -502,6 +533,7 @@ export default async function ActividadPage({
                     <span>
                       Comparte tu pasión
                     </span>
+
                   </div>
 
                 </div>
@@ -514,6 +546,7 @@ export default async function ActividadPage({
                   </div>
 
                   <div>
+
                     <strong>
                       Ambiente cercano
                     </strong>
@@ -521,6 +554,7 @@ export default async function ActividadPage({
                     <span>
                       Aprende y conoce gente
                     </span>
+
                   </div>
 
                 </div>
@@ -603,8 +637,6 @@ export default async function ActividadPage({
                     >
 
 
-                      {/* DÍA Y HORA */}
-
                       <div className="schedule-top">
 
                         <div className="schedule-day">
@@ -639,8 +671,6 @@ export default async function ActividadPage({
                       </div>
 
 
-                      {/* NIVEL */}
-
                       {horario.nivel && (
 
                         <div className="schedule-level">
@@ -654,8 +684,6 @@ export default async function ActividadPage({
 
                       <div className="schedule-line" />
 
-
-                      {/* PROFESOR */}
 
                       <div className="schedule-teacher">
 
@@ -858,10 +886,13 @@ export default async function ActividadPage({
                 href="/#contacto"
                 className="cta-button"
               >
+
                 QUIERO PROBAR UNA CLASE
+
                 <span>
                   →
                 </span>
+
               </a>
 
             </div>
@@ -895,7 +926,7 @@ export default async function ActividadPage({
           width: min(1180px, 92%);
           margin: 0 auto;
           position: relative;
-          z-index: 2;
+          z-index: 3;
         }
 
 
@@ -925,45 +956,162 @@ export default async function ActividadPage({
             95px;
 
           background:
-            radial-gradient(
-              circle at 78% 20%,
-              rgba(255, 119, 0, 0.22),
-              transparent 28%
-            ),
-            radial-gradient(
-              circle at 20% 100%,
-              rgba(120, 0, 160, 0.30),
-              transparent 35%
-            ),
             #050505;
 
           color: #ffffff;
         }
 
 
+        /*
+         * EL CARTEL APARECE TAMBIÉN COMO FONDO
+         * DEL ENCABEZADO.
+         */
+
+        .hero-poster-background {
+          position: absolute;
+
+          z-index: 0;
+
+          inset:
+            -18% -10% -12% 25%;
+
+          background-position:
+            center;
+
+          background-size:
+            cover;
+
+          background-repeat:
+            no-repeat;
+
+          opacity:
+            0.24;
+
+          filter:
+            blur(18px)
+            saturate(1.25);
+
+          transform:
+            scale(1.12);
+
+          pointer-events:
+            none;
+        }
+
+
+        /*
+         * OSCURECE EL CARTEL PARA QUE EL TEXTO
+         * SIGA LEYÉNDOSE PERFECTAMENTE.
+         */
+
+        .hero-overlay {
+          position: absolute;
+
+          z-index: 1;
+
+          inset: 0;
+
+          background:
+            linear-gradient(
+              90deg,
+              rgba(5,5,5,0.98) 0%,
+              rgba(5,5,5,0.90) 38%,
+              rgba(5,5,5,0.63) 70%,
+              rgba(5,5,5,0.76) 100%
+            );
+
+          pointer-events:
+            none;
+        }
+
+
+        /*
+         * DEGRADADO INFERIOR
+         */
+
+        .activity-hero::after {
+          content: "";
+
+          position: absolute;
+
+          z-index: 2;
+
+          left: 0;
+          right: 0;
+          bottom: 0;
+
+          height: 130px;
+
+          background:
+            linear-gradient(
+              to bottom,
+              transparent,
+              #050505
+            );
+
+          pointer-events:
+            none;
+        }
+
+
         .hero-glow {
           position: absolute;
+
+          z-index: 1;
+
           border-radius: 50%;
-          pointer-events: none;
-          filter: blur(80px);
+
+          pointer-events:
+            none;
+
+          filter:
+            blur(80px);
         }
 
 
         .hero-glow-one {
-          width: 350px;
-          height: 350px;
-          right: -100px;
-          top: 120px;
-          background: rgba(255, 93, 0, 0.14);
+          width:
+            350px;
+
+          height:
+            350px;
+
+          right:
+            -100px;
+
+          top:
+            120px;
+
+          background:
+            rgba(
+              255,
+              119,
+              0,
+              0.18
+            );
         }
 
 
         .hero-glow-two {
-          width: 300px;
-          height: 300px;
-          left: -150px;
-          bottom: -120px;
-          background: rgba(155, 0, 180, 0.16);
+          width:
+            300px;
+
+          height:
+            300px;
+
+          left:
+            -150px;
+
+          bottom:
+            -120px;
+
+          background:
+            rgba(
+              155,
+              0,
+              180,
+              0.20
+            );
         }
 
 
@@ -972,35 +1120,61 @@ export default async function ActividadPage({
         ================================================== */
 
         .activity-logo {
-          display: flex;
-          justify-content: center;
-          align-items: center;
+          position:
+            relative;
 
-          margin-bottom: 22px;
+          z-index:
+            5;
+
+          display:
+            flex;
+
+          justify-content:
+            center;
+
+          align-items:
+            center;
+
+          margin-bottom:
+            22px;
         }
 
 
         .activity-logo a {
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          display:
+            flex;
 
-          width: 150px;
-          height: 150px;
+          align-items:
+            center;
 
-          border-radius: 50%;
+          justify-content:
+            center;
+
+          width:
+            150px;
+
+          height:
+            150px;
+
+          border-radius:
+            50%;
 
           background:
             radial-gradient(
               circle,
-              #080808 45%,
+              #050505 45%,
               #111111 72%,
               transparent 73%
             );
 
           box-shadow:
-            0 0 35px
-            rgba(255, 111, 0, 0.12);
+            0 0 40px
+            rgba(
+              255,
+              111,
+              0,
+              0.16
+            );
 
           transition:
             transform 0.25s ease,
@@ -1013,18 +1187,28 @@ export default async function ActividadPage({
             scale(1.04);
 
           box-shadow:
-            0 0 50px
-            rgba(255, 111, 0, 0.22);
+            0 0 55px
+            rgba(
+              255,
+              111,
+              0,
+              0.25
+            );
         }
 
 
         .activity-logo img {
-          display: block;
+          display:
+            block;
 
-          width: 132px;
-          height: 132px;
+          width:
+            132px;
 
-          object-fit: contain;
+          height:
+            132px;
+
+          object-fit:
+            contain;
         }
 
 
@@ -1033,19 +1217,32 @@ export default async function ActividadPage({
         ================================================== */
 
         .activity-back {
-          display: inline-block;
+          position:
+            relative;
 
-          margin-bottom: 45px;
+          z-index:
+            5;
 
-          color: #ffffff;
+          display:
+            inline-block;
 
-          text-decoration: none;
+          margin-bottom:
+            45px;
 
-          font-size: 14px;
+          color:
+            #ffffff;
 
-          font-weight: 700;
+          text-decoration:
+            none;
 
-          opacity: 0.78;
+          font-size:
+            14px;
+
+          font-weight:
+            700;
+
+          opacity:
+            0.78;
 
           transition:
             opacity 0.2s ease,
@@ -1054,7 +1251,9 @@ export default async function ActividadPage({
 
 
         .activity-back:hover {
-          opacity: 1;
+          opacity:
+            1;
+
           transform:
             translateX(-3px);
         }
@@ -1065,20 +1264,30 @@ export default async function ActividadPage({
         ================================================== */
 
         .hero-layout {
-          display: grid;
+          position:
+            relative;
+
+          z-index:
+            5;
+
+          display:
+            grid;
 
           grid-template-columns:
             minmax(0, 0.95fr)
             minmax(400px, 1.05fr);
 
-          gap: 65px;
+          gap:
+            65px;
 
-          align-items: center;
+          align-items:
+            center;
         }
 
 
         .hero-eyebrow {
-          color: #f5a000;
+          color:
+            #f5a000;
         }
 
 
@@ -1102,59 +1311,79 @@ export default async function ActividadPage({
 
 
         .hero-copy h1 span {
-          display: block;
-          color: #ffffff;
+          display:
+            block;
+
+          color:
+            #ffffff;
         }
 
 
         .hero-copy h1 em {
-          display: block;
+          display:
+            block;
 
-          color: #f58a00;
+          color:
+            #f58a00;
 
-          font-style: normal;
+          font-style:
+            normal;
         }
 
 
         .activity-intro {
-          max-width: 620px;
+          max-width:
+            620px;
 
-          margin: 0;
+          margin:
+            0;
 
           color:
             rgba(
               255,
               255,
               255,
-              0.76
+              0.82
             );
 
-          font-size: 18px;
+          font-size:
+            18px;
 
-          line-height: 1.7;
+          line-height:
+            1.7;
         }
 
 
         .hero-actions {
-          display: flex;
+          display:
+            flex;
 
-          align-items: center;
+          align-items:
+            center;
 
-          gap: 25px;
+          gap:
+            25px;
 
-          margin-top: 35px;
+          margin-top:
+            35px;
 
-          flex-wrap: wrap;
+          flex-wrap:
+            wrap;
         }
 
 
         .hero-button {
-          display: inline-flex;
+          display:
+            inline-flex;
 
-          align-items: center;
-          justify-content: center;
+          align-items:
+            center;
 
-          min-height: 48px;
+          justify-content:
+            center;
+
+          min-height:
+            48px;
 
           padding:
             0 24px;
@@ -1192,46 +1421,61 @@ export default async function ActividadPage({
 
           box-shadow:
             0 10px 25px
-            rgba(245,138,0,0.22);
+            rgba(
+              245,
+              138,
+              0,
+              0.22
+            );
         }
 
 
         .hero-link {
-          color: #ffffff;
+          color:
+            #ffffff;
 
-          font-size: 14px;
+          font-size:
+            14px;
 
-          font-weight: 700;
+          font-weight:
+            700;
 
           text-decoration:
             none;
 
           opacity:
-            0.8;
+            0.82;
         }
 
 
         .hero-link:hover {
-          opacity: 1;
+          opacity:
+            1;
         }
 
 
         /* ==================================================
-           HERO IMAGE
+           CARTEL PRINCIPAL
         ================================================== */
 
         .hero-visual {
-          position: relative;
+          position:
+            relative;
 
           padding:
-            10px 15px 15px 10px;
+            10px
+            15px
+            15px
+            10px;
         }
 
 
         .hero-image-frame {
-          position: relative;
+          position:
+            relative;
 
-          overflow: hidden;
+          overflow:
+            hidden;
 
           border-radius:
             30px;
@@ -1242,7 +1486,7 @@ export default async function ActividadPage({
               255,
               255,
               255,
-              0.14
+              0.16
             );
 
           background:
@@ -1254,17 +1498,20 @@ export default async function ActividadPage({
               0,
               0,
               0,
-              0.45
+              0.50
             );
         }
 
 
         .hero-image-frame::after {
-          content: "";
+          content:
+            "";
 
-          position: absolute;
+          position:
+            absolute;
 
-          inset: 0;
+          inset:
+            0;
 
           background:
             linear-gradient(
@@ -1284,9 +1531,11 @@ export default async function ActividadPage({
 
 
         .hero-image-frame img {
-          display: block;
+          display:
+            block;
 
-          width: 100%;
+          width:
+            100%;
 
           max-height:
             590px;
@@ -1324,10 +1573,14 @@ export default async function ActividadPage({
 
 
         .hero-circle {
-          position: absolute;
+          position:
+            absolute;
 
-          left: -35px;
-          bottom: -28px;
+          left:
+            -35px;
+
+          bottom:
+            -28px;
 
           display:
             flex;
@@ -1338,8 +1591,11 @@ export default async function ActividadPage({
           justify-content:
             center;
 
-          width: 110px;
-          height: 110px;
+          width:
+            110px;
+
+          height:
+            110px;
 
           border-radius:
             50%;
@@ -1393,7 +1649,8 @@ export default async function ActividadPage({
 
 
         .intro-grid {
-          display: grid;
+          display:
+            grid;
 
           grid-template-columns:
             minmax(0, 0.9fr)
@@ -1524,7 +1781,10 @@ export default async function ActividadPage({
           grid-template-columns:
             repeat(
               2,
-              minmax(0, 1fr)
+              minmax(
+                0,
+                1fr
+              )
             );
 
           gap:
@@ -1691,17 +1951,9 @@ export default async function ActividadPage({
         }
 
 
-        /* ==================================================
-           GRID HORARIOS
-        ================================================== */
-
         .schedule-grid {
           display:
             grid;
-
-          /*
-           * 4 COLUMNAS
-           */
 
           grid-template-columns:
             repeat(
@@ -1716,10 +1968,6 @@ export default async function ActividadPage({
             20px;
         }
 
-
-        /* ==================================================
-           TARJETA HORARIO
-        ================================================== */
 
         .schedule-card {
           min-width:
@@ -2006,7 +2254,7 @@ export default async function ActividadPage({
             40px;
 
           margin-bottom:
-            45px;
+            50px;
         }
 
 
@@ -2056,13 +2304,17 @@ export default async function ActividadPage({
         }
 
 
+        /*
+         * DOS PROFESORES = DOS COLUMNAS
+         */
+
         .teachers-grid {
           display:
             grid;
 
           grid-template-columns:
             repeat(
-              3,
+              2,
               minmax(
                 0,
                 1fr
@@ -2070,67 +2322,112 @@ export default async function ActividadPage({
             );
 
           gap:
-            25px;
+            30px;
+
+          max-width:
+            1000px;
+
+          margin:
+            0 auto;
         }
 
+
+        /*
+         * TARJETA MÁS GRANDE
+         */
 
         .teacher-card {
           display:
             grid;
 
           grid-template-columns:
-            130px
+            180px
             1fr;
 
           align-items:
             center;
 
           gap:
-            22px;
+            25px;
+
+          min-width:
+            0;
 
           padding:
-            20px;
+            25px;
 
           border:
             1px solid
             #eeeeee;
 
           border-radius:
-            22px;
+            25px;
 
           background:
             #ffffff;
 
           box-shadow:
-            0 8px 25px
+            0 10px 30px
             rgba(
               0,
               0,
               0,
-              0.045
+              0.055
+            );
+
+          transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
+        }
+
+
+        .teacher-card:hover {
+          transform:
+            translateY(-4px);
+
+          box-shadow:
+            0 18px 40px
+            rgba(
+              0,
+              0,
+              0,
+              0.09
             );
         }
 
+
+        /*
+         * FOTO GRANDE
+         */
 
         .teacher-photo {
           overflow:
             hidden;
 
           width:
-            130px;
+            180px;
 
           height:
-            130px;
+            180px;
 
           border-radius:
             50%;
 
           border:
-            4px solid
+            5px solid
             #f58a00;
 
           background:
             #eeeeee;
+
+          box-shadow:
+            0 8px 25px
+            rgba(
+              245,
+              138,
+              0,
+              0.15
+            );
         }
 
 
@@ -2151,13 +2448,16 @@ export default async function ActividadPage({
 
         .teacher-info h3 {
           margin:
-            0 0 6px;
+            0 0 7px;
 
           color:
             #111111;
 
           font-size:
-            25px;
+            28px;
+
+          line-height:
+            1.05;
         }
 
 
@@ -2176,12 +2476,15 @@ export default async function ActividadPage({
 
           letter-spacing:
             0.12em;
+
+          line-height:
+            1.4;
         }
 
 
         .teacher-info p {
           margin:
-            13px 0 0;
+            14px 0 0;
 
           color:
             #666666;
@@ -2190,7 +2493,7 @@ export default async function ActividadPage({
             13px;
 
           line-height:
-            1.55;
+            1.6;
         }
 
 
@@ -2429,14 +2732,23 @@ export default async function ActividadPage({
 
           .teachers-grid {
             grid-template-columns:
-              1fr;
+              1fr 1fr;
           }
 
 
           .teacher-card {
             grid-template-columns:
-              120px
+              145px
               1fr;
+          }
+
+
+          .teacher-photo {
+            width:
+              145px;
+
+            height:
+              145px;
           }
 
         }
@@ -2460,6 +2772,33 @@ export default async function ActividadPage({
           .activity-hero {
             padding:
               25px 0 70px;
+          }
+
+
+          .hero-poster-background {
+            inset:
+              -5%
+              -30%
+              -5%
+              0;
+
+            opacity:
+              0.18;
+
+            filter:
+              blur(16px)
+              saturate(1.15);
+          }
+
+
+          .hero-overlay {
+            background:
+              linear-gradient(
+                180deg,
+                rgba(5,5,5,0.96),
+                rgba(5,5,5,0.82),
+                rgba(5,5,5,0.98)
+              );
           }
 
 
@@ -2605,22 +2944,31 @@ export default async function ActividadPage({
           }
 
 
+          .teachers-grid {
+            grid-template-columns:
+              1fr;
+          }
+
+
           .teacher-card {
             grid-template-columns:
-              100px
+              150px
               1fr;
 
             gap:
-              18px;
+              20px;
+
+            padding:
+              20px;
           }
 
 
           .teacher-photo {
             width:
-              100px;
+              150px;
 
             height:
-              100px;
+              150px;
           }
 
 
@@ -2645,7 +2993,7 @@ export default async function ActividadPage({
            MÓVIL PEQUEÑO
         ================================================== */
 
-        @media (max-width: 450px) {
+        @media (max-width: 500px) {
 
           .hero-actions {
             align-items:
@@ -2674,26 +3022,47 @@ export default async function ActividadPage({
 
           .teacher-card {
             grid-template-columns:
-              82px
+              105px
               1fr;
 
             padding:
+              15px;
+
+            gap:
               15px;
           }
 
 
           .teacher-photo {
             width:
-              82px;
+              105px;
 
             height:
-              82px;
+              105px;
+
+            border-width:
+              4px;
           }
 
 
           .teacher-info h3 {
             font-size:
-              21px;
+              22px;
+          }
+
+
+          .teacher-info > span {
+            font-size:
+              8px;
+          }
+
+
+          .teacher-info p {
+            font-size:
+              12px;
+
+            margin-top:
+              9px;
           }
 
 
