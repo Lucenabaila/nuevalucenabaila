@@ -133,9 +133,6 @@ export default function Home() {
     }
   }, [cargando]);
 
-
-  const horariosFiltrados = useMemo(() => {
-
   const horariosFiltrados = useMemo(() => {
   if (filtroActividad === "todas") {
     return horarios;
