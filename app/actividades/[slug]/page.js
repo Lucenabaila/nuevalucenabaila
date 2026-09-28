@@ -36,13 +36,11 @@ function formatearHora(hora) {
 // ======================================================
 
 async function obtenerDatos() {
-
   const [
     actividadesRes,
     horariosRes,
     profesoresRes,
   ] = await Promise.all([
-
     fetch(`${SITE_URL}/api/actividades`, {
       cache: "no-store",
     }),
@@ -54,7 +52,6 @@ async function obtenerDatos() {
     fetch(`${SITE_URL}/api/profesores`, {
       cache: "no-store",
     }),
-
   ]);
 
 
@@ -80,7 +77,6 @@ async function obtenerDatos() {
 
 
   return {
-
     actividades:
       Array.isArray(actividadesData)
         ? actividadesData
@@ -95,7 +91,6 @@ async function obtenerDatos() {
       Array.isArray(profesoresData)
         ? profesoresData
         : profesoresData.profesores || [],
-
   };
 }
 
@@ -105,7 +100,6 @@ async function obtenerDatos() {
 // ======================================================
 
 async function obtenerActividad(slug) {
-
   const {
     actividades,
     horarios,
@@ -147,38 +141,28 @@ async function obtenerActividad(slug) {
 
 
   return {
-
     actividad,
-
-    horarios:
-      horariosActividad,
-
-    profesores:
-      profesoresActividad,
-
+    horarios: horariosActividad,
+    profesores: profesoresActividad,
   };
 }
 
 
 // ======================================================
-// SEO
+// METADATA SEO
 // ======================================================
 
 export async function generateMetadata({
   params,
 }) {
-
   const { slug } = await params;
-
 
   const datos =
     await obtenerActividad(slug);
 
 
   if (!datos) {
-
     return {
-
       title:
         "Actividad no encontrada | Artes Escénicas Paradise",
 
@@ -186,7 +170,6 @@ export async function generateMetadata({
         index: false,
         follow: true,
       },
-
     };
   }
 
@@ -201,7 +184,6 @@ export async function generateMetadata({
 
 
   return {
-
     title:
       `${nombre} en Lucena | Artes Escénicas Paradise`,
 
@@ -213,7 +195,6 @@ export async function generateMetadata({
     },
 
     openGraph: {
-
       title:
         `${nombre} en Lucena | Artes Escénicas Paradise`,
 
@@ -225,19 +206,15 @@ export async function generateMetadata({
       siteName:
         "Artes Escénicas Paradise",
 
-      locale:
-        "es_ES",
+      locale: "es_ES",
 
-      type:
-        "website",
-
+      type: "website",
     },
 
     robots: {
       index: true,
       follow: true,
     },
-
   };
 }
 
@@ -249,7 +226,6 @@ export async function generateMetadata({
 export default async function ActividadPage({
   params,
 }) {
-
   const { slug } = await params;
 
 
@@ -270,7 +246,6 @@ export default async function ActividadPage({
 
 
   return (
-
     <main className="activity-page">
 
 
@@ -280,17 +255,24 @@ export default async function ActividadPage({
 
       <section className="activity-hero">
 
+        <div className="hero-glow hero-glow-one" />
+        <div className="hero-glow hero-glow-two" />
+
+
         <div className="activity-container">
 
 
-          {/* LOGOTIPO */}
+          {/* LOGO */}
 
           <div className="activity-logo">
 
-            <a href="/" aria-label="Artes Escénicas Paradise">
+            <a
+              href="/"
+              aria-label="Artes Escénicas Paradise"
+            >
 
               <img
-                src="/icon.png"
+                src="/logo-paradise.png"
                 alt="Artes Escénicas Paradise"
               />
 
@@ -309,20 +291,94 @@ export default async function ActividadPage({
           </a>
 
 
-          <p className="eyebrow">
-            ESCUELA DE BAILE · LUCENA
-          </p>
+          <div className="hero-layout">
 
 
-          <h1>
-            {actividad.nombre} en Lucena
-          </h1>
+            {/* TEXTO */}
+
+            <div className="hero-copy">
+
+              <p className="eyebrow hero-eyebrow">
+                ESCUELA DE BAILE · LUCENA
+              </p>
 
 
-          <p className="activity-intro">
-            {actividad.descripcion}
-          </p>
+              <h1>
 
+                <span>
+                  {actividad.nombre}
+                </span>
+
+                <em>
+                  en Lucena
+                </em>
+
+              </h1>
+
+
+              <p className="activity-intro">
+                {actividad.descripcion}
+              </p>
+
+
+              <div className="hero-actions">
+
+                <a
+                  href="#horarios"
+                  className="hero-button"
+                >
+                  VER HORARIOS
+                </a>
+
+
+                <a
+                  href="/#contacto"
+                  className="hero-link"
+                >
+                  Quiero probar una clase →
+                </a>
+
+              </div>
+
+            </div>
+
+
+            {/* IMAGEN */}
+
+            <div className="hero-visual">
+
+              <div className="hero-image-frame">
+
+                {actividad.imagen ? (
+
+                  <img
+                    src={actividad.imagen}
+                    alt={`${actividad.nombre} en Lucena`}
+                  />
+
+                ) : (
+
+                  <div className="hero-image-placeholder">
+
+                    <span>
+                      {actividad.nombre}
+                    </span>
+
+                  </div>
+
+                )}
+
+              </div>
+
+
+              <div className="hero-circle">
+                PARADISE
+              </div>
+
+            </div>
+
+
+          </div>
 
         </div>
 
@@ -330,34 +386,32 @@ export default async function ActividadPage({
 
 
       {/* ==================================================
-          INFORMACIÓN DE LA ACTIVIDAD
+          INFORMACIÓN
       ================================================== */}
 
-      <section className="activity-content">
+      <section className="activity-intro-section">
 
         <div className="activity-container">
 
-          <div className="activity-grid">
+          <div className="intro-grid">
 
 
             {/* IMAGEN */}
 
-            <div className="activity-image">
+            <div className="intro-image">
 
               {actividad.imagen ? (
 
                 <img
                   src={actividad.imagen}
-                  alt={`${actividad.nombre} en Lucena`}
+                  alt={`${actividad.nombre} en Artes Escénicas Paradise`}
                 />
 
               ) : (
 
-                <div className="activity-image-placeholder">
+                <div className="intro-placeholder">
 
-                  <span>
-                    {actividad.nombre}
-                  </span>
+                  {actividad.nombre}
 
                 </div>
 
@@ -366,26 +420,116 @@ export default async function ActividadPage({
             </div>
 
 
-            {/* INFORMACIÓN */}
+            {/* TEXTO */}
 
-            <div className="activity-info">
+            <div className="intro-copy">
 
-              <p className="eyebrow">
+              <p className="eyebrow orange">
                 CLASES EN LUCENA
               </p>
 
 
               <h2>
+
                 Clases de{" "}
-                {actividad.nombre} en Lucena
+
+                <span>
+                  {actividad.nombre}
+                </span>
+
+                {" "}en Lucena
+
               </h2>
 
 
-              <p>
+              <p className="intro-description">
                 {actividad.descripcion}
               </p>
 
+
+              <div className="benefits">
+
+
+                <div className="benefit">
+
+                  <div className="benefit-icon">
+                    ✦
+                  </div>
+
+                  <div>
+                    <strong>
+                      Todos los niveles
+                    </strong>
+
+                    <span>
+                      Aprende y evoluciona
+                    </span>
+                  </div>
+
+                </div>
+
+
+                <div className="benefit">
+
+                  <div className="benefit-icon">
+                    ♪
+                  </div>
+
+                  <div>
+                    <strong>
+                      Ritmo y técnica
+                    </strong>
+
+                    <span>
+                      Mejora en cada clase
+                    </span>
+                  </div>
+
+                </div>
+
+
+                <div className="benefit">
+
+                  <div className="benefit-icon">
+                    ♡
+                  </div>
+
+                  <div>
+                    <strong>
+                      Disfruta bailando
+                    </strong>
+
+                    <span>
+                      Comparte tu pasión
+                    </span>
+                  </div>
+
+                </div>
+
+
+                <div className="benefit">
+
+                  <div className="benefit-icon">
+                    ★
+                  </div>
+
+                  <div>
+                    <strong>
+                      Ambiente cercano
+                    </strong>
+
+                    <span>
+                      Aprende y conoce gente
+                    </span>
+                  </div>
+
+                </div>
+
+
+              </div>
+
             </div>
+
 
           </div>
 
@@ -398,32 +542,39 @@ export default async function ActividadPage({
           HORARIOS
       ================================================== */}
 
-      <section className="actividad-horarios">
+      <section
+        id="horarios"
+        className="activity-schedule-section"
+      >
 
         <div className="activity-container">
 
 
-          <div className="horarios-header">
+          <div className="schedule-heading">
 
             <div>
 
-              <p className="eyebrow">
+              <p className="eyebrow orange">
                 HORARIOS
               </p>
 
               <h2>
-                Elige tu horario
+
+                Elige tu{" "}
+
+                <span>
+                  horario
+                </span>
+
               </h2>
 
             </div>
 
 
-            <p className="horarios-descripcion">
-
+            <p>
               Consulta los días y horarios
               disponibles para{" "}
               {actividad.nombre}.
-
             </p>
 
           </div>
@@ -431,7 +582,7 @@ export default async function ActividadPage({
 
           {horarios.length > 0 ? (
 
-            <div className="horarios-grid">
+            <div className="schedule-grid">
 
               {horarios.map(
                 (horario) => {
@@ -447,19 +598,18 @@ export default async function ActividadPage({
                   return (
 
                     <article
-                      className="horario-card"
+                      className="schedule-card"
                       key={horario.id}
                     >
 
 
                       {/* DÍA Y HORA */}
 
-                      <div className="horario-top">
+                      <div className="schedule-top">
 
+                        <div className="schedule-day">
 
-                        <div className="horario-dia">
-
-                          <span className="horario-icon">
+                          <span className="clock">
                             ◷
                           </span>
 
@@ -470,7 +620,7 @@ export default async function ActividadPage({
                         </div>
 
 
-                        <div className="horario-hora">
+                        <div className="schedule-time">
 
                           {formatearHora(
                             horario.hora_inicio
@@ -486,7 +636,6 @@ export default async function ActividadPage({
 
                         </div>
 
-
                       </div>
 
 
@@ -494,7 +643,7 @@ export default async function ActividadPage({
 
                       {horario.nivel && (
 
-                        <div className="horario-nivel">
+                        <div className="schedule-level">
 
                           {horario.nivel}
 
@@ -503,9 +652,12 @@ export default async function ActividadPage({
                       )}
 
 
+                      <div className="schedule-line" />
+
+
                       {/* PROFESOR */}
 
-                      <div className="horario-profesor">
+                      <div className="schedule-teacher">
 
                         <span>
                           PROFESOR/A
@@ -515,7 +667,9 @@ export default async function ActividadPage({
                         <strong>
 
                           {profesoresHorario.length > 0
-                            ? profesoresHorario.join(" · ")
+                            ? profesoresHorario.join(
+                                " · "
+                              )
                             : "Consultar"}
 
                         </strong>
@@ -534,7 +688,7 @@ export default async function ActividadPage({
 
           ) : (
 
-            <div className="sin-horarios">
+            <div className="no-schedule">
 
               Próximamente publicaremos
               los horarios de esta actividad.
@@ -542,7 +696,6 @@ export default async function ActividadPage({
             </div>
 
           )}
-
 
         </div>
 
@@ -560,15 +713,34 @@ export default async function ActividadPage({
           <div className="activity-container">
 
 
-            <p className="eyebrow">
-              NUESTRO EQUIPO
-            </p>
+            <div className="teachers-heading">
+
+              <div>
+
+                <p className="eyebrow orange">
+                  NUESTRO EQUIPO
+                </p>
+
+                <h2>
+
+                  Tus{" "}
+
+                  <span>
+                    profesores
+                  </span>
+
+                </h2>
+
+              </div>
 
 
-            <h2>
-              Profesores de{" "}
-              {actividad.nombre}
-            </h2>
+              <p>
+                Aprende de un equipo apasionado,
+                con experiencia y comprometido
+                con tu evolución en el baile.
+              </p>
+
+            </div>
 
 
             <div className="teachers-grid">
@@ -596,11 +768,17 @@ export default async function ActividadPage({
                     )}
 
 
-                    <div className="teacher-content">
+                    <div className="teacher-info">
 
                       <h3>
                         {profesor.nombre}
                       </h3>
+
+
+                      <span>
+                        PROFESOR/A DE{" "}
+                        {actividad.nombre.toUpperCase()}
+                      </span>
 
 
                       {profesor.descripcion && (
@@ -635,36 +813,61 @@ export default async function ActividadPage({
 
       <section className="activity-cta">
 
+        <div className="cta-glow" />
+
         <div className="activity-container">
 
-
-          <p className="eyebrow">
-            ¿TE APETECE BAILAR?
-          </p>
+          <div className="cta-grid">
 
 
-          <h2>
-            Ven a probar una clase
-          </h2>
+            <div>
+
+              <p className="eyebrow">
+                ¿TE APETECE BAILAR?
+              </p>
 
 
-          <p>
+              <h2>
 
-            Descubre nuestras clases de{" "}
-            {actividad.nombre} en Lucena
-            y encuentra tu lugar en
-            Artes Escénicas Paradise.
+                Ven a probar
 
-          </p>
+                <br />
+
+                <span>
+                  una clase.
+                </span>
+
+              </h2>
+
+            </div>
 
 
-          <a
-            href="/#contacto"
-            className="button primary"
-          >
-            QUIERO PROBAR UNA CLASE
-          </a>
+            <div className="cta-content">
 
+              <p>
+
+                Descubre nuestras clases de{" "}
+                {actividad.nombre} en Lucena
+                y empieza a formar parte de
+                Artes Escénicas Paradise.
+
+              </p>
+
+
+              <a
+                href="/#contacto"
+                className="cta-button"
+              >
+                QUIERO PROBAR UNA CLASE
+                <span>
+                  →
+                </span>
+              </a>
+
+            </div>
+
+
+          </div>
 
         </div>
 
@@ -677,42 +880,103 @@ export default async function ActividadPage({
 
       <style>{`
 
-        /* ================================================
+        /* ==================================================
            GENERAL
-        ================================================ */
+        ================================================== */
 
         .activity-page {
           min-height: 100vh;
           background: #ffffff;
-          color: #171717;
+          color: #111111;
         }
 
 
         .activity-container {
           width: min(1180px, 92%);
           margin: 0 auto;
+          position: relative;
+          z-index: 2;
         }
 
 
         .eyebrow {
           margin: 0;
-          color: #8c8c8c;
-          font-size: 12px;
+          font-size: 11px;
           font-weight: 800;
-          letter-spacing: 0.18em;
+          letter-spacing: 0.2em;
         }
 
 
-        /* ================================================
-           LOGOTIPO
-        ================================================ */
+        .orange {
+          color: #f58a00;
+        }
+
+
+        /* ==================================================
+           HERO
+        ================================================== */
+
+        .activity-hero {
+          position: relative;
+          overflow: hidden;
+
+          padding:
+            32px 0
+            95px;
+
+          background:
+            radial-gradient(
+              circle at 78% 20%,
+              rgba(255, 119, 0, 0.22),
+              transparent 28%
+            ),
+            radial-gradient(
+              circle at 20% 100%,
+              rgba(120, 0, 160, 0.30),
+              transparent 35%
+            ),
+            #050505;
+
+          color: #ffffff;
+        }
+
+
+        .hero-glow {
+          position: absolute;
+          border-radius: 50%;
+          pointer-events: none;
+          filter: blur(80px);
+        }
+
+
+        .hero-glow-one {
+          width: 350px;
+          height: 350px;
+          right: -100px;
+          top: 120px;
+          background: rgba(255, 93, 0, 0.14);
+        }
+
+
+        .hero-glow-two {
+          width: 300px;
+          height: 300px;
+          left: -150px;
+          bottom: -120px;
+          background: rgba(155, 0, 180, 0.16);
+        }
+
+
+        /* ==================================================
+           LOGO
+        ================================================== */
 
         .activity-logo {
           display: flex;
           justify-content: center;
           align-items: center;
 
-          margin-bottom: 28px;
+          margin-bottom: 22px;
         }
 
 
@@ -721,55 +985,52 @@ export default async function ActividadPage({
           align-items: center;
           justify-content: center;
 
-          width: 92px;
-          height: 92px;
+          width: 150px;
+          height: 150px;
 
           border-radius: 50%;
 
-          background: rgba(255,255,255,0.08);
+          background:
+            radial-gradient(
+              circle,
+              #080808 45%,
+              #111111 72%,
+              transparent 73%
+            );
+
+          box-shadow:
+            0 0 35px
+            rgba(255, 111, 0, 0.12);
 
           transition:
             transform 0.25s ease,
-            background 0.25s ease;
+            box-shadow 0.25s ease;
         }
 
 
         .activity-logo a:hover {
-          transform: scale(1.04);
+          transform:
+            scale(1.04);
 
-          background:
-            rgba(255,255,255,0.13);
+          box-shadow:
+            0 0 50px
+            rgba(255, 111, 0, 0.22);
         }
 
 
         .activity-logo img {
           display: block;
 
-          width: 78px;
-          height: 78px;
+          width: 132px;
+          height: 132px;
 
           object-fit: contain;
         }
 
 
-        /* ================================================
-           HERO
-        ================================================ */
-
-        .activity-hero {
-          padding: 45px 0 85px;
-
-          background:
-            radial-gradient(
-              circle at 80% 20%,
-              rgba(229, 161, 26, 0.22),
-              transparent 35%
-            ),
-            #111111;
-
-          color: #ffffff;
-        }
-
+        /* ==================================================
+           VOLVER
+        ================================================== */
 
         .activity-back {
           display: inline-block;
@@ -780,40 +1041,83 @@ export default async function ActividadPage({
 
           text-decoration: none;
 
-          font-size: 15px;
+          font-size: 14px;
 
-          font-weight: 600;
+          font-weight: 700;
 
-          opacity: 0.8;
+          opacity: 0.78;
 
           transition:
-            opacity 0.2s ease;
+            opacity 0.2s ease,
+            transform 0.2s ease;
         }
 
 
         .activity-back:hover {
           opacity: 1;
+          transform:
+            translateX(-3px);
         }
 
 
-        .activity-hero h1 {
-          margin: 12px 0 22px;
+        /* ==================================================
+           HERO LAYOUT
+        ================================================== */
+
+        .hero-layout {
+          display: grid;
+
+          grid-template-columns:
+            minmax(0, 0.95fr)
+            minmax(400px, 1.05fr);
+
+          gap: 65px;
+
+          align-items: center;
+        }
+
+
+        .hero-eyebrow {
+          color: #f5a000;
+        }
+
+
+        .hero-copy h1 {
+          margin:
+            14px 0 25px;
 
           font-size:
             clamp(
-              42px,
+              55px,
               7vw,
-              82px
+              94px
             );
 
-          line-height: 0.95;
+          line-height:
+            0.88;
 
-          letter-spacing: -0.045em;
+          letter-spacing:
+            -0.055em;
+        }
+
+
+        .hero-copy h1 span {
+          display: block;
+          color: #ffffff;
+        }
+
+
+        .hero-copy h1 em {
+          display: block;
+
+          color: #f58a00;
+
+          font-style: normal;
         }
 
 
         .activity-intro {
-          max-width: 820px;
+          max-width: 620px;
 
           margin: 0;
 
@@ -822,213 +1126,59 @@ export default async function ActividadPage({
               255,
               255,
               255,
-              0.82
+              0.76
             );
 
-          font-size: 19px;
+          font-size: 18px;
 
           line-height: 1.7;
         }
 
 
-        /* ================================================
-           CONTENIDO
-        ================================================ */
-
-        .activity-content {
-          padding: 90px 0;
-
-          background: #ffffff;
-        }
-
-
-        .activity-grid {
-          display: grid;
-
-          grid-template-columns:
-            minmax(0, 0.9fr)
-            minmax(0, 1.1fr);
-
-          gap: 70px;
-
-          align-items: center;
-        }
-
-
-        .activity-image {
-          overflow: hidden;
-
-          border-radius: 28px;
-
-          background: #f1f1f1;
-        }
-
-
-        .activity-image img {
-          display: block;
-
-          width: 100%;
-
-          height: auto;
-
-          object-fit: cover;
-        }
-
-
-        .activity-image-placeholder {
-          min-height: 420px;
-
+        .hero-actions {
           display: flex;
 
           align-items: center;
 
+          gap: 25px;
+
+          margin-top: 35px;
+
+          flex-wrap: wrap;
+        }
+
+
+        .hero-button {
+          display: inline-flex;
+
+          align-items: center;
           justify-content: center;
 
-          padding: 30px;
+          min-height: 48px;
 
-          background: #181818;
+          padding:
+            0 24px;
 
-          color: #ffffff;
+          border-radius:
+            999px;
 
-          font-size: 38px;
+          background:
+            #f58a00;
 
-          font-weight: 800;
-
-          text-align: center;
-        }
-
-
-        .activity-info h2 {
-          margin: 12px 0 22px;
-
-          color: #171717;
+          color:
+            #111111;
 
           font-size:
-            clamp(
-              34px,
-              5vw,
-              54px
-            );
+            12px;
 
-          line-height: 1;
+          font-weight:
+            900;
 
-          letter-spacing: -0.035em;
-        }
+          letter-spacing:
+            0.08em;
 
-
-        .activity-info > p {
-          margin: 0;
-
-          color: #555555;
-
-          font-size: 18px;
-
-          line-height: 1.75;
-        }
-
-
-        /* ================================================
-           HORARIOS
-        ================================================ */
-
-        .actividad-horarios {
-          padding: 100px 0 110px;
-
-          background: #f3f3f3;
-        }
-
-
-        .horarios-header {
-          display: flex;
-
-          align-items: flex-end;
-
-          justify-content: space-between;
-
-          gap: 40px;
-
-          margin-bottom: 42px;
-        }
-
-
-        .horarios-header h2 {
-          margin: 10px 0 0;
-
-          color: #111111;
-
-          font-size:
-            clamp(
-              42px,
-              5vw,
-              64px
-            );
-
-          line-height: 0.95;
-
-          letter-spacing: -0.045em;
-        }
-
-
-        .horarios-descripcion {
-          max-width: 430px;
-
-          margin: 0;
-
-          color: #555555;
-
-          font-size: 16px;
-
-          line-height: 1.6;
-
-          text-align: right;
-        }
-
-
-        /* ================================================
-           GRID HORARIOS
-        ================================================ */
-
-        .horarios-grid {
-
-          display: grid;
-
-          /*
-           * AQUÍ ESTÁ EL CAMBIO PRINCIPAL:
-           * 4 columnas en ordenador.
-           */
-
-          grid-template-columns:
-            repeat(4, minmax(0, 1fr));
-
-          gap: 22px;
-
-          width: 100%;
-        }
-
-
-        /* ================================================
-           TARJETA HORARIO
-        ================================================ */
-
-        .horario-card {
-
-          min-width: 0;
-
-          box-sizing: border-box;
-
-          background: #ffffff;
-
-          border: 1px solid #dedede;
-
-          border-radius: 22px;
-
-          padding: 27px 24px 25px;
-
-          box-shadow:
-            0 8px 25px
-            rgba(0,0,0,0.055);
-
-          overflow: hidden;
+          text-decoration:
+            none;
 
           transition:
             transform 0.2s ease,
@@ -1036,599 +1186,1520 @@ export default async function ActividadPage({
         }
 
 
-        .horario-card:hover {
-
+        .hero-button:hover {
           transform:
-            translateY(-3px);
+            translateY(-2px);
 
           box-shadow:
-            0 14px 30px
-            rgba(0,0,0,0.09);
+            0 10px 25px
+            rgba(245,138,0,0.22);
         }
 
 
-        /* ================================================
-           DÍA + HORA
-        ================================================ */
-
-        .horario-top {
-
-          display: flex;
-
-          align-items: center;
-
-          /*
-           * Permite que la hora baje de línea
-           * en pantallas estrechas.
-           */
-
-          flex-wrap: wrap;
-
-          gap: 8px 12px;
-
-          min-width: 0;
-        }
-
-
-        .horario-dia {
-
-          display: flex;
-
-          align-items: center;
-
-          gap: 8px;
-
-          min-width: 0;
-
-          color: #171717;
-
-          font-size: 16px;
-
-          line-height: 1.25;
-
-          font-weight: 800;
-
-          white-space: nowrap;
-        }
-
-
-        .horario-icon {
-
-          flex: 0 0 auto;
-
-          color: #777777;
-
-          font-size: 20px;
-
-          line-height: 1;
-        }
-
-
-        .horario-dia strong {
-
-          color: #171717;
-
-          font-weight: 800;
-        }
-
-
-        .horario-hora {
-
-          flex: 0 0 auto;
-
-          color: #171717;
-
-          font-size: 16px;
-
-          line-height: 1.25;
-
-          font-weight: 800;
-
-          /*
-           * Evita que una hora se corte.
-           */
-
-          white-space: nowrap;
-        }
-
-
-        .horario-hora span {
-
-          display: inline-block;
-
-          margin:
-            0 4px;
-
-          color: #777777;
-        }
-
-
-        /* ================================================
-           NIVEL
-        ================================================ */
-
-        .horario-nivel {
-
-          display: block;
-
-          width: fit-content;
-
-          max-width: 100%;
-
-          box-sizing: border-box;
-
-          margin-top: 25px;
-
-          padding: 8px 13px;
-
-          border-radius: 999px;
-
-          background: #111111;
-
+        .hero-link {
           color: #ffffff;
 
-          font-size: 12px;
-
-          line-height: 1.25;
+          font-size: 14px;
 
           font-weight: 700;
 
-          overflow-wrap: anywhere;
+          text-decoration:
+            none;
+
+          opacity:
+            0.8;
         }
 
 
-        /* ================================================
-           PROFESOR
-        ================================================ */
-
-        .horario-profesor {
-
-          margin-top: 30px;
+        .hero-link:hover {
+          opacity: 1;
         }
 
 
-        .horario-profesor span {
+        /* ==================================================
+           HERO IMAGE
+        ================================================== */
 
-          display: block;
+        .hero-visual {
+          position: relative;
 
-          margin-bottom: 7px;
-
-          color: #999999;
-
-          font-size: 10px;
-
-          line-height: 1.2;
-
-          font-weight: 800;
-
-          letter-spacing: 0.16em;
-
-          text-transform: uppercase;
+          padding:
+            10px 15px 15px 10px;
         }
 
 
-        .horario-profesor strong {
-
-          display: block;
-
-          color: #333333;
-
-          font-size: 15px;
-
-          line-height: 1.4;
-
-          font-weight: 600;
-
-          overflow-wrap: anywhere;
-        }
-
-
-        /* ================================================
-           SIN HORARIOS
-        ================================================ */
-
-        .sin-horarios {
-
-          padding: 45px 30px;
-
-          border:
-            1px solid #dddddd;
-
-          border-radius: 22px;
-
-          background: #ffffff;
-
-          color: #666666;
-
-          text-align: center;
-
-          font-size: 17px;
-        }
-
-
-        /* ================================================
-           PROFESORES
-        ================================================ */
-
-        .activity-teachers {
-
-          padding: 90px 0;
-
-          background: #f7f7f7;
-        }
-
-
-        .activity-teachers h2 {
-
-          margin: 10px 0 45px;
-
-          color: #171717;
-
-          font-size:
-            clamp(
-              34px,
-              5vw,
-              55px
-            );
-
-          line-height: 1;
-
-          letter-spacing: -0.04em;
-        }
-
-
-        .teachers-grid {
-
-          display: grid;
-
-          grid-template-columns:
-            repeat(
-              3,
-              minmax(0, 1fr)
-            );
-
-          gap: 25px;
-        }
-
-
-        .teacher-card {
+        .hero-image-frame {
+          position: relative;
 
           overflow: hidden;
 
-          border-radius: 22px;
+          border-radius:
+            30px;
 
-          background: #ffffff;
+          border:
+            1px solid
+            rgba(
+              255,
+              255,
+              255,
+              0.14
+            );
+
+          background:
+            #111111;
+
+          box-shadow:
+            0 25px 80px
+            rgba(
+              0,
+              0,
+              0,
+              0.45
+            );
         }
 
 
-        .teacher-photo img {
+        .hero-image-frame::after {
+          content: "";
 
+          position: absolute;
+
+          inset: 0;
+
+          background:
+            linear-gradient(
+              135deg,
+              rgba(
+                255,
+                120,
+                0,
+                0.08
+              ),
+              transparent 45%
+            );
+
+          pointer-events:
+            none;
+        }
+
+
+        .hero-image-frame img {
           display: block;
 
           width: 100%;
 
-          aspect-ratio: 1 / 1;
+          max-height:
+            590px;
 
-          object-fit: cover;
+          object-fit:
+            cover;
         }
 
 
-        .teacher-content {
+        .hero-image-placeholder {
+          min-height:
+            500px;
 
-          padding: 25px;
+          display:
+            flex;
+
+          align-items:
+            center;
+
+          justify-content:
+            center;
+
+          background:
+            #111111;
+
+          color:
+            #ffffff;
+
+          font-size:
+            38px;
+
+          font-weight:
+            900;
         }
 
 
-        .teacher-content h3 {
+        .hero-circle {
+          position: absolute;
 
+          left: -35px;
+          bottom: -28px;
+
+          display:
+            flex;
+
+          align-items:
+            center;
+
+          justify-content:
+            center;
+
+          width: 110px;
+          height: 110px;
+
+          border-radius:
+            50%;
+
+          border:
+            1px solid
+            rgba(
+              245,
+              138,
+              0,
+              0.6
+            );
+
+          background:
+            #050505;
+
+          color:
+            #f58a00;
+
+          font-size:
+            10px;
+
+          font-weight:
+            900;
+
+          letter-spacing:
+            0.16em;
+
+          box-shadow:
+            0 0 30px
+            rgba(
+              245,
+              138,
+              0,
+              0.16
+            );
+        }
+
+
+        /* ==================================================
+           INTRO
+        ================================================== */
+
+        .activity-intro-section {
+          padding:
+            100px 0;
+
+          background:
+            #ffffff;
+        }
+
+
+        .intro-grid {
+          display: grid;
+
+          grid-template-columns:
+            minmax(0, 0.9fr)
+            minmax(0, 1.1fr);
+
+          gap:
+            75px;
+
+          align-items:
+            center;
+        }
+
+
+        .intro-image {
+          overflow:
+            hidden;
+
+          border-radius:
+            25px;
+
+          background:
+            #f2f2f2;
+
+          box-shadow:
+            0 20px 55px
+            rgba(
+              0,
+              0,
+              0,
+              0.10
+            );
+        }
+
+
+        .intro-image img {
+          display:
+            block;
+
+          width:
+            100%;
+
+          height:
+            auto;
+        }
+
+
+        .intro-placeholder {
+          min-height:
+            450px;
+
+          display:
+            flex;
+
+          align-items:
+            center;
+
+          justify-content:
+            center;
+
+          background:
+            #111111;
+
+          color:
+            #ffffff;
+
+          font-size:
+            40px;
+
+          font-weight:
+            900;
+        }
+
+
+        .intro-copy h2 {
           margin:
-            0 0 10px;
+            12px 0 22px;
 
-          color: #171717;
-
-          font-size: 24px;
-        }
-
-
-        .teacher-content p {
-
-          margin: 0;
-
-          color: #666666;
-
-          line-height: 1.6;
-        }
-
-
-        /* ================================================
-           CTA
-        ================================================ */
-
-        .activity-cta {
-
-          padding: 100px 0;
-
-          background: #111111;
-
-          color: #ffffff;
-
-          text-align: center;
-        }
-
-
-        .activity-cta h2 {
-
-          margin:
-            10px 0 20px;
+          color:
+            #111111;
 
           font-size:
             clamp(
               38px,
-              6vw,
-              65px
+              5vw,
+              60px
             );
 
-          line-height: 1;
+          line-height:
+            0.98;
 
-          letter-spacing: -0.04em;
+          letter-spacing:
+            -0.045em;
         }
 
 
-        .activity-cta p:not(.eyebrow) {
+        .intro-copy h2 span {
+          color:
+            #f58a00;
+        }
 
-          max-width: 650px;
+
+        .intro-description {
+          max-width:
+            650px;
 
           margin:
-            0 auto 32px;
+            0;
+
+          color:
+            #555555;
+
+          font-size:
+            17px;
+
+          line-height:
+            1.75;
+        }
+
+
+        /* ==================================================
+           BENEFICIOS
+        ================================================== */
+
+        .benefits {
+          display:
+            grid;
+
+          grid-template-columns:
+            repeat(
+              2,
+              minmax(0, 1fr)
+            );
+
+          gap:
+            20px;
+
+          margin-top:
+            35px;
+        }
+
+
+        .benefit {
+          display:
+            flex;
+
+          align-items:
+            center;
+
+          gap:
+            13px;
+        }
+
+
+        .benefit-icon {
+          flex:
+            0 0 auto;
+
+          display:
+            flex;
+
+          align-items:
+            center;
+
+          justify-content:
+            center;
+
+          width:
+            43px;
+
+          height:
+            43px;
+
+          border-radius:
+            50%;
+
+          background:
+            #fff2e2;
+
+          color:
+            #f58a00;
+
+          font-size:
+            18px;
+
+          font-weight:
+            900;
+        }
+
+
+        .benefit strong {
+          display:
+            block;
+
+          color:
+            #222222;
+
+          font-size:
+            14px;
+        }
+
+
+        .benefit span {
+          display:
+            block;
+
+          margin-top:
+            3px;
+
+          color:
+            #888888;
+
+          font-size:
+            12px;
+        }
+
+
+        /* ==================================================
+           HORARIOS
+        ================================================== */
+
+        .activity-schedule-section {
+          padding:
+            100px 0
+            110px;
+
+          background:
+            #f2f2f3;
+        }
+
+
+        .schedule-heading {
+          display:
+            flex;
+
+          align-items:
+            flex-end;
+
+          justify-content:
+            space-between;
+
+          gap:
+            40px;
+
+          margin-bottom:
+            42px;
+        }
+
+
+        .schedule-heading h2 {
+          margin:
+            10px 0 0;
+
+          color:
+            #111111;
+
+          font-size:
+            clamp(
+              43px,
+              5vw,
+              66px
+            );
+
+          line-height:
+            0.92;
+
+          letter-spacing:
+            -0.05em;
+        }
+
+
+        .schedule-heading h2 span {
+          color:
+            #f58a00;
+        }
+
+
+        .schedule-heading > p {
+          max-width:
+            430px;
+
+          margin:
+            0;
+
+          color:
+            #666666;
+
+          font-size:
+            15px;
+
+          line-height:
+            1.6;
+
+          text-align:
+            right;
+        }
+
+
+        /* ==================================================
+           GRID HORARIOS
+        ================================================== */
+
+        .schedule-grid {
+          display:
+            grid;
+
+          /*
+           * 4 COLUMNAS
+           */
+
+          grid-template-columns:
+            repeat(
+              4,
+              minmax(
+                0,
+                1fr
+              )
+            );
+
+          gap:
+            20px;
+        }
+
+
+        /* ==================================================
+           TARJETA HORARIO
+        ================================================== */
+
+        .schedule-card {
+          min-width:
+            0;
+
+          box-sizing:
+            border-box;
+
+          padding:
+            24px 21px;
+
+          border:
+            1px solid
+            #dedede;
+
+          border-radius:
+            20px;
+
+          background:
+            #ffffff;
+
+          box-shadow:
+            0 8px 25px
+            rgba(
+              0,
+              0,
+              0,
+              0.045
+            );
+
+          transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
+        }
+
+
+        .schedule-card:hover {
+          transform:
+            translateY(-4px);
+
+          box-shadow:
+            0 15px 35px
+            rgba(
+              0,
+              0,
+              0,
+              0.08
+            );
+        }
+
+
+        .schedule-top {
+          display:
+            flex;
+
+          align-items:
+            center;
+
+          justify-content:
+            flex-start;
+
+          gap:
+            9px;
+
+          flex-wrap:
+            wrap;
+
+          min-width:
+            0;
+        }
+
+
+        .schedule-day {
+          display:
+            flex;
+
+          align-items:
+            center;
+
+          gap:
+            7px;
+
+          min-width:
+            0;
+
+          color:
+            #171717;
+
+          font-size:
+            15px;
+
+          line-height:
+            1.25;
+
+          font-weight:
+            800;
+
+          white-space:
+            nowrap;
+        }
+
+
+        .clock {
+          flex:
+            0 0 auto;
+
+          color:
+            #f58a00;
+
+          font-size:
+            19px;
+
+          line-height:
+            1;
+        }
+
+
+        .schedule-time {
+          flex:
+            0 0 auto;
+
+          color:
+            #171717;
+
+          font-size:
+            15px;
+
+          line-height:
+            1.25;
+
+          font-weight:
+            900;
+
+          white-space:
+            nowrap;
+        }
+
+
+        .schedule-time span {
+          margin:
+            0 3px;
+
+          color:
+            #888888;
+        }
+
+
+        .schedule-level {
+          display:
+            inline-block;
+
+          max-width:
+            100%;
+
+          box-sizing:
+            border-box;
+
+          margin-top:
+            22px;
+
+          padding:
+            7px 12px;
+
+          border-radius:
+            999px;
+
+          background:
+            #111111;
+
+          color:
+            #ffffff;
+
+          font-size:
+            11px;
+
+          font-weight:
+            800;
+
+          line-height:
+            1.25;
+
+          overflow-wrap:
+            anywhere;
+        }
+
+
+        .schedule-line {
+          height:
+            1px;
+
+          margin:
+            20px 0;
+
+          background:
+            #eeeeee;
+        }
+
+
+        .schedule-teacher span {
+          display:
+            block;
+
+          margin-bottom:
+            6px;
+
+          color:
+            #999999;
+
+          font-size:
+            9px;
+
+          font-weight:
+            800;
+
+          letter-spacing:
+            0.16em;
+        }
+
+
+        .schedule-teacher strong {
+          display:
+            block;
+
+          color:
+            #333333;
+
+          font-size:
+            14px;
+
+          line-height:
+            1.4;
+
+          overflow-wrap:
+            anywhere;
+        }
+
+
+        .no-schedule {
+          padding:
+            45px 30px;
+
+          border:
+            1px solid
+            #dddddd;
+
+          border-radius:
+            20px;
+
+          background:
+            #ffffff;
+
+          color:
+            #666666;
+
+          text-align:
+            center;
+        }
+
+
+        /* ==================================================
+           PROFESORES
+        ================================================== */
+
+        .activity-teachers {
+          padding:
+            95px 0;
+
+          background:
+            #ffffff;
+        }
+
+
+        .teachers-heading {
+          display:
+            flex;
+
+          align-items:
+            flex-end;
+
+          justify-content:
+            space-between;
+
+          gap:
+            40px;
+
+          margin-bottom:
+            45px;
+        }
+
+
+        .teachers-heading h2 {
+          margin:
+            10px 0 0;
+
+          color:
+            #111111;
+
+          font-size:
+            clamp(
+              40px,
+              5vw,
+              62px
+            );
+
+          line-height:
+            0.95;
+
+          letter-spacing:
+            -0.045em;
+        }
+
+
+        .teachers-heading h2 span {
+          color:
+            #f58a00;
+        }
+
+
+        .teachers-heading > p {
+          max-width:
+            420px;
+
+          margin:
+            0;
+
+          color:
+            #666666;
+
+          font-size:
+            15px;
+
+          line-height:
+            1.6;
+        }
+
+
+        .teachers-grid {
+          display:
+            grid;
+
+          grid-template-columns:
+            repeat(
+              3,
+              minmax(
+                0,
+                1fr
+              )
+            );
+
+          gap:
+            25px;
+        }
+
+
+        .teacher-card {
+          display:
+            grid;
+
+          grid-template-columns:
+            130px
+            1fr;
+
+          align-items:
+            center;
+
+          gap:
+            22px;
+
+          padding:
+            20px;
+
+          border:
+            1px solid
+            #eeeeee;
+
+          border-radius:
+            22px;
+
+          background:
+            #ffffff;
+
+          box-shadow:
+            0 8px 25px
+            rgba(
+              0,
+              0,
+              0,
+              0.045
+            );
+        }
+
+
+        .teacher-photo {
+          overflow:
+            hidden;
+
+          width:
+            130px;
+
+          height:
+            130px;
+
+          border-radius:
+            50%;
+
+          border:
+            4px solid
+            #f58a00;
+
+          background:
+            #eeeeee;
+        }
+
+
+        .teacher-photo img {
+          display:
+            block;
+
+          width:
+            100%;
+
+          height:
+            100%;
+
+          object-fit:
+            cover;
+        }
+
+
+        .teacher-info h3 {
+          margin:
+            0 0 6px;
+
+          color:
+            #111111;
+
+          font-size:
+            25px;
+        }
+
+
+        .teacher-info > span {
+          display:
+            block;
+
+          color:
+            #999999;
+
+          font-size:
+            9px;
+
+          font-weight:
+            800;
+
+          letter-spacing:
+            0.12em;
+        }
+
+
+        .teacher-info p {
+          margin:
+            13px 0 0;
+
+          color:
+            #666666;
+
+          font-size:
+            13px;
+
+          line-height:
+            1.55;
+        }
+
+
+        /* ==================================================
+           CTA
+        ================================================== */
+
+        .activity-cta {
+          position:
+            relative;
+
+          overflow:
+            hidden;
+
+          padding:
+            95px 0;
+
+          background:
+            radial-gradient(
+              circle at 85% 50%,
+              rgba(
+                245,
+                138,
+                0,
+                0.24
+              ),
+              transparent 30%
+            ),
+            radial-gradient(
+              circle at 10% 100%,
+              rgba(
+                135,
+                0,
+                160,
+                0.25
+              ),
+              transparent 35%
+            ),
+            #070707;
+
+          color:
+            #ffffff;
+        }
+
+
+        .cta-glow {
+          position:
+            absolute;
+
+          width:
+            400px;
+
+          height:
+            400px;
+
+          right:
+            -200px;
+
+          top:
+            -200px;
+
+          border-radius:
+            50%;
+
+          background:
+            rgba(
+              245,
+              138,
+              0,
+              0.12
+            );
+
+          filter:
+            blur(70px);
+        }
+
+
+        .cta-grid {
+          display:
+            grid;
+
+          grid-template-columns:
+            1fr
+            0.75fr;
+
+          gap:
+            70px;
+
+          align-items:
+            center;
+        }
+
+
+        .activity-cta h2 {
+          margin:
+            12px 0 0;
+
+          font-size:
+            clamp(
+              48px,
+              6vw,
+              76px
+            );
+
+          line-height:
+            0.9;
+
+          letter-spacing:
+            -0.05em;
+        }
+
+
+        .activity-cta h2 span {
+          color:
+            #f58a00;
+        }
+
+
+        .cta-content p {
+          max-width:
+            500px;
+
+          margin:
+            0 0 28px;
 
           color:
             rgba(
               255,
               255,
               255,
-              0.8
+              0.76
             );
 
-          font-size: 18px;
+          font-size:
+            17px;
 
-          line-height: 1.7;
+          line-height:
+            1.7;
         }
 
 
-        /* ================================================
+        .cta-button {
+          display:
+            inline-flex;
+
+          align-items:
+            center;
+
+          justify-content:
+            center;
+
+          gap:
+            18px;
+
+          min-height:
+            52px;
+
+          padding:
+            0 24px;
+
+          border-radius:
+            999px;
+
+          background:
+            #f58a00;
+
+          color:
+            #111111;
+
+          font-size:
+            11px;
+
+          font-weight:
+            900;
+
+          letter-spacing:
+            0.07em;
+
+          text-decoration:
+            none;
+
+          transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
+        }
+
+
+        .cta-button span {
+          font-size:
+            18px;
+        }
+
+
+        .cta-button:hover {
+          transform:
+            translateY(-3px);
+
+          box-shadow:
+            0 12px 30px
+            rgba(
+              245,
+              138,
+              0,
+              0.22
+            );
+        }
+
+
+        /* ==================================================
            TABLET
-        ================================================ */
+        ================================================== */
 
-        @media (max-width: 1050px) {
+        @media (max-width: 1100px) {
 
-          .horarios-grid {
+          .hero-layout {
+            grid-template-columns:
+              1fr
+              0.9fr;
 
+            gap:
+              35px;
+          }
+
+
+          .schedule-grid {
             grid-template-columns:
               repeat(
                 2,
-                minmax(0, 1fr)
+                minmax(
+                  0,
+                  1fr
+                )
               );
-
-          }
-
-        }
-
-
-        /* ================================================
-           MÓVIL
-        ================================================ */
-
-        @media (max-width: 800px) {
-
-          .activity-hero {
-
-            padding:
-              35px 0 65px;
-
-          }
-
-
-          .activity-logo {
-
-            margin-bottom:
-              22px;
-
-          }
-
-
-          .activity-logo a {
-
-            width: 78px;
-            height: 78px;
-
-          }
-
-
-          .activity-logo img {
-
-            width: 66px;
-            height: 66px;
-
-          }
-
-
-          .activity-content {
-
-            padding:
-              60px 0;
-
-          }
-
-
-          .activity-grid {
-
-            grid-template-columns:
-              1fr;
-
-            gap: 40px;
-
-          }
-
-
-          .actividad-horarios {
-
-            padding:
-              65px 0 75px;
-
-          }
-
-
-          .horarios-header {
-
-            display: block;
-
-            margin-bottom:
-              30px;
-
-          }
-
-
-          .horarios-header h2 {
-
-            font-size:
-              48px;
-
-          }
-
-
-          .horarios-descripcion {
-
-            max-width:
-              600px;
-
-            margin-top:
-              18px;
-
-            text-align:
-              left;
-
-          }
-
-
-          .horarios-grid {
-
-            grid-template-columns:
-              1fr;
-
-            gap: 16px;
-
-          }
-
-
-          .horario-card {
-
-            padding:
-              24px 22px;
-
-          }
-
-
-          .horario-top {
-
-            gap:
-              9px 14px;
-
-          }
-
-
-          .horario-dia,
-          .horario-hora {
-
-            font-size:
-              17px;
-
-          }
-
-
-          .activity-teachers {
-
-            padding:
-              65px 0;
-
           }
 
 
           .teachers-grid {
-
             grid-template-columns:
               1fr;
-
           }
 
 
-          .activity-cta {
-
-            padding:
-              75px 0;
-
+          .teacher-card {
+            grid-template-columns:
+              120px
+              1fr;
           }
 
         }
 
 
-        /* ================================================
-           MÓVIL PEQUEÑO
-        ================================================ */
+        /* ==================================================
+           MÓVIL
+        ================================================== */
 
-        @media (max-width: 430px) {
+        @media (max-width: 800px) {
 
           .activity-container {
-
             width:
               min(
                 100% - 32px,
                 1180px
               );
-
           }
 
 
-          .activity-hero h1 {
+          .activity-hero {
+            padding:
+              25px 0 70px;
+          }
 
+
+          .activity-logo a {
+            width:
+              125px;
+
+            height:
+              125px;
+          }
+
+
+          .activity-logo img {
+            width:
+              110px;
+
+            height:
+              110px;
+          }
+
+
+          .activity-back {
+            margin-bottom:
+              35px;
+          }
+
+
+          .hero-layout {
+            grid-template-columns:
+              1fr;
+          }
+
+
+          .hero-copy h1 {
             font-size:
-              45px;
-
+              clamp(
+                50px,
+                14vw,
+                75px
+              );
           }
 
 
-          .horarios-header h2 {
-
-            font-size:
-              42px;
-
+          .hero-visual {
+            padding:
+              0;
           }
 
 
-          .horario-card {
-
+          .hero-image-frame {
             border-radius:
+              22px;
+          }
+
+
+          .hero-circle {
+            left:
+              15px;
+
+            bottom:
+              -25px;
+
+            width:
+              90px;
+
+            height:
+              90px;
+          }
+
+
+          .activity-intro-section {
+            padding:
+              70px 0;
+          }
+
+
+          .intro-grid {
+            grid-template-columns:
+              1fr;
+
+            gap:
+              45px;
+          }
+
+
+          .benefits {
+            grid-template-columns:
+              1fr;
+          }
+
+
+          .activity-schedule-section {
+            padding:
+              70px 0 80px;
+          }
+
+
+          .schedule-heading {
+            display:
+              block;
+          }
+
+
+          .schedule-heading > p {
+            margin-top:
               18px;
 
+            text-align:
+              left;
+          }
+
+
+          .schedule-grid {
+            grid-template-columns:
+              1fr;
+
+            gap:
+              15px;
+          }
+
+
+          .schedule-card {
             padding:
-              22px 19px;
-
+              23px 21px;
           }
 
 
-          .horario-dia,
-          .horario-hora {
-
-            font-size:
-              16px;
-
+          .activity-teachers {
+            padding:
+              70px 0;
           }
 
 
-          .horario-profesor {
+          .teachers-heading {
+            display:
+              block;
+          }
 
+
+          .teachers-heading > p {
             margin-top:
-              25px;
+              18px;
+          }
 
+
+          .teacher-card {
+            grid-template-columns:
+              100px
+              1fr;
+
+            gap:
+              18px;
+          }
+
+
+          .teacher-photo {
+            width:
+              100px;
+
+            height:
+              100px;
+          }
+
+
+          .cta-grid {
+            grid-template-columns:
+              1fr;
+
+            gap:
+              30px;
+          }
+
+
+          .activity-cta {
+            padding:
+              75px 0;
+          }
+
+        }
+
+
+        /* ==================================================
+           MÓVIL PEQUEÑO
+        ================================================== */
+
+        @media (max-width: 450px) {
+
+          .hero-actions {
+            align-items:
+              flex-start;
+
+            flex-direction:
+              column;
+
+            gap:
+              18px;
+          }
+
+
+          .hero-copy h1 {
+            font-size:
+              52px;
+          }
+
+
+          .schedule-day,
+          .schedule-time {
+            font-size:
+              15px;
+          }
+
+
+          .teacher-card {
+            grid-template-columns:
+              82px
+              1fr;
+
+            padding:
+              15px;
+          }
+
+
+          .teacher-photo {
+            width:
+              82px;
+
+            height:
+              82px;
+          }
+
+
+          .teacher-info h3 {
+            font-size:
+              21px;
+          }
+
+
+          .activity-cta h2 {
+            font-size:
+              52px;
           }
 
         }
@@ -1637,6 +2708,5 @@ export default async function ActividadPage({
 
 
     </main>
-
   );
 }
