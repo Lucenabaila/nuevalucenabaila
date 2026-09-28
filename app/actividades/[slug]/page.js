@@ -968,35 +968,28 @@ export default async function ActividadPage({
          */
 
         .hero-poster-background {
-          position: absolute;
+  position: absolute;
 
-          z-index: 0;
+  z-index: 0;
 
-          inset:
-            -18% -10% -12% 25%;
+  inset: -25% -5% -25% 15%;
 
-          background-position:
-            center;
+  background-position: center top;
 
-          background-size:
-            cover;
+  background-size: cover;
 
-          background-repeat:
-            no-repeat;
+  background-repeat: no-repeat;
 
-          opacity:
-            0.24;
+  opacity: 0.48;
 
-          filter:
-            blur(18px)
-            saturate(1.25);
+  filter:
+    blur(12px)
+    saturate(1.35);
 
-          transform:
-            scale(1.12);
+  transform: scale(1.08);
 
-          pointer-events:
-            none;
-        }
+  pointer-events: none;
+}
 
 
         /*
@@ -1005,54 +998,51 @@ export default async function ActividadPage({
          */
 
         .hero-overlay {
-          position: absolute;
+  position: absolute;
 
-          z-index: 1;
+  z-index: 1;
 
-          inset: 0;
+  inset: 0;
 
-          background:
-            linear-gradient(
-              90deg,
-              rgba(5,5,5,0.98) 0%,
-              rgba(5,5,5,0.90) 38%,
-              rgba(5,5,5,0.63) 70%,
-              rgba(5,5,5,0.76) 100%
-            );
+  background:
+    linear-gradient(
+      90deg,
+      rgba(5, 5, 5, 0.96) 0%,
+      rgba(5, 5, 5, 0.72) 32%,
+      rgba(5, 5, 5, 0.38) 62%,
+      rgba(5, 5, 5, 0.58) 100%
+    );
 
-          pointer-events:
-            none;
-        }
+  pointer-events: none;
+}
 
 
         /*
          * DEGRADADO INFERIOR
          */
 
-        .activity-hero::after {
-          content: "";
+       .activity-hero::after {
+  content: "";
 
-          position: absolute;
+  position: absolute;
 
-          z-index: 2;
+  z-index: 2;
 
-          left: 0;
-          right: 0;
-          bottom: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 
-          height: 130px;
+  height: 90px;
 
-          background:
-            linear-gradient(
-              to bottom,
-              transparent,
-              #050505
-            );
+  background:
+    linear-gradient(
+      to bottom,
+      transparent,
+      #050505
+    );
 
-          pointer-events:
-            none;
-        }
-
+  pointer-events: none;
+}
 
         .hero-glow {
           position: absolute;
