@@ -54,7 +54,6 @@ async function obtenerDatos() {
     }),
   ]);
 
-
   if (
     !actividadesRes.ok ||
     !horariosRes.ok ||
@@ -65,7 +64,6 @@ async function obtenerDatos() {
     );
   }
 
-
   const actividadesData =
     await actividadesRes.json();
 
@@ -74,7 +72,6 @@ async function obtenerDatos() {
 
   const profesoresData =
     await profesoresRes.json();
-
 
   return {
     actividades:
@@ -106,18 +103,15 @@ async function obtenerActividad(slug) {
     profesores,
   } = await obtenerDatos();
 
-
   const actividad =
     actividades.find(
       (item) =>
         slugify(item.nombre) === slug
     );
 
-
   if (!actividad) {
     return null;
   }
-
 
   const horariosActividad =
     horarios.filter(
@@ -125,7 +119,6 @@ async function obtenerActividad(slug) {
         Number(horario.actividad_id) ===
         Number(actividad.id)
     );
-
 
   const profesoresActividad =
     profesores.filter(
@@ -138,7 +131,6 @@ async function obtenerActividad(slug) {
             )
           : false
     );
-
 
   return {
     actividad,
@@ -160,7 +152,6 @@ export async function generateMetadata({
   const datos =
     await obtenerActividad(slug);
 
-
   if (!datos) {
     return {
       title:
@@ -173,15 +164,12 @@ export async function generateMetadata({
     };
   }
 
-
   const nombre =
     datos.actividad.nombre;
-
 
   const description =
     datos.actividad.descripcion ||
     `Clases de ${nombre} en Lucena en Artes Escénicas Paradise.`;
-
 
   return {
     title:
@@ -228,22 +216,18 @@ export default async function ActividadPage({
 }) {
   const { slug } = await params;
 
-
   const datos =
     await obtenerActividad(slug);
-
 
   if (!datos) {
     notFound();
   }
-
 
   const {
     actividad,
     horarios,
     profesores,
   } = datos;
-
 
   return (
     <main className="activity-page">
@@ -256,7 +240,7 @@ export default async function ActividadPage({
       <section className="activity-hero">
 
 
-        {/* CARTEL COMO FONDO */}
+        {/* FONDO DEL CARTEL DIFUMINADO */}
 
         {actividad.imagen && (
           <div
@@ -274,7 +258,7 @@ export default async function ActividadPage({
         <div className="hero-overlay" />
 
 
-        {/* BRILLOS */}
+        {/* LUCES */}
 
         <div className="hero-glow hero-glow-one" />
 
@@ -316,6 +300,10 @@ export default async function ActividadPage({
             ← Volver a la escuela
           </a>
 
+
+          {/* ==================================================
+              HERO PRINCIPAL
+          ================================================== */}
 
           <div className="hero-layout">
 
@@ -372,7 +360,7 @@ export default async function ActividadPage({
 
 
             {/* ==================================================
-                CARTEL DERECHO
+                CARTEL
             ================================================== */}
 
             <div className="hero-visual">
@@ -426,6 +414,8 @@ export default async function ActividadPage({
           <div className="intro-grid">
 
 
+            {/* IMAGEN */}
+
             <div className="intro-image">
 
               {actividad.imagen ? (
@@ -438,15 +428,15 @@ export default async function ActividadPage({
               ) : (
 
                 <div className="intro-placeholder">
-
                   {actividad.nombre}
-
                 </div>
 
               )}
 
             </div>
 
+
+            {/* TEXTO */}
 
             <div className="intro-copy">
 
@@ -636,6 +626,7 @@ export default async function ActividadPage({
                       key={horario.id}
                     >
 
+
                       <div className="schedule-top">
 
                         <div className="schedule-day">
@@ -673,9 +664,7 @@ export default async function ActividadPage({
                       {horario.nivel && (
 
                         <div className="schedule-level">
-
                           {horario.nivel}
-
                         </div>
 
                       )}
@@ -950,9 +939,7 @@ export default async function ActividadPage({
           position: relative;
           overflow: hidden;
 
-          padding:
-            25px 0
-            95px;
+          padding: 25px 0 95px;
 
           background: #050505;
 
@@ -961,8 +948,7 @@ export default async function ActividadPage({
 
 
         /* ==================================================
-           CARTEL DIFUMINADO DE FONDO
-           AHORA MÁS VISIBLE Y MENOS BORROSO
+           FONDO DEL CARTEL
         ================================================== */
 
         .hero-poster-background {
@@ -970,52 +956,30 @@ export default async function ActividadPage({
 
           z-index: 0;
 
-          /*
-           * El cartel se desplaza hacia la derecha
-           * para que la zona izquierda quede más
-           * limpia para el texto.
-           */
+          inset: -35% -15% -30% 5%;
 
-          inset:
-            -30%
-            -8%
-            -25%
-            12%;
+          background-position: center top;
 
-          background-position:
-            center 20%;
+          background-size: cover;
 
-          background-size:
-            cover;
+          background-repeat: no-repeat;
 
-          background-repeat:
-            no-repeat;
-
-          /*
-           * Más visible que antes.
-           */
-
-          opacity:
-            0.52;
-
-          /*
-           * Menos desenfoque.
-           */
+          opacity: 0.42;
 
           filter:
-            blur(9px)
-            saturate(1.35);
+            blur(10px)
+            saturate(1.45);
 
           transform:
-            scale(1.06);
+            scale(1.15)
+            rotate(-2deg);
 
-          pointer-events:
-            none;
+          pointer-events: none;
         }
 
 
         /* ==================================================
-           CAPA OSCURA
+           OSCURECER FONDO
         ================================================== */
 
         .hero-overlay {
@@ -1025,29 +989,21 @@ export default async function ActividadPage({
 
           inset: 0;
 
-          /*
-           * Izquierda más oscura para el texto.
-           * Derecha más transparente para que se
-           * aprecie el cartel.
-           */
-
           background:
             linear-gradient(
               90deg,
               rgba(5, 5, 5, 0.96) 0%,
-              rgba(5, 5, 5, 0.82) 28%,
-              rgba(5, 5, 5, 0.52) 53%,
-              rgba(5, 5, 5, 0.38) 72%,
+              rgba(5, 5, 5, 0.72) 32%,
+              rgba(5, 5, 5, 0.38) 62%,
               rgba(5, 5, 5, 0.58) 100%
             );
 
-          pointer-events:
-            none;
+          pointer-events: none;
         }
 
 
         /* ==================================================
-           FUSIÓN INFERIOR
+           DEGRADADO INFERIOR
         ================================================== */
 
         .activity-hero::after {
@@ -1061,7 +1017,7 @@ export default async function ActividadPage({
           right: 0;
           bottom: 0;
 
-          height: 95px;
+          height: 90px;
 
           background:
             linear-gradient(
@@ -1070,13 +1026,12 @@ export default async function ActividadPage({
               #050505
             );
 
-          pointer-events:
-            none;
+          pointer-events: none;
         }
 
 
         /* ==================================================
-           BRILLOS
+           LUCES
         ================================================== */
 
         .hero-glow {
@@ -1088,53 +1043,40 @@ export default async function ActividadPage({
 
           pointer-events: none;
 
-          filter:
-            blur(80px);
+          filter: blur(80px);
         }
 
 
         .hero-glow-one {
-          width:
-            350px;
+          width: 350px;
+          height: 350px;
 
-          height:
-            350px;
-
-          right:
-            -100px;
-
-          top:
-            100px;
+          right: -100px;
+          top: 120px;
 
           background:
             rgba(
               255,
               119,
               0,
-              0.17
+              0.18
             );
         }
 
 
         .hero-glow-two {
-          width:
-            300px;
+          width: 300px;
+          height: 300px;
 
-          height:
-            300px;
-
-          left:
-            -150px;
-
-          bottom:
-            -120px;
+          left: -150px;
+          bottom: -120px;
 
           background:
             rgba(
               155,
               0,
               180,
-              0.18
+              0.20
             );
         }
 
@@ -1144,44 +1086,31 @@ export default async function ActividadPage({
         ================================================== */
 
         .activity-logo {
-          position:
-            relative;
+          position: relative;
 
-          z-index:
-            5;
+          z-index: 5;
 
-          display:
-            flex;
+          display: flex;
 
-          justify-content:
-            center;
+          justify-content: center;
 
-          align-items:
-            center;
+          align-items: center;
 
-          margin-bottom:
-            20px;
+          margin-bottom: 10px;
         }
 
 
         .activity-logo a {
-          display:
-            flex;
+          display: flex;
 
-          align-items:
-            center;
+          align-items: center;
 
-          justify-content:
-            center;
+          justify-content: center;
 
-          width:
-            150px;
+          width: 135px;
+          height: 135px;
 
-          height:
-            150px;
-
-          border-radius:
-            50%;
+          border-radius: 50%;
 
           background:
             radial-gradient(
@@ -1197,7 +1126,7 @@ export default async function ActividadPage({
               255,
               111,
               0,
-              0.18
+              0.16
             );
 
           transition:
@@ -1207,8 +1136,7 @@ export default async function ActividadPage({
 
 
         .activity-logo a:hover {
-          transform:
-            scale(1.04);
+          transform: scale(1.04);
 
           box-shadow:
             0 0 55px
@@ -1216,23 +1144,18 @@ export default async function ActividadPage({
               255,
               111,
               0,
-              0.28
+              0.25
             );
         }
 
 
         .activity-logo img {
-          display:
-            block;
+          display: block;
 
-          width:
-            132px;
+          width: 120px;
+          height: 120px;
 
-          height:
-            132px;
-
-          object-fit:
-            contain;
+          object-fit: contain;
         }
 
 
@@ -1241,32 +1164,23 @@ export default async function ActividadPage({
         ================================================== */
 
         .activity-back {
-          position:
-            relative;
+          position: relative;
 
-          z-index:
-            5;
+          z-index: 5;
 
-          display:
-            inline-block;
+          display: inline-block;
 
-          margin-bottom:
-            35px;
+          margin-bottom: 35px;
 
-          color:
-            #ffffff;
+          color: #ffffff;
 
-          text-decoration:
-            none;
+          text-decoration: none;
 
-          font-size:
-            14px;
+          font-size: 14px;
 
-          font-weight:
-            700;
+          font-weight: 700;
 
-          opacity:
-            0.8;
+          opacity: 0.82;
 
           transition:
             opacity 0.2s ease,
@@ -1275,49 +1189,44 @@ export default async function ActividadPage({
 
 
         .activity-back:hover {
-          opacity:
-            1;
+          opacity: 1;
 
-          transform:
-            translateX(-3px);
+          transform: translateX(-3px);
         }
 
 
         /* ==================================================
-           HERO
+           HERO LAYOUT
         ================================================== */
 
         .hero-layout {
-          position:
-            relative;
+          position: relative;
 
-          z-index:
-            5;
+          z-index: 5;
 
-          display:
-            grid;
+          display: grid;
 
           grid-template-columns:
-            minmax(0, 1fr)
-            minmax(330px, 0.78fr);
+            minmax(0, 0.95fr)
+            minmax(400px, 1.05fr);
 
-          gap:
-            55px;
+          gap: 35px;
 
-          align-items:
-            center;
+          align-items: center;
         }
 
 
+        /* ==================================================
+           TEXTO HERO
+        ================================================== */
+
         .hero-eyebrow {
-          color:
-            #f5a000;
+          color: #f5a000;
         }
 
 
         .hero-copy h1 {
-          margin:
-            14px 0 25px;
+          margin: 14px 0 25px;
 
           font-size:
             clamp(
@@ -1326,112 +1235,84 @@ export default async function ActividadPage({
               94px
             );
 
-          line-height:
-            0.88;
+          line-height: 0.88;
 
-          letter-spacing:
-            -0.055em;
+          letter-spacing: -0.055em;
         }
 
 
         .hero-copy h1 span {
-          display:
-            block;
+          display: block;
 
-          color:
-            #ffffff;
+          color: #ffffff;
         }
 
 
         .hero-copy h1 em {
-          display:
-            block;
+          display: block;
 
-          color:
-            #f58a00;
+          color: #f58a00;
 
-          font-style:
-            normal;
+          font-style: normal;
         }
 
 
         .activity-intro {
-          max-width:
-            620px;
+          max-width: 620px;
 
-          margin:
-            0;
+          margin: 0;
 
           color:
             rgba(
               255,
               255,
               255,
-              0.84
+              0.86
             );
 
-          font-size:
-            18px;
+          font-size: 17px;
 
-          line-height:
-            1.7;
+          line-height: 1.7;
         }
 
 
         .hero-actions {
-          display:
-            flex;
+          display: flex;
 
-          align-items:
-            center;
+          align-items: center;
 
-          gap:
-            25px;
+          gap: 25px;
 
-          margin-top:
-            35px;
+          margin-top: 35px;
 
-          flex-wrap:
-            wrap;
+          flex-wrap: wrap;
         }
 
 
         .hero-button {
-          display:
-            inline-flex;
+          display: inline-flex;
 
-          align-items:
-            center;
+          align-items: center;
 
-          justify-content:
-            center;
+          justify-content: center;
 
-          min-height:
-            48px;
+          min-height: 48px;
 
-          padding:
-            0 24px;
+          padding: 0 24px;
 
-          border-radius:
-            999px;
+          border-radius: 999px;
 
-          background:
-            #f58a00;
+          background: #f5a000;
 
-          color:
-            #111111;
+          color: #111111;
 
-          font-size:
-            12px;
+          font-size: 12px;
 
-          font-weight:
-            900;
+          font-weight: 900;
 
-          letter-spacing:
-            0.08em;
+          letter-spacing: 0.08em;
 
-          text-decoration:
-            none;
+          text-decoration: none;
 
           transition:
             transform 0.2s ease,
@@ -1440,8 +1321,7 @@ export default async function ActividadPage({
 
 
         .hero-button:hover {
-          transform:
-            translateY(-2px);
+          transform: translateY(-2px);
 
           box-shadow:
             0 10px 25px
@@ -1455,165 +1335,195 @@ export default async function ActividadPage({
 
 
         .hero-link {
-          color:
-            #ffffff;
+          color: #ffffff;
 
-          font-size:
-            14px;
+          font-size: 14px;
 
-          font-weight:
-            700;
+          font-weight: 700;
 
-          text-decoration:
-            none;
+          text-decoration: none;
 
-          opacity:
-            0.85;
+          opacity: 0.85;
         }
 
 
         .hero-link:hover {
-          opacity:
-            1;
+          opacity: 1;
         }
 
 
         /* ==================================================
-           CARTEL DERECHO
-           MÁS PEQUEÑO
+           CARTEL DELANTERO
         ================================================== */
 
         .hero-visual {
-  position: relative;
+          position: relative;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+          display: flex;
 
-  min-height: 560px;
+          align-items: center;
 
-  padding: 20px 0 40px 20px;
+          justify-content: center;
 
-  overflow: visible;
+          min-height: 560px;
 
-  transform: rotate(-4deg) translate(18px, 5px);
+          padding:
+            20px
+            0
+            40px
+            20px;
 
-  transform-origin: center center;
-}
+          overflow: visible;
+
+          transform:
+            rotate(-4deg)
+            translate(18px, 5px);
+
+          transform-origin:
+            center center;
+        }
 
 
-       .hero-image-frame {
-  position: relative;
+        .hero-image-frame {
+          position: relative;
 
-  width: 108%;
+          width: 108%;
 
-  height: 610px;
+          height: 610px;
 
-  overflow: hidden;
+          overflow: hidden;
 
-  border-radius: 32px;
+          border-radius: 32px;
 
-  border: 1px solid rgba(255, 140, 0, 0.65);
+          border:
+            1px solid
+            rgba(
+              255,
+              140,
+              0,
+              0.65
+            );
 
-  background: #111111;
+          background: #111111;
 
-  box-shadow:
-    0 30px 80px rgba(0, 0, 0, 0.65),
-    0 0 35px rgba(255, 100, 0, 0.16);
+          box-shadow:
+            0 30px 80px
+            rgba(
+              0,
+              0,
+              0,
+              0.65
+            ),
 
-  transform: translateX(25px);
+            0 0 35px
+            rgba(
+              255,
+              100,
+              0,
+              0.16
+            );
 
-  isolation: isolate;
-}
+          transform:
+            translateX(25px);
+
+          isolation: isolate;
+        }
+
 
         /*
-         * El cartel se amplía y se desplaza hacia
-         * arriba. De esta forma vemos principalmente
-         * la parte superior.
+         * OSCURECE / RECORTA LA PARTE INFERIOR
          */
 
-        .hero-image-frame img {
-  display: block;
+        .hero-image-frame::before {
+          content: "";
 
-  width: 100%;
+          position: absolute;
 
-  height: 100%;
+          left: -10%;
+          right: -10%;
+          bottom: -2px;
 
-  object-fit: cover;
+          height: 28%;
 
-  object-position: center top;
-
-  transform: scale(1.03);
-}
-
-
-        /*
-         * Pequeña capa para integrar el cartel
-         * con el fondo.
-         */
-
-        .hero-image-frame::after {
-          content:
-            "";
-
-          position:
-            absolute;
-
-          inset:
-            0;
+          z-index: 2;
 
           background:
             linear-gradient(
-              180deg,
+              to bottom,
+              transparent 0%,
               rgba(
-                0,
-                0,
-                0,
-                0.02
-              ),
-              rgba(
-                0,
-                0,
-                0,
-                0.12
-              ) 75%,
-              rgba(
-                0,
-                0,
-                0,
-                0.45
-              )
+                5,
+                5,
+                5,
+                0.35
+              ) 45%,
+              #050505 100%
             );
 
-          pointer-events:
-            none;
+          pointer-events: none;
+        }
+
+
+        /*
+         * BRILLO SUPERIOR
+         */
+
+        .hero-image-frame::after {
+          content: "";
+
+          position: absolute;
+
+          inset: 0;
+
+          z-index: 3;
+
+          background:
+            linear-gradient(
+              135deg,
+              rgba(
+                255,
+                140,
+                0,
+                0.12
+              ),
+              transparent 38%
+            );
+
+          pointer-events: none;
+        }
+
+
+        .hero-image-frame img {
+          display: block;
+
+          width: 100%;
+
+          height: 100%;
+
+          object-fit: cover;
+
+          object-position: center top;
+
+          transform: scale(1.03);
         }
 
 
         .hero-image-placeholder {
-          height:
-            465px;
+          min-height: 500px;
 
-          display:
-            flex;
+          display: flex;
 
-          align-items:
-            center;
+          align-items: center;
 
-          justify-content:
-            center;
+          justify-content: center;
 
-          background:
-            #111111;
+          background: #111111;
 
-          color:
-            #ffffff;
+          color: #ffffff;
 
-          font-size:
-            38px;
+          font-size: 38px;
 
-          font-weight:
-            900;
+          font-weight: 900;
         }
 
 
@@ -1622,32 +1532,25 @@ export default async function ActividadPage({
         ================================================== */
 
         .hero-circle {
-          position:
-            absolute;
+          position: absolute;
 
-          left:
-            -35px;
+          left: -25px;
 
-          bottom:
-            -28px;
+          bottom: -10px;
 
-          display:
-            flex;
+          z-index: 6;
 
-          align-items:
-            center;
+          display: flex;
 
-          justify-content:
-            center;
+          align-items: center;
 
-          width:
-            105px;
+          justify-content: center;
 
-          height:
-            105px;
+          width: 105px;
 
-          border-radius:
-            50%;
+          height: 105px;
+
+          border-radius: 50%;
 
           border:
             1px solid
@@ -1655,23 +1558,18 @@ export default async function ActividadPage({
               245,
               138,
               0,
-              0.6
+              0.7
             );
 
-          background:
-            #050505;
+          background: #050505;
 
-          color:
-            #f58a00;
+          color: #f58a00;
 
-          font-size:
-            10px;
+          font-size: 10px;
 
-          font-weight:
-            900;
+          font-weight: 900;
 
-          letter-spacing:
-            0.16em;
+          letter-spacing: 0.16em;
 
           box-shadow:
             0 0 30px
@@ -1689,39 +1587,31 @@ export default async function ActividadPage({
         ================================================== */
 
         .activity-intro-section {
-          padding:
-            100px 0;
+          padding: 100px 0;
 
-          background:
-            #ffffff;
+          background: #ffffff;
         }
 
 
         .intro-grid {
-          display:
-            grid;
+          display: grid;
 
           grid-template-columns:
             minmax(0, 0.9fr)
             minmax(0, 1.1fr);
 
-          gap:
-            75px;
+          gap: 75px;
 
-          align-items:
-            center;
+          align-items: center;
         }
 
 
         .intro-image {
-          overflow:
-            hidden;
+          overflow: hidden;
 
-          border-radius:
-            25px;
+          border-radius: 25px;
 
-          background:
-            #f2f2f2;
+          background: #f2f2f2;
 
           box-shadow:
             0 20px 55px
@@ -1735,50 +1625,37 @@ export default async function ActividadPage({
 
 
         .intro-image img {
-          display:
-            block;
+          display: block;
 
-          width:
-            100%;
+          width: 100%;
 
-          height:
-            auto;
+          height: auto;
         }
 
 
         .intro-placeholder {
-          min-height:
-            450px;
+          min-height: 450px;
 
-          display:
-            flex;
+          display: flex;
 
-          align-items:
-            center;
+          align-items: center;
 
-          justify-content:
-            center;
+          justify-content: center;
 
-          background:
-            #111111;
+          background: #111111;
 
-          color:
-            #ffffff;
+          color: #ffffff;
 
-          font-size:
-            40px;
+          font-size: 40px;
 
-          font-weight:
-            900;
+          font-weight: 900;
         }
 
 
         .intro-copy h2 {
-          margin:
-            12px 0 22px;
+          margin: 12px 0 22px;
 
-          color:
-            #111111;
+          color: #111111;
 
           font-size:
             clamp(
@@ -1787,35 +1664,27 @@ export default async function ActividadPage({
               60px
             );
 
-          line-height:
-            0.98;
+          line-height: 0.98;
 
-          letter-spacing:
-            -0.045em;
+          letter-spacing: -0.045em;
         }
 
 
         .intro-copy h2 span {
-          color:
-            #f58a00;
+          color: #f58a00;
         }
 
 
         .intro-description {
-          max-width:
-            650px;
+          max-width: 650px;
 
-          margin:
-            0;
+          margin: 0;
 
-          color:
-            #555555;
+          color: #555555;
 
-          font-size:
-            17px;
+          font-size: 17px;
 
-          line-height:
-            1.75;
+          line-height: 1.75;
         }
 
 
@@ -1824,8 +1693,7 @@ export default async function ActividadPage({
         ================================================== */
 
         .benefits {
-          display:
-            grid;
+          display: grid;
 
           grid-template-columns:
             repeat(
@@ -1836,86 +1704,63 @@ export default async function ActividadPage({
               )
             );
 
-          gap:
-            20px;
+          gap: 20px;
 
-          margin-top:
-            35px;
+          margin-top: 35px;
         }
 
 
         .benefit {
-          display:
-            flex;
+          display: flex;
 
-          align-items:
-            center;
+          align-items: center;
 
-          gap:
-            13px;
+          gap: 13px;
         }
 
 
         .benefit-icon {
-          flex:
-            0 0 auto;
+          flex: 0 0 auto;
 
-          display:
-            flex;
+          display: flex;
 
-          align-items:
-            center;
+          align-items: center;
 
-          justify-content:
-            center;
+          justify-content: center;
 
-          width:
-            43px;
+          width: 43px;
 
-          height:
-            43px;
+          height: 43px;
 
-          border-radius:
-            50%;
+          border-radius: 50%;
 
-          background:
-            #fff2e2;
+          background: #fff2e2;
 
-          color:
-            #f58a00;
+          color: #f58a00;
 
-          font-size:
-            18px;
+          font-size: 18px;
 
-          font-weight:
-            900;
+          font-weight: 900;
         }
 
 
         .benefit strong {
-          display:
-            block;
+          display: block;
 
-          color:
-            #222222;
+          color: #222222;
 
-          font-size:
-            14px;
+          font-size: 14px;
         }
 
 
         .benefit span {
-          display:
-            block;
+          display: block;
 
-          margin-top:
-            3px;
+          margin-top: 3px;
 
-          color:
-            #888888;
+          color: #888888;
 
-          font-size:
-            12px;
+          font-size: 12px;
         }
 
 
@@ -1928,35 +1773,27 @@ export default async function ActividadPage({
             100px 0
             110px;
 
-          background:
-            #f2f2f3;
+          background: #f2f2f3;
         }
 
 
         .schedule-heading {
-          display:
-            flex;
+          display: flex;
 
-          align-items:
-            flex-end;
+          align-items: flex-end;
 
-          justify-content:
-            space-between;
+          justify-content: space-between;
 
-          gap:
-            40px;
+          gap: 40px;
 
-          margin-bottom:
-            42px;
+          margin-bottom: 42px;
         }
 
 
         .schedule-heading h2 {
-          margin:
-            10px 0 0;
+          margin: 10px 0 0;
 
-          color:
-            #111111;
+          color: #111111;
 
           font-size:
             clamp(
@@ -1965,44 +1802,34 @@ export default async function ActividadPage({
               66px
             );
 
-          line-height:
-            0.92;
+          line-height: 0.92;
 
-          letter-spacing:
-            -0.05em;
+          letter-spacing: -0.05em;
         }
 
 
         .schedule-heading h2 span {
-          color:
-            #f58a00;
+          color: #f58a00;
         }
 
 
         .schedule-heading > p {
-          max-width:
-            430px;
+          max-width: 430px;
 
-          margin:
-            0;
+          margin: 0;
 
-          color:
-            #666666;
+          color: #666666;
 
-          font-size:
-            15px;
+          font-size: 15px;
 
-          line-height:
-            1.6;
+          line-height: 1.6;
 
-          text-align:
-            right;
+          text-align: right;
         }
 
 
         .schedule-grid {
-          display:
-            grid;
+          display: grid;
 
           grid-template-columns:
             repeat(
@@ -2013,17 +1840,14 @@ export default async function ActividadPage({
               )
             );
 
-          gap:
-            20px;
+          gap: 20px;
         }
 
 
         .schedule-card {
-          min-width:
-            0;
+          min-width: 0;
 
-          box-sizing:
-            border-box;
+          box-sizing: border-box;
 
           padding:
             24px 21px;
@@ -2032,11 +1856,9 @@ export default async function ActividadPage({
             1px solid
             #dedede;
 
-          border-radius:
-            20px;
+          border-radius: 20px;
 
-          background:
-            #ffffff;
+          background: #ffffff;
 
           box-shadow:
             0 8px 25px
@@ -2069,188 +1891,137 @@ export default async function ActividadPage({
 
 
         .schedule-top {
-          display:
-            flex;
+          display: flex;
 
-          align-items:
-            center;
+          align-items: center;
 
-          justify-content:
-            flex-start;
+          justify-content: flex-start;
 
-          gap:
-            9px;
+          gap: 9px;
 
-          flex-wrap:
-            wrap;
+          flex-wrap: wrap;
 
-          min-width:
-            0;
+          min-width: 0;
         }
 
 
         .schedule-day {
-          display:
-            flex;
+          display: flex;
 
-          align-items:
-            center;
+          align-items: center;
 
-          gap:
-            7px;
+          gap: 7px;
 
-          min-width:
-            0;
+          min-width: 0;
 
-          color:
-            #171717;
+          color: #171717;
 
-          font-size:
-            15px;
+          font-size: 15px;
 
-          line-height:
-            1.25;
+          line-height: 1.25;
 
-          font-weight:
-            800;
+          font-weight: 800;
 
-          white-space:
-            nowrap;
+          white-space: nowrap;
         }
 
 
         .clock {
-          flex:
-            0 0 auto;
+          flex: 0 0 auto;
 
-          color:
-            #f58a00;
+          color: #f58a00;
 
-          font-size:
-            19px;
+          font-size: 19px;
 
-          line-height:
-            1;
+          line-height: 1;
         }
 
 
         .schedule-time {
-          flex:
-            0 0 auto;
+          flex: 0 0 auto;
 
-          color:
-            #171717;
+          color: #171717;
 
-          font-size:
-            15px;
+          font-size: 15px;
 
-          line-height:
-            1.25;
+          line-height: 1.25;
 
-          font-weight:
-            900;
+          font-weight: 900;
 
-          white-space:
-            nowrap;
+          white-space: nowrap;
         }
 
 
         .schedule-time span {
-          margin:
-            0 3px;
+          margin: 0 3px;
 
-          color:
-            #888888;
+          color: #888888;
         }
 
 
         .schedule-level {
-          display:
-            inline-block;
+          display: inline-block;
 
-          max-width:
-            100%;
+          max-width: 100%;
 
-          box-sizing:
-            border-box;
+          box-sizing: border-box;
 
-          margin-top:
-            22px;
+          margin-top: 22px;
 
           padding:
             7px 12px;
 
-          border-radius:
-            999px;
+          border-radius: 999px;
 
-          background:
-            #111111;
+          background: #111111;
 
-          color:
-            #ffffff;
+          color: #ffffff;
 
-          font-size:
-            11px;
+          font-size: 11px;
 
-          font-weight:
-            800;
+          font-weight: 800;
 
-          line-height:
-            1.25;
+          line-height: 1.25;
 
-          overflow-wrap:
-            anywhere;
+          overflow-wrap: anywhere;
         }
 
 
         .schedule-line {
-          height:
-            1px;
+          height: 1px;
 
           margin:
             20px 0;
 
-          background:
-            #eeeeee;
+          background: #eeeeee;
         }
 
 
         .schedule-teacher span {
-          display:
-            block;
+          display: block;
 
-          margin-bottom:
-            6px;
+          margin-bottom: 6px;
 
-          color:
-            #999999;
+          color: #999999;
 
-          font-size:
-            9px;
+          font-size: 9px;
 
-          font-weight:
-            800;
+          font-weight: 800;
 
-          letter-spacing:
-            0.16em;
+          letter-spacing: 0.16em;
         }
 
 
         .schedule-teacher strong {
-          display:
-            block;
+          display: block;
 
-          color:
-            #333333;
+          color: #333333;
 
-          font-size:
-            14px;
+          font-size: 14px;
 
-          line-height:
-            1.4;
+          line-height: 1.4;
 
-          overflow-wrap:
-            anywhere;
+          overflow-wrap: anywhere;
         }
 
 
@@ -2262,17 +2033,13 @@ export default async function ActividadPage({
             1px solid
             #dddddd;
 
-          border-radius:
-            20px;
+          border-radius: 20px;
 
-          background:
-            #ffffff;
+          background: #ffffff;
 
-          color:
-            #666666;
+          color: #666666;
 
-          text-align:
-            center;
+          text-align: center;
         }
 
 
@@ -2281,38 +2048,29 @@ export default async function ActividadPage({
         ================================================== */
 
         .activity-teachers {
-          padding:
-            95px 0;
+          padding: 95px 0;
 
-          background:
-            #ffffff;
+          background: #ffffff;
         }
 
 
         .teachers-heading {
-          display:
-            flex;
+          display: flex;
 
-          align-items:
-            flex-end;
+          align-items: flex-end;
 
-          justify-content:
-            space-between;
+          justify-content: space-between;
 
-          gap:
-            40px;
+          gap: 40px;
 
-          margin-bottom:
-            50px;
+          margin-bottom: 50px;
         }
 
 
         .teachers-heading h2 {
-          margin:
-            10px 0 0;
+          margin: 10px 0 0;
 
-          color:
-            #111111;
+          color: #111111;
 
           font-size:
             clamp(
@@ -2321,41 +2079,36 @@ export default async function ActividadPage({
               62px
             );
 
-          line-height:
-            0.95;
+          line-height: 0.95;
 
-          letter-spacing:
-            -0.045em;
+          letter-spacing: -0.045em;
         }
 
 
         .teachers-heading h2 span {
-          color:
-            #f58a00;
+          color: #f58a00;
         }
 
 
         .teachers-heading > p {
-          max-width:
-            420px;
+          max-width: 420px;
 
-          margin:
-            0;
+          margin: 0;
 
-          color:
-            #666666;
+          color: #666666;
 
-          font-size:
-            15px;
+          font-size: 15px;
 
-          line-height:
-            1.6;
+          line-height: 1.6;
         }
 
 
+        /*
+         * DOS PROFESORES = DOS COLUMNAS
+         */
+
         .teachers-grid {
-          display:
-            grid;
+          display: grid;
 
           grid-template-columns:
             repeat(
@@ -2366,46 +2119,36 @@ export default async function ActividadPage({
               )
             );
 
-          gap:
-            30px;
+          gap: 30px;
 
-          max-width:
-            1000px;
+          max-width: 1000px;
 
-          margin:
-            0 auto;
+          margin: 0 auto;
         }
 
 
         .teacher-card {
-          display:
-            grid;
+          display: grid;
 
           grid-template-columns:
             180px
             1fr;
 
-          align-items:
-            center;
+          align-items: center;
 
-          gap:
-            25px;
+          gap: 25px;
 
-          min-width:
-            0;
+          min-width: 0;
 
-          padding:
-            25px;
+          padding: 25px;
 
           border:
             1px solid
             #eeeeee;
 
-          border-radius:
-            25px;
+          border-radius: 25px;
 
-          background:
-            #ffffff;
+          background: #ffffff;
 
           box-shadow:
             0 10px 30px
@@ -2437,25 +2180,24 @@ export default async function ActividadPage({
         }
 
 
+        /*
+         * FOTO GRANDE
+         */
+
         .teacher-photo {
-          overflow:
-            hidden;
+          overflow: hidden;
 
-          width:
-            180px;
+          width: 180px;
 
-          height:
-            180px;
+          height: 180px;
 
-          border-radius:
-            50%;
+          border-radius: 50%;
 
           border:
             5px solid
             #f58a00;
 
-          background:
-            #eeeeee;
+          background: #eeeeee;
 
           box-shadow:
             0 8px 25px
@@ -2469,17 +2211,13 @@ export default async function ActividadPage({
 
 
         .teacher-photo img {
-          display:
-            block;
+          display: block;
 
-          width:
-            100%;
+          width: 100%;
 
-          height:
-            100%;
+          height: 100%;
 
-          object-fit:
-            cover;
+          object-fit: cover;
         }
 
 
@@ -2487,35 +2225,26 @@ export default async function ActividadPage({
           margin:
             0 0 7px;
 
-          color:
-            #111111;
+          color: #111111;
 
-          font-size:
-            28px;
+          font-size: 28px;
 
-          line-height:
-            1.05;
+          line-height: 1.05;
         }
 
 
         .teacher-info > span {
-          display:
-            block;
+          display: block;
 
-          color:
-            #999999;
+          color: #999999;
 
-          font-size:
-            9px;
+          font-size: 9px;
 
-          font-weight:
-            800;
+          font-weight: 800;
 
-          letter-spacing:
-            0.12em;
+          letter-spacing: 0.12em;
 
-          line-height:
-            1.4;
+          line-height: 1.4;
         }
 
 
@@ -2523,14 +2252,11 @@ export default async function ActividadPage({
           margin:
             14px 0 0;
 
-          color:
-            #666666;
+          color: #666666;
 
-          font-size:
-            13px;
+          font-size: 13px;
 
-          line-height:
-            1.6;
+          line-height: 1.6;
         }
 
 
@@ -2539,14 +2265,11 @@ export default async function ActividadPage({
         ================================================== */
 
         .activity-cta {
-          position:
-            relative;
+          position: relative;
 
-          overflow:
-            hidden;
+          overflow: hidden;
 
-          padding:
-            95px 0;
+          padding: 95px 0;
 
           background:
             radial-gradient(
@@ -2559,6 +2282,7 @@ export default async function ActividadPage({
               ),
               transparent 30%
             ),
+
             radial-gradient(
               circle at 10% 100%,
               rgba(
@@ -2569,31 +2293,25 @@ export default async function ActividadPage({
               ),
               transparent 35%
             ),
+
             #070707;
 
-          color:
-            #ffffff;
+          color: #ffffff;
         }
 
 
         .cta-glow {
-          position:
-            absolute;
+          position: absolute;
 
-          width:
-            400px;
+          width: 400px;
 
-          height:
-            400px;
+          height: 400px;
 
-          right:
-            -200px;
+          right: -200px;
 
-          top:
-            -200px;
+          top: -200px;
 
-          border-radius:
-            50%;
+          border-radius: 50%;
 
           background:
             rgba(
@@ -2603,24 +2321,20 @@ export default async function ActividadPage({
               0.12
             );
 
-          filter:
-            blur(70px);
+          filter: blur(70px);
         }
 
 
         .cta-grid {
-          display:
-            grid;
+          display: grid;
 
           grid-template-columns:
             1fr
             0.75fr;
 
-          gap:
-            70px;
+          gap: 70px;
 
-          align-items:
-            center;
+          align-items: center;
         }
 
 
@@ -2635,23 +2349,19 @@ export default async function ActividadPage({
               76px
             );
 
-          line-height:
-            0.9;
+          line-height: 0.9;
 
-          letter-spacing:
-            -0.05em;
+          letter-spacing: -0.05em;
         }
 
 
         .activity-cta h2 span {
-          color:
-            #f58a00;
+          color: #f58a00;
         }
 
 
         .cta-content p {
-          max-width:
-            500px;
+          max-width: 500px;
 
           margin:
             0 0 28px;
@@ -2664,53 +2374,39 @@ export default async function ActividadPage({
               0.76
             );
 
-          font-size:
-            17px;
+          font-size: 17px;
 
-          line-height:
-            1.7;
+          line-height: 1.7;
         }
 
 
         .cta-button {
-          display:
-            inline-flex;
+          display: inline-flex;
 
-          align-items:
-            center;
+          align-items: center;
 
-          justify-content:
-            center;
+          justify-content: center;
 
-          gap:
-            18px;
+          gap: 18px;
 
-          min-height:
-            52px;
+          min-height: 52px;
 
           padding:
             0 24px;
 
-          border-radius:
-            999px;
+          border-radius: 999px;
 
-          background:
-            #f58a00;
+          background: #f58a00;
 
-          color:
-            #111111;
+          color: #111111;
 
-          font-size:
-            11px;
+          font-size: 11px;
 
-          font-weight:
-            900;
+          font-weight: 900;
 
-          letter-spacing:
-            0.07em;
+          letter-spacing: 0.07em;
 
-          text-decoration:
-            none;
+          text-decoration: none;
 
           transition:
             transform 0.2s ease,
@@ -2719,8 +2415,7 @@ export default async function ActividadPage({
 
 
         .cta-button span {
-          font-size:
-            18px;
+          font-size: 18px;
         }
 
 
@@ -2748,22 +2443,19 @@ export default async function ActividadPage({
           .hero-layout {
             grid-template-columns:
               1fr
-              0.78fr;
+              0.9fr;
 
-            gap:
-              35px;
+            gap: 25px;
           }
 
 
           .hero-visual {
-            width:
-              100%;
+            min-height: 500px;
           }
 
 
           .hero-image-frame {
-            height:
-              420px;
+            height: 540px;
           }
 
 
@@ -2789,18 +2481,13 @@ export default async function ActividadPage({
             grid-template-columns:
               145px
               1fr;
-
-            gap:
-              20px;
           }
 
 
           .teacher-photo {
-            width:
-              145px;
+            width: 145px;
 
-            height:
-              145px;
+            height: 145px;
           }
 
         }
@@ -2823,31 +2510,26 @@ export default async function ActividadPage({
 
           .activity-hero {
             padding:
-              22px 0 70px;
+              20px 0 70px;
           }
 
 
-          /*
-           * En móvil hacemos el fondo algo más
-           * suave para no competir con el título.
-           */
-
           .hero-poster-background {
             inset:
-              -10%
+              -15%
               -35%
-              -5%
+              -15%
               -10%;
 
-            opacity:
-              0.32;
+            opacity: 0.30;
 
             filter:
-              blur(9px)
-              saturate(1.2);
+              blur(10px)
+              saturate(1.25);
 
-            background-position:
-              center top;
+            transform:
+              scale(1.18)
+              rotate(-2deg);
           }
 
 
@@ -2865,7 +2547,7 @@ export default async function ActividadPage({
                   5,
                   5,
                   5,
-                  0.72
+                  0.62
                 ),
                 rgba(
                   5,
@@ -2878,35 +2560,26 @@ export default async function ActividadPage({
 
 
           .activity-logo a {
-            width:
-              125px;
-
-            height:
-              125px;
+            width: 120px;
+            height: 120px;
           }
 
 
           .activity-logo img {
-            width:
-              110px;
-
-            height:
-              110px;
+            width: 105px;
+            height: 105px;
           }
 
 
           .activity-back {
-            margin-bottom:
-              30px;
+            margin-bottom: 30px;
           }
 
 
           .hero-layout {
-            grid-template-columns:
-              1fr;
+            grid-template-columns: 1fr;
 
-            gap:
-              40px;
+            gap: 20px;
           }
 
 
@@ -2920,113 +2593,82 @@ export default async function ActividadPage({
           }
 
 
-          .activity-intro {
-            font-size:
-              16px;
-          }
-
-
           .hero-visual {
-            width:
-              min(
-                82%,
-                370px
-              );
-
-            justify-self:
-              center;
+            min-height: 450px;
 
             padding:
-              0;
+              0
+              10px
+              35px
+              10px;
+
+            transform:
+              rotate(-3deg)
+              translate(5px, 0);
           }
 
-
-          /*
-           * En móvil también enseñamos solamente
-           * una parte del cartel.
-           */
 
           .hero-image-frame {
-            height:
-              390px;
+            width: 100%;
 
-            border-radius:
-              22px;
-          }
+            height: 500px;
 
-
-          .hero-image-frame img {
             transform:
-              scale(1.08);
-
-            object-position:
-              center top;
+              translateX(0);
           }
 
 
           .hero-circle {
-            left:
-              -15px;
+            left: 5px;
 
-            bottom:
-              -25px;
+            bottom: -5px;
 
-            width:
-              90px;
+            width: 90px;
 
-            height:
-              90px;
+            height: 90px;
           }
 
 
           .activity-intro-section {
-            padding:
-              70px 0;
+            padding: 70px 0;
           }
 
 
           .intro-grid {
-            grid-template-columns:
-              1fr;
+            grid-template-columns: 1fr;
 
-            gap:
-              45px;
+            gap: 45px;
           }
 
 
           .benefits {
-            grid-template-columns:
-              1fr;
+            grid-template-columns: 1fr;
           }
 
 
           .activity-schedule-section {
             padding:
-              70px 0 80px;
+              70px 0
+              80px;
           }
 
 
           .schedule-heading {
-            display:
-              block;
+            display: block;
           }
 
 
           .schedule-heading > p {
-            margin-top:
-              18px;
+            margin-top: 18px;
 
-            text-align:
-              left;
+            text-align: left;
           }
 
 
           .schedule-grid {
-            grid-template-columns:
-              1fr;
+            grid-template-columns: 1fr;
 
-            gap:
-              15px;
+            gap: 15px;
           }
 
 
@@ -3037,26 +2679,22 @@ export default async function ActividadPage({
 
 
           .activity-teachers {
-            padding:
-              70px 0;
+            padding: 70px 0;
           }
 
 
           .teachers-heading {
-            display:
-              block;
+            display: block;
           }
 
 
           .teachers-heading > p {
-            margin-top:
-              18px;
+            margin-top: 18px;
           }
 
 
           .teachers-grid {
-            grid-template-columns:
-              1fr;
+            grid-template-columns: 1fr;
           }
 
 
@@ -3065,35 +2703,28 @@ export default async function ActividadPage({
               150px
               1fr;
 
-            gap:
-              20px;
+            gap: 20px;
 
-            padding:
-              20px;
+            padding: 20px;
           }
 
 
           .teacher-photo {
-            width:
-              150px;
+            width: 150px;
 
-            height:
-              150px;
+            height: 150px;
           }
 
 
           .cta-grid {
-            grid-template-columns:
-              1fr;
+            grid-template-columns: 1fr;
 
-            gap:
-              30px;
+            gap: 30px;
           }
 
 
           .activity-cta {
-            padding:
-              75px 0;
+            padding: 75px 0;
           }
 
         }
@@ -3106,39 +2737,32 @@ export default async function ActividadPage({
         @media (max-width: 500px) {
 
           .hero-actions {
-            align-items:
-              flex-start;
+            align-items: flex-start;
 
-            flex-direction:
-              column;
+            flex-direction: column;
 
-            gap:
-              18px;
+            gap: 18px;
           }
 
 
           .hero-copy h1 {
-            font-size:
-              52px;
+            font-size: 52px;
           }
 
 
           .hero-visual {
-            width:
-              88%;
+            min-height: 390px;
           }
 
 
           .hero-image-frame {
-            height:
-              350px;
+            height: 430px;
           }
 
 
           .schedule-day,
           .schedule-time {
-            font-size:
-              15px;
+            font-size: 15px;
           }
 
 
@@ -3147,50 +2771,40 @@ export default async function ActividadPage({
               105px
               1fr;
 
-            padding:
-              15px;
+            padding: 15px;
 
-            gap:
-              15px;
+            gap: 15px;
           }
 
 
           .teacher-photo {
-            width:
-              105px;
+            width: 105px;
 
-            height:
-              105px;
+            height: 105px;
 
-            border-width:
-              4px;
+            border-width: 4px;
           }
 
 
           .teacher-info h3 {
-            font-size:
-              22px;
+            font-size: 22px;
           }
 
 
           .teacher-info > span {
-            font-size:
-              8px;
+            font-size: 8px;
           }
 
 
           .teacher-info p {
-            font-size:
-              12px;
+            font-size: 12px;
 
-            margin-top:
-              9px;
+            margin-top: 9px;
           }
 
 
           .activity-cta h2 {
-            font-size:
-              52px;
+            font-size: 52px;
           }
 
         }
