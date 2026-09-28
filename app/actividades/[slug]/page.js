@@ -1484,66 +1484,47 @@ export default async function ActividadPage({
         ================================================== */
 
         .hero-visual {
-          position:
-            relative;
+  position: relative;
 
-          width:
-            min(
-              100%,
-              430px
-            );
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-          justify-self:
-            end;
+  min-height: 560px;
 
-          padding:
-            10px
-            15px
-            15px
-            10px;
-        }
+  padding: 20px 0 40px 20px;
+
+  overflow: visible;
+
+  transform: rotate(-4deg) translate(18px, 5px);
+
+  transform-origin: center center;
+}
 
 
-        .hero-image-frame {
-          position:
-            relative;
+       .hero-image-frame {
+  position: relative;
 
-          overflow:
-            hidden;
+  width: 108%;
 
-          /*
-           * Altura controlada para que NO aparezca
-           * todo el cartel.
-           */
+  height: 610px;
 
-          height:
-            465px;
+  overflow: hidden;
 
-          border-radius:
-            28px;
+  border-radius: 32px;
 
-          border:
-            1px solid
-            rgba(
-              255,
-              255,
-              255,
-              0.18
-            );
+  border: 1px solid rgba(255, 140, 0, 0.65);
 
-          background:
-            #111111;
+  background: #111111;
 
-          box-shadow:
-            0 25px 80px
-            rgba(
-              0,
-              0,
-              0,
-              0.52
-            );
-        }
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.65),
+    0 0 35px rgba(255, 100, 0, 0.16);
 
+  transform: translateX(25px);
+
+  isolation: isolate;
+}
 
         /*
          * El cartel se amplía y se desplaza hacia
@@ -1552,30 +1533,18 @@ export default async function ActividadPage({
          */
 
         .hero-image-frame img {
-          display:
-            block;
+  display: block;
 
-          width:
-            100%;
+  width: 100%;
 
-          height:
-            auto;
+  height: 100%;
 
-          min-height:
-            100%;
+  object-fit: cover;
 
-          object-fit:
-            cover;
+  object-position: center top;
 
-          object-position:
-            center top;
-
-          transform:
-            scale(1.08);
-
-          transform-origin:
-            center top;
-        }
+  transform: scale(1.03);
+}
 
 
         /*
