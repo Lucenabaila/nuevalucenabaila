@@ -36,11 +36,13 @@ function formatearHora(hora) {
 // ======================================================
 
 async function obtenerDatos() {
+
   const [
     actividadesRes,
     horariosRes,
     profesoresRes,
   ] = await Promise.all([
+
     fetch(`${SITE_URL}/api/actividades`, {
       cache: "no-store",
     }),
@@ -52,6 +54,7 @@ async function obtenerDatos() {
     fetch(`${SITE_URL}/api/profesores`, {
       cache: "no-store",
     }),
+
   ]);
 
 
@@ -77,23 +80,22 @@ async function obtenerDatos() {
 
 
   return {
-    actividades: Array.isArray(
-      actividadesData
-    )
-      ? actividadesData
-      : actividadesData.actividades || [],
 
-    horarios: Array.isArray(
-      horariosData
-    )
-      ? horariosData
-      : horariosData.horarios || [],
+    actividades:
+      Array.isArray(actividadesData)
+        ? actividadesData
+        : actividadesData.actividades || [],
 
-    profesores: Array.isArray(
-      profesoresData
-    )
-      ? profesoresData
-      : profesoresData.profesores || [],
+    horarios:
+      Array.isArray(horariosData)
+        ? horariosData
+        : horariosData.horarios || [],
+
+    profesores:
+      Array.isArray(profesoresData)
+        ? profesoresData
+        : profesoresData.profesores || [],
+
   };
 }
 
@@ -103,6 +105,7 @@ async function obtenerDatos() {
 // ======================================================
 
 async function obtenerActividad(slug) {
+
   const {
     actividades,
     horarios,
@@ -110,10 +113,11 @@ async function obtenerActividad(slug) {
   } = await obtenerDatos();
 
 
-  const actividad = actividades.find(
-    (item) =>
-      slugify(item.nombre) === slug
-  );
+  const actividad =
+    actividades.find(
+      (item) =>
+        slugify(item.nombre) === slug
+    );
 
 
   if (!actividad) {
@@ -130,40 +134,51 @@ async function obtenerActividad(slug) {
 
 
   const profesoresActividad =
-    profesores.filter((profesor) =>
-      Array.isArray(
-        profesor.actividad_ids
-      )
-        ? profesor.actividad_ids.includes(
-            Number(actividad.id)
-          )
-        : false
+    profesores.filter(
+      (profesor) =>
+        Array.isArray(
+          profesor.actividad_ids
+        )
+          ? profesor.actividad_ids.includes(
+              Number(actividad.id)
+            )
+          : false
     );
 
 
   return {
+
     actividad,
-    horarios: horariosActividad,
-    profesores: profesoresActividad,
+
+    horarios:
+      horariosActividad,
+
+    profesores:
+      profesoresActividad,
+
   };
 }
 
 
 // ======================================================
-// METADATA SEO
+// SEO
 // ======================================================
 
 export async function generateMetadata({
   params,
 }) {
+
   const { slug } = await params;
+
 
   const datos =
     await obtenerActividad(slug);
 
 
   if (!datos) {
+
     return {
+
       title:
         "Actividad no encontrada | Artes Escénicas Paradise",
 
@@ -171,6 +186,7 @@ export async function generateMetadata({
         index: false,
         follow: true,
       },
+
     };
   }
 
@@ -185,6 +201,7 @@ export async function generateMetadata({
 
 
   return {
+
     title:
       `${nombre} en Lucena | Artes Escénicas Paradise`,
 
@@ -196,6 +213,7 @@ export async function generateMetadata({
     },
 
     openGraph: {
+
       title:
         `${nombre} en Lucena | Artes Escénicas Paradise`,
 
@@ -207,15 +225,19 @@ export async function generateMetadata({
       siteName:
         "Artes Escénicas Paradise",
 
-      locale: "es_ES",
+      locale:
+        "es_ES",
 
-      type: "website",
+      type:
+        "website",
+
     },
 
     robots: {
       index: true,
       follow: true,
     },
+
   };
 }
 
@@ -227,6 +249,7 @@ export async function generateMetadata({
 export default async function ActividadPage({
   params,
 }) {
+
   const { slug } = await params;
 
 
@@ -247,6 +270,7 @@ export default async function ActividadPage({
 
 
   return (
+
     <main className="activity-page">
 
 
@@ -257,6 +281,25 @@ export default async function ActividadPage({
       <section className="activity-hero">
 
         <div className="activity-container">
+
+
+          {/* LOGOTIPO */}
+
+          <div className="activity-logo">
+
+            <a href="/" aria-label="Artes Escénicas Paradise">
+
+              <img
+                src="/icon.png"
+                alt="Artes Escénicas Paradise"
+              />
+
+            </a>
+
+          </div>
+
+
+          {/* VOLVER */}
 
           <a
             href="/"
@@ -280,13 +323,14 @@ export default async function ActividadPage({
             {actividad.descripcion}
           </p>
 
+
         </div>
 
       </section>
 
 
       {/* ==================================================
-          INFORMACIÓN
+          INFORMACIÓN DE LA ACTIVIDAD
       ================================================== */}
 
       <section className="activity-content">
@@ -322,7 +366,7 @@ export default async function ActividadPage({
             </div>
 
 
-            {/* TEXTO */}
+            {/* INFORMACIÓN */}
 
             <div className="activity-info">
 
@@ -375,9 +419,11 @@ export default async function ActividadPage({
 
 
             <p className="horarios-descripcion">
+
               Consulta los días y horarios
               disponibles para{" "}
               {actividad.nombre}.
+
             </p>
 
           </div>
@@ -406,9 +452,10 @@ export default async function ActividadPage({
                     >
 
 
-                      {/* DÍA + HORA */}
+                      {/* DÍA Y HORA */}
 
                       <div className="horario-top">
+
 
                         <div className="horario-dia">
 
@@ -439,6 +486,7 @@ export default async function ActividadPage({
 
                         </div>
 
+
                       </div>
 
 
@@ -466,11 +514,8 @@ export default async function ActividadPage({
 
                         <strong>
 
-                          {profesoresHorario.length >
-                          0
-                            ? profesoresHorario.join(
-                                " · "
-                              )
+                          {profesoresHorario.length > 0
+                            ? profesoresHorario.join(" · ")
                             : "Consultar"}
 
                         </strong>
@@ -498,6 +543,7 @@ export default async function ActividadPage({
 
           )}
 
+
         </div>
 
       </section>
@@ -512,6 +558,7 @@ export default async function ActividadPage({
         <section className="activity-teachers">
 
           <div className="activity-container">
+
 
             <p className="eyebrow">
               NUESTRO EQUIPO
@@ -533,6 +580,7 @@ export default async function ActividadPage({
                     className="teacher-card"
                     key={profesor.id}
                   >
+
 
                     {profesor.foto && (
 
@@ -565,12 +613,14 @@ export default async function ActividadPage({
 
                     </div>
 
+
                   </article>
 
                 )
               )}
 
             </div>
+
 
           </div>
 
@@ -587,6 +637,7 @@ export default async function ActividadPage({
 
         <div className="activity-container">
 
+
           <p className="eyebrow">
             ¿TE APETECE BAILAR?
           </p>
@@ -598,19 +649,22 @@ export default async function ActividadPage({
 
 
           <p>
+
             Descubre nuestras clases de{" "}
             {actividad.nombre} en Lucena
             y encuentra tu lugar en
             Artes Escénicas Paradise.
+
           </p>
 
 
           <a
             href="/#contacto"
-            className="cta-button"
+            className="button primary"
           >
             QUIERO PROBAR UNA CLASE
           </a>
+
 
         </div>
 
@@ -650,11 +704,61 @@ export default async function ActividadPage({
 
 
         /* ================================================
+           LOGOTIPO
+        ================================================ */
+
+        .activity-logo {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+
+          margin-bottom: 28px;
+        }
+
+
+        .activity-logo a {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          width: 92px;
+          height: 92px;
+
+          border-radius: 50%;
+
+          background: rgba(255,255,255,0.08);
+
+          transition:
+            transform 0.25s ease,
+            background 0.25s ease;
+        }
+
+
+        .activity-logo a:hover {
+          transform: scale(1.04);
+
+          background:
+            rgba(255,255,255,0.13);
+        }
+
+
+        .activity-logo img {
+          display: block;
+
+          width: 78px;
+          height: 78px;
+
+          object-fit: contain;
+        }
+
+
+        /* ================================================
            HERO
         ================================================ */
 
         .activity-hero {
-          padding: 70px 0 85px;
+          padding: 45px 0 85px;
+
           background:
             radial-gradient(
               circle at 80% 20%,
@@ -662,19 +766,28 @@ export default async function ActividadPage({
               transparent 35%
             ),
             #111111;
+
           color: #ffffff;
         }
 
 
         .activity-back {
           display: inline-block;
+
           margin-bottom: 45px;
+
           color: #ffffff;
+
           text-decoration: none;
+
           font-size: 15px;
+
           font-weight: 600;
+
           opacity: 0.8;
-          transition: opacity 0.2s ease;
+
+          transition:
+            opacity 0.2s ease;
         }
 
 
@@ -685,26 +798,35 @@ export default async function ActividadPage({
 
         .activity-hero h1 {
           margin: 12px 0 22px;
-          font-size: clamp(
-            42px,
-            7vw,
-            82px
-          );
+
+          font-size:
+            clamp(
+              42px,
+              7vw,
+              82px
+            );
+
           line-height: 0.95;
+
           letter-spacing: -0.045em;
         }
 
 
         .activity-intro {
           max-width: 820px;
+
           margin: 0;
-          color: rgba(
-            255,
-            255,
-            255,
-            0.82
-          );
+
+          color:
+            rgba(
+              255,
+              255,
+              255,
+              0.82
+            );
+
           font-size: 19px;
+
           line-height: 1.7;
         }
 
@@ -715,66 +837,92 @@ export default async function ActividadPage({
 
         .activity-content {
           padding: 90px 0;
+
           background: #ffffff;
         }
 
 
         .activity-grid {
           display: grid;
+
           grid-template-columns:
             minmax(0, 0.9fr)
             minmax(0, 1.1fr);
+
           gap: 70px;
+
           align-items: center;
         }
 
 
         .activity-image {
           overflow: hidden;
+
           border-radius: 28px;
+
           background: #f1f1f1;
         }
 
 
         .activity-image img {
           display: block;
+
           width: 100%;
+
           height: auto;
+
           object-fit: cover;
         }
 
 
         .activity-image-placeholder {
           min-height: 420px;
+
           display: flex;
+
           align-items: center;
+
           justify-content: center;
+
           padding: 30px;
+
           background: #181818;
+
           color: #ffffff;
+
           font-size: 38px;
+
           font-weight: 800;
+
           text-align: center;
         }
 
 
         .activity-info h2 {
           margin: 12px 0 22px;
+
           color: #171717;
-          font-size: clamp(
-            34px,
-            5vw,
-            54px
-          );
+
+          font-size:
+            clamp(
+              34px,
+              5vw,
+              54px
+            );
+
           line-height: 1;
+
           letter-spacing: -0.035em;
         }
 
 
         .activity-info > p {
           margin: 0;
+
           color: #555555;
+
           font-size: 18px;
+
           line-height: 1.75;
         }
 
@@ -785,54 +933,70 @@ export default async function ActividadPage({
 
         .actividad-horarios {
           padding: 100px 0 110px;
+
           background: #f3f3f3;
         }
 
 
         .horarios-header {
           display: flex;
+
           align-items: flex-end;
+
           justify-content: space-between;
+
           gap: 40px;
+
           margin-bottom: 42px;
         }
 
 
         .horarios-header h2 {
           margin: 10px 0 0;
+
           color: #111111;
-          font-size: clamp(
-            42px,
-            5vw,
-            64px
-          );
+
+          font-size:
+            clamp(
+              42px,
+              5vw,
+              64px
+            );
+
           line-height: 0.95;
+
           letter-spacing: -0.045em;
         }
 
 
         .horarios-descripcion {
           max-width: 430px;
+
           margin: 0;
+
           color: #555555;
+
           font-size: 16px;
+
           line-height: 1.6;
+
           text-align: right;
         }
 
 
         /* ================================================
-           GRID DE HORARIOS
+           GRID HORARIOS
         ================================================ */
 
         .horarios-grid {
+
           display: grid;
 
           /*
-           * 4 columnas en escritorio.
-           * minmax(0, 1fr) evita que una tarjeta
-           * fuerce el ancho de las demás.
+           * AQUÍ ESTÁ EL CAMBIO PRINCIPAL:
+           * 4 columnas en ordenador.
            */
+
           grid-template-columns:
             repeat(4, minmax(0, 1fr));
 
@@ -847,10 +1011,10 @@ export default async function ActividadPage({
         ================================================ */
 
         .horario-card {
-          min-width: 0;
-          box-sizing: border-box;
 
-          padding: 27px 24px 25px;
+          min-width: 0;
+
+          box-sizing: border-box;
 
           background: #ffffff;
 
@@ -858,52 +1022,56 @@ export default async function ActividadPage({
 
           border-radius: 22px;
 
+          padding: 27px 24px 25px;
+
           box-shadow:
             0 8px 25px
-            rgba(0, 0, 0, 0.055);
+            rgba(0,0,0,0.055);
+
+          overflow: hidden;
 
           transition:
             transform 0.2s ease,
             box-shadow 0.2s ease;
-
-          overflow: hidden;
         }
 
 
         .horario-card:hover {
-          transform: translateY(-3px);
+
+          transform:
+            translateY(-3px);
 
           box-shadow:
             0 14px 30px
-            rgba(0, 0, 0, 0.09);
+            rgba(0,0,0,0.09);
         }
 
 
         /* ================================================
-           PARTE SUPERIOR
+           DÍA + HORA
         ================================================ */
 
         .horario-top {
+
           display: flex;
 
-          /*
-           * Muy importante:
-           * permite que día y hora pasen a otra
-           * línea si la tarjeta no tiene espacio.
-           */
-          flex-wrap: wrap;
-
           align-items: center;
+
+          /*
+           * Permite que la hora baje de línea
+           * en pantallas estrechas.
+           */
+
+          flex-wrap: wrap;
 
           gap: 8px 12px;
 
           min-width: 0;
-
-          color: #171717;
         }
 
 
         .horario-dia {
+
           display: flex;
 
           align-items: center;
@@ -920,17 +1088,15 @@ export default async function ActividadPage({
 
           font-weight: 800;
 
-          /*
-           * El nombre del día no se corta.
-           */
           white-space: nowrap;
         }
 
 
         .horario-icon {
+
           flex: 0 0 auto;
 
-          color: #8b8b8b;
+          color: #777777;
 
           font-size: 20px;
 
@@ -939,12 +1105,15 @@ export default async function ActividadPage({
 
 
         .horario-dia strong {
+
           color: #171717;
+
           font-weight: 800;
         }
 
 
         .horario-hora {
+
           flex: 0 0 auto;
 
           color: #171717;
@@ -956,16 +1125,19 @@ export default async function ActividadPage({
           font-weight: 800;
 
           /*
-           * La hora siempre aparece completa.
+           * Evita que una hora se corte.
            */
+
           white-space: nowrap;
         }
 
 
         .horario-hora span {
+
           display: inline-block;
 
-          margin: 0 4px;
+          margin:
+            0 4px;
 
           color: #777777;
         }
@@ -976,6 +1148,7 @@ export default async function ActividadPage({
         ================================================ */
 
         .horario-nivel {
+
           display: block;
 
           width: fit-content;
@@ -1000,10 +1173,6 @@ export default async function ActividadPage({
 
           font-weight: 700;
 
-          /*
-           * Si el nivel es muy largo, puede ocupar
-           * varias líneas sin romper la tarjeta.
-           */
           overflow-wrap: anywhere;
         }
 
@@ -1013,11 +1182,13 @@ export default async function ActividadPage({
         ================================================ */
 
         .horario-profesor {
+
           margin-top: 30px;
         }
 
 
         .horario-profesor span {
+
           display: block;
 
           margin-bottom: 7px;
@@ -1037,6 +1208,7 @@ export default async function ActividadPage({
 
 
         .horario-profesor strong {
+
           display: block;
 
           color: #333333;
@@ -1056,9 +1228,11 @@ export default async function ActividadPage({
         ================================================ */
 
         .sin-horarios {
+
           padding: 45px 30px;
 
-          border: 1px solid #dddddd;
+          border:
+            1px solid #dddddd;
 
           border-radius: 22px;
 
@@ -1077,6 +1251,7 @@ export default async function ActividadPage({
         ================================================ */
 
         .activity-teachers {
+
           padding: 90px 0;
 
           background: #f7f7f7;
@@ -1084,15 +1259,17 @@ export default async function ActividadPage({
 
 
         .activity-teachers h2 {
+
           margin: 10px 0 45px;
 
           color: #171717;
 
-          font-size: clamp(
-            34px,
-            5vw,
-            55px
-          );
+          font-size:
+            clamp(
+              34px,
+              5vw,
+              55px
+            );
 
           line-height: 1;
 
@@ -1101,16 +1278,21 @@ export default async function ActividadPage({
 
 
         .teachers-grid {
+
           display: grid;
 
           grid-template-columns:
-            repeat(3, minmax(0, 1fr));
+            repeat(
+              3,
+              minmax(0, 1fr)
+            );
 
           gap: 25px;
         }
 
 
         .teacher-card {
+
           overflow: hidden;
 
           border-radius: 22px;
@@ -1120,6 +1302,7 @@ export default async function ActividadPage({
 
 
         .teacher-photo img {
+
           display: block;
 
           width: 100%;
@@ -1131,12 +1314,15 @@ export default async function ActividadPage({
 
 
         .teacher-content {
+
           padding: 25px;
         }
 
 
         .teacher-content h3 {
-          margin: 0 0 10px;
+
+          margin:
+            0 0 10px;
 
           color: #171717;
 
@@ -1145,6 +1331,7 @@ export default async function ActividadPage({
 
 
         .teacher-content p {
+
           margin: 0;
 
           color: #666666;
@@ -1158,6 +1345,7 @@ export default async function ActividadPage({
         ================================================ */
 
         .activity-cta {
+
           padding: 100px 0;
 
           background: #111111;
@@ -1169,13 +1357,16 @@ export default async function ActividadPage({
 
 
         .activity-cta h2 {
-          margin: 10px 0 20px;
 
-          font-size: clamp(
-            38px,
-            6vw,
-            65px
-          );
+          margin:
+            10px 0 20px;
+
+          font-size:
+            clamp(
+              38px,
+              6vw,
+              65px
+            );
 
           line-height: 1;
 
@@ -1184,9 +1375,11 @@ export default async function ActividadPage({
 
 
         .activity-cta p:not(.eyebrow) {
+
           max-width: 650px;
 
-          margin: 0 auto 32px;
+          margin:
+            0 auto 32px;
 
           color:
             rgba(
@@ -1202,44 +1395,6 @@ export default async function ActividadPage({
         }
 
 
-        .cta-button {
-          display: inline-flex;
-
-          align-items: center;
-
-          justify-content: center;
-
-          min-height: 52px;
-
-          padding: 0 25px;
-
-          border-radius: 999px;
-
-          background: #ffffff;
-
-          color: #111111;
-
-          font-size: 13px;
-
-          font-weight: 800;
-
-          letter-spacing: 0.05em;
-
-          text-decoration: none;
-
-          transition:
-            transform 0.2s ease,
-            opacity 0.2s ease;
-        }
-
-
-        .cta-button:hover {
-          transform: translateY(-2px);
-
-          opacity: 0.9;
-        }
-
-
         /* ================================================
            TABLET
         ================================================ */
@@ -1247,13 +1402,13 @@ export default async function ActividadPage({
         @media (max-width: 1050px) {
 
           .horarios-grid {
+
             grid-template-columns:
-              repeat(2, minmax(0, 1fr));
-          }
+              repeat(
+                2,
+                minmax(0, 1fr)
+              );
 
-
-          .activity-grid {
-            gap: 45px;
           }
 
         }
@@ -1266,83 +1421,151 @@ export default async function ActividadPage({
         @media (max-width: 800px) {
 
           .activity-hero {
-            padding: 50px 0 65px;
+
+            padding:
+              35px 0 65px;
+
+          }
+
+
+          .activity-logo {
+
+            margin-bottom:
+              22px;
+
+          }
+
+
+          .activity-logo a {
+
+            width: 78px;
+            height: 78px;
+
+          }
+
+
+          .activity-logo img {
+
+            width: 66px;
+            height: 66px;
+
           }
 
 
           .activity-content {
-            padding: 60px 0;
+
+            padding:
+              60px 0;
+
           }
 
 
           .activity-grid {
-            grid-template-columns: 1fr;
+
+            grid-template-columns:
+              1fr;
 
             gap: 40px;
+
           }
 
 
           .actividad-horarios {
-            padding: 65px 0 75px;
+
+            padding:
+              65px 0 75px;
+
           }
 
 
           .horarios-header {
+
             display: block;
 
-            margin-bottom: 30px;
+            margin-bottom:
+              30px;
+
           }
 
 
           .horarios-header h2 {
-            font-size: 48px;
+
+            font-size:
+              48px;
+
           }
 
 
           .horarios-descripcion {
-            max-width: 600px;
 
-            margin-top: 18px;
+            max-width:
+              600px;
 
-            text-align: left;
+            margin-top:
+              18px;
+
+            text-align:
+              left;
+
           }
 
 
           .horarios-grid {
-            grid-template-columns: 1fr;
+
+            grid-template-columns:
+              1fr;
 
             gap: 16px;
+
           }
 
 
           .horario-card {
-            padding: 24px 22px;
+
+            padding:
+              24px 22px;
+
           }
 
 
           .horario-top {
-            gap: 9px 14px;
+
+            gap:
+              9px 14px;
+
           }
 
 
           .horario-dia,
           .horario-hora {
-            font-size: 17px;
+
+            font-size:
+              17px;
+
           }
 
 
           .activity-teachers {
-            padding: 65px 0;
+
+            padding:
+              65px 0;
+
           }
 
 
           .teachers-grid {
-            grid-template-columns: 1fr;
+
+            grid-template-columns:
+              1fr;
+
           }
 
 
           .activity-cta {
-            padding: 75px 0;
+
+            padding:
+              75px 0;
+
           }
 
         }
@@ -1355,44 +1578,65 @@ export default async function ActividadPage({
         @media (max-width: 430px) {
 
           .activity-container {
-            width: min(
-              100% - 32px,
-              1180px
-            );
+
+            width:
+              min(
+                100% - 32px,
+                1180px
+              );
+
           }
 
 
           .activity-hero h1 {
-            font-size: 45px;
+
+            font-size:
+              45px;
+
           }
 
 
           .horarios-header h2 {
-            font-size: 42px;
+
+            font-size:
+              42px;
+
           }
 
 
           .horario-card {
-            border-radius: 18px;
 
-            padding: 22px 19px;
+            border-radius:
+              18px;
+
+            padding:
+              22px 19px;
+
           }
 
 
           .horario-dia,
           .horario-hora {
-            font-size: 16px;
+
+            font-size:
+              16px;
+
           }
 
 
           .horario-profesor {
-            margin-top: 25px;
+
+            margin-top:
+              25px;
+
           }
 
         }
 
       `}</style>
 
+
     </main>
+
   );
 }
