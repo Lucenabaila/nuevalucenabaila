@@ -256,7 +256,7 @@ export default async function ActividadPage({
       <section className="activity-hero">
 
 
-        {/* FONDO DEL CARTEL DIFUMINADO */}
+        {/* CARTEL COMO FONDO */}
 
         {actividad.imagen && (
           <div
@@ -269,11 +269,15 @@ export default async function ActividadPage({
         )}
 
 
-        {/* CAPAS DE LUZ */}
+        {/* OSCURECIMIENTO */}
 
         <div className="hero-overlay" />
 
+
+        {/* BRILLOS */}
+
         <div className="hero-glow hero-glow-one" />
+
         <div className="hero-glow hero-glow-two" />
 
 
@@ -368,7 +372,7 @@ export default async function ActividadPage({
 
 
             {/* ==================================================
-                CARTEL
+                CARTEL DERECHO
             ================================================== */}
 
             <div className="hero-visual">
@@ -422,8 +426,6 @@ export default async function ActividadPage({
           <div className="intro-grid">
 
 
-            {/* IMAGEN */}
-
             <div className="intro-image">
 
               {actividad.imagen ? (
@@ -445,8 +447,6 @@ export default async function ActividadPage({
 
             </div>
 
-
-            {/* TEXTO */}
 
             <div className="intro-copy">
 
@@ -635,7 +635,6 @@ export default async function ActividadPage({
                       className="schedule-card"
                       key={horario.id}
                     >
-
 
                       <div className="schedule-top">
 
@@ -952,97 +951,133 @@ export default async function ActividadPage({
           overflow: hidden;
 
           padding:
-            32px 0
+            25px 0
             95px;
 
-          background:
-            #050505;
+          background: #050505;
 
           color: #ffffff;
         }
 
 
-        /*
-         * EL CARTEL APARECE TAMBIÉN COMO FONDO
-         * DEL ENCABEZADO.
-         */
+        /* ==================================================
+           CARTEL DIFUMINADO DE FONDO
+           AHORA MÁS VISIBLE Y MENOS BORROSO
+        ================================================== */
 
         .hero-poster-background {
-  position: absolute;
+          position: absolute;
 
-  z-index: 0;
+          z-index: 0;
 
-  inset: -25% -5% -25% 15%;
+          /*
+           * El cartel se desplaza hacia la derecha
+           * para que la zona izquierda quede más
+           * limpia para el texto.
+           */
 
-  background-position: center top;
+          inset:
+            -30%
+            -8%
+            -25%
+            12%;
 
-  background-size: cover;
+          background-position:
+            center 20%;
 
-  background-repeat: no-repeat;
+          background-size:
+            cover;
 
-  opacity: 0.48;
+          background-repeat:
+            no-repeat;
 
-  filter:
-    blur(12px)
-    saturate(1.35);
+          /*
+           * Más visible que antes.
+           */
 
-  transform: scale(1.08);
+          opacity:
+            0.52;
 
-  pointer-events: none;
-}
+          /*
+           * Menos desenfoque.
+           */
+
+          filter:
+            blur(9px)
+            saturate(1.35);
+
+          transform:
+            scale(1.06);
+
+          pointer-events:
+            none;
+        }
 
 
-        /*
-         * OSCURECE EL CARTEL PARA QUE EL TEXTO
-         * SIGA LEYÉNDOSE PERFECTAMENTE.
-         */
+        /* ==================================================
+           CAPA OSCURA
+        ================================================== */
 
         .hero-overlay {
-  position: absolute;
+          position: absolute;
 
-  z-index: 1;
+          z-index: 1;
 
-  inset: 0;
+          inset: 0;
 
-  background:
-    linear-gradient(
-      90deg,
-      rgba(5, 5, 5, 0.96) 0%,
-      rgba(5, 5, 5, 0.72) 32%,
-      rgba(5, 5, 5, 0.38) 62%,
-      rgba(5, 5, 5, 0.58) 100%
-    );
+          /*
+           * Izquierda más oscura para el texto.
+           * Derecha más transparente para que se
+           * aprecie el cartel.
+           */
 
-  pointer-events: none;
-}
+          background:
+            linear-gradient(
+              90deg,
+              rgba(5, 5, 5, 0.96) 0%,
+              rgba(5, 5, 5, 0.82) 28%,
+              rgba(5, 5, 5, 0.52) 53%,
+              rgba(5, 5, 5, 0.38) 72%,
+              rgba(5, 5, 5, 0.58) 100%
+            );
+
+          pointer-events:
+            none;
+        }
 
 
-        /*
-         * DEGRADADO INFERIOR
-         */
+        /* ==================================================
+           FUSIÓN INFERIOR
+        ================================================== */
 
-       .activity-hero::after {
-  content: "";
+        .activity-hero::after {
+          content: "";
 
-  position: absolute;
+          position: absolute;
 
-  z-index: 2;
+          z-index: 2;
 
-  left: 0;
-  right: 0;
-  bottom: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
 
-  height: 90px;
+          height: 95px;
 
-  background:
-    linear-gradient(
-      to bottom,
-      transparent,
-      #050505
-    );
+          background:
+            linear-gradient(
+              to bottom,
+              transparent,
+              #050505
+            );
 
-  pointer-events: none;
-}
+          pointer-events:
+            none;
+        }
+
+
+        /* ==================================================
+           BRILLOS
+        ================================================== */
 
         .hero-glow {
           position: absolute;
@@ -1051,8 +1086,7 @@ export default async function ActividadPage({
 
           border-radius: 50%;
 
-          pointer-events:
-            none;
+          pointer-events: none;
 
           filter:
             blur(80px);
@@ -1070,14 +1104,14 @@ export default async function ActividadPage({
             -100px;
 
           top:
-            120px;
+            100px;
 
           background:
             rgba(
               255,
               119,
               0,
-              0.18
+              0.17
             );
         }
 
@@ -1100,7 +1134,7 @@ export default async function ActividadPage({
               155,
               0,
               180,
-              0.20
+              0.18
             );
         }
 
@@ -1126,7 +1160,7 @@ export default async function ActividadPage({
             center;
 
           margin-bottom:
-            22px;
+            20px;
         }
 
 
@@ -1163,7 +1197,7 @@ export default async function ActividadPage({
               255,
               111,
               0,
-              0.16
+              0.18
             );
 
           transition:
@@ -1182,7 +1216,7 @@ export default async function ActividadPage({
               255,
               111,
               0,
-              0.25
+              0.28
             );
         }
 
@@ -1217,7 +1251,7 @@ export default async function ActividadPage({
             inline-block;
 
           margin-bottom:
-            45px;
+            35px;
 
           color:
             #ffffff;
@@ -1232,7 +1266,7 @@ export default async function ActividadPage({
             700;
 
           opacity:
-            0.78;
+            0.8;
 
           transition:
             opacity 0.2s ease,
@@ -1250,7 +1284,7 @@ export default async function ActividadPage({
 
 
         /* ==================================================
-           HERO LAYOUT
+           HERO
         ================================================== */
 
         .hero-layout {
@@ -1264,11 +1298,11 @@ export default async function ActividadPage({
             grid;
 
           grid-template-columns:
-            minmax(0, 0.95fr)
-            minmax(400px, 1.05fr);
+            minmax(0, 1fr)
+            minmax(330px, 0.78fr);
 
           gap:
-            65px;
+            55px;
 
           align-items:
             center;
@@ -1333,7 +1367,7 @@ export default async function ActividadPage({
               255,
               255,
               255,
-              0.82
+              0.84
             );
 
           font-size:
@@ -1434,7 +1468,7 @@ export default async function ActividadPage({
             none;
 
           opacity:
-            0.82;
+            0.85;
         }
 
 
@@ -1445,12 +1479,22 @@ export default async function ActividadPage({
 
 
         /* ==================================================
-           CARTEL PRINCIPAL
+           CARTEL DERECHO
+           MÁS PEQUEÑO
         ================================================== */
 
         .hero-visual {
           position:
             relative;
+
+          width:
+            min(
+              100%,
+              430px
+            );
+
+          justify-self:
+            end;
 
           padding:
             10px
@@ -1467,8 +1511,16 @@ export default async function ActividadPage({
           overflow:
             hidden;
 
+          /*
+           * Altura controlada para que NO aparezca
+           * todo el cartel.
+           */
+
+          height:
+            465px;
+
           border-radius:
-            30px;
+            28px;
 
           border:
             1px solid
@@ -1476,7 +1528,7 @@ export default async function ActividadPage({
               255,
               255,
               255,
-              0.16
+              0.18
             );
 
           background:
@@ -1488,10 +1540,48 @@ export default async function ActividadPage({
               0,
               0,
               0,
-              0.50
+              0.52
             );
         }
 
+
+        /*
+         * El cartel se amplía y se desplaza hacia
+         * arriba. De esta forma vemos principalmente
+         * la parte superior.
+         */
+
+        .hero-image-frame img {
+          display:
+            block;
+
+          width:
+            100%;
+
+          height:
+            auto;
+
+          min-height:
+            100%;
+
+          object-fit:
+            cover;
+
+          object-position:
+            center top;
+
+          transform:
+            scale(1.08);
+
+          transform-origin:
+            center top;
+        }
+
+
+        /*
+         * Pequeña capa para integrar el cartel
+         * con el fondo.
+         */
 
         .hero-image-frame::after {
           content:
@@ -1505,14 +1595,25 @@ export default async function ActividadPage({
 
           background:
             linear-gradient(
-              135deg,
+              180deg,
               rgba(
-                255,
-                120,
                 0,
-                0.08
+                0,
+                0,
+                0.02
               ),
-              transparent 45%
+              rgba(
+                0,
+                0,
+                0,
+                0.12
+              ) 75%,
+              rgba(
+                0,
+                0,
+                0,
+                0.45
+              )
             );
 
           pointer-events:
@@ -1520,24 +1621,9 @@ export default async function ActividadPage({
         }
 
 
-        .hero-image-frame img {
-          display:
-            block;
-
-          width:
-            100%;
-
-          max-height:
-            590px;
-
-          object-fit:
-            cover;
-        }
-
-
         .hero-image-placeholder {
-          min-height:
-            500px;
+          height:
+            465px;
 
           display:
             flex;
@@ -1562,6 +1648,10 @@ export default async function ActividadPage({
         }
 
 
+        /* ==================================================
+           CÍRCULO PARADISE
+        ================================================== */
+
         .hero-circle {
           position:
             absolute;
@@ -1582,10 +1672,10 @@ export default async function ActividadPage({
             center;
 
           width:
-            110px;
+            105px;
 
           height:
-            110px;
+            105px;
 
           border-radius:
             50%;
@@ -2294,10 +2384,6 @@ export default async function ActividadPage({
         }
 
 
-        /*
-         * DOS PROFESORES = DOS COLUMNAS
-         */
-
         .teachers-grid {
           display:
             grid;
@@ -2321,10 +2407,6 @@ export default async function ActividadPage({
             0 auto;
         }
 
-
-        /*
-         * TARJETA MÁS GRANDE
-         */
 
         .teacher-card {
           display:
@@ -2385,10 +2467,6 @@ export default async function ActividadPage({
             );
         }
 
-
-        /*
-         * FOTO GRANDE
-         */
 
         .teacher-photo {
           overflow:
@@ -2701,10 +2779,22 @@ export default async function ActividadPage({
           .hero-layout {
             grid-template-columns:
               1fr
-              0.9fr;
+              0.78fr;
 
             gap:
               35px;
+          }
+
+
+          .hero-visual {
+            width:
+              100%;
+          }
+
+
+          .hero-image-frame {
+            height:
+              420px;
           }
 
 
@@ -2730,6 +2820,9 @@ export default async function ActividadPage({
             grid-template-columns:
               145px
               1fr;
+
+            gap:
+              20px;
           }
 
 
@@ -2753,7 +2846,7 @@ export default async function ActividadPage({
           .activity-container {
             width:
               min(
-                100% - 32px,
+                calc(100% - 32px),
                 1180px
               );
           }
@@ -2761,23 +2854,31 @@ export default async function ActividadPage({
 
           .activity-hero {
             padding:
-              25px 0 70px;
+              22px 0 70px;
           }
 
 
+          /*
+           * En móvil hacemos el fondo algo más
+           * suave para no competir con el título.
+           */
+
           .hero-poster-background {
             inset:
+              -10%
+              -35%
               -5%
-              -30%
-              -5%
-              0;
+              -10%;
 
             opacity:
-              0.18;
+              0.32;
 
             filter:
-              blur(16px)
-              saturate(1.15);
+              blur(9px)
+              saturate(1.2);
+
+            background-position:
+              center top;
           }
 
 
@@ -2785,9 +2886,24 @@ export default async function ActividadPage({
             background:
               linear-gradient(
                 180deg,
-                rgba(5,5,5,0.96),
-                rgba(5,5,5,0.82),
-                rgba(5,5,5,0.98)
+                rgba(
+                  5,
+                  5,
+                  5,
+                  0.92
+                ),
+                rgba(
+                  5,
+                  5,
+                  5,
+                  0.72
+                ),
+                rgba(
+                  5,
+                  5,
+                  5,
+                  0.96
+                )
               );
           }
 
@@ -2812,13 +2928,16 @@ export default async function ActividadPage({
 
           .activity-back {
             margin-bottom:
-              35px;
+              30px;
           }
 
 
           .hero-layout {
             grid-template-columns:
               1fr;
+
+            gap:
+              40px;
           }
 
 
@@ -2832,21 +2951,53 @@ export default async function ActividadPage({
           }
 
 
+          .activity-intro {
+            font-size:
+              16px;
+          }
+
+
           .hero-visual {
+            width:
+              min(
+                82%,
+                370px
+              );
+
+            justify-self:
+              center;
+
             padding:
               0;
           }
 
 
+          /*
+           * En móvil también enseñamos solamente
+           * una parte del cartel.
+           */
+
           .hero-image-frame {
+            height:
+              390px;
+
             border-radius:
               22px;
           }
 
 
+          .hero-image-frame img {
+            transform:
+              scale(1.08);
+
+            object-position:
+              center top;
+          }
+
+
           .hero-circle {
             left:
-              15px;
+              -15px;
 
             bottom:
               -25px;
@@ -3000,6 +3151,18 @@ export default async function ActividadPage({
           .hero-copy h1 {
             font-size:
               52px;
+          }
+
+
+          .hero-visual {
+            width:
+              88%;
+          }
+
+
+          .hero-image-frame {
+            height:
+              350px;
           }
 
 
