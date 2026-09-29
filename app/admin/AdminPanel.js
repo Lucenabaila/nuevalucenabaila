@@ -4652,13 +4652,18 @@ function Eventos() {
   const [formulario, setFormulario] =
     useState(eventoInicial);
 
+  const [vistaPrevia, setVistaPrevia] =
+    useState("");
+
+  const [subiendoImagen, setSubiendoImagen] =
+    useState(false);
+
 
   async function cargarEventos() {
 
     try {
 
       setCargando(true);
-
 
       const respuesta =
         await fetch(
@@ -4668,10 +4673,8 @@ function Eventos() {
           }
         );
 
-
       const datos =
         await respuesta.json();
-
 
       if (
         !respuesta.ok ||
@@ -4686,11 +4689,9 @@ function Eventos() {
         return;
       }
 
-
       setEventos(
         datos.eventos || []
       );
-
 
     } catch (error) {
 
@@ -4699,11 +4700,9 @@ function Eventos() {
         error
       );
 
-
       alert(
         "Error cargando los eventos."
       );
-
 
     } finally {
 
@@ -4727,8 +4726,8 @@ function Eventos() {
       ...eventoInicial,
     });
 
+    setVistaPrevia("");
     setEditando(null);
-
     setMostrandoFormulario(true);
 
     window.scrollTo({
@@ -4774,11 +4773,12 @@ function Eventos() {
 
     });
 
+    setVistaPrevia(
+      evento.imagen || ""
+    );
 
     setEditando(evento);
-
     setMostrandoFormulario(true);
-
 
     window.scrollTo({
       top: 0,
@@ -4794,6 +4794,7 @@ function Eventos() {
       ...eventoInicial,
     });
 
+    setVistaPrevia("");
     setEditando(null);
     setMostrandoFormulario(false);
 
@@ -4812,10 +4813,186 @@ function Eventos() {
   }
 
 
+  // =======================================================
+  // SUBIR CARTEL DEL EVENTO
+  // =======================================================
+
+  async function subirImagen(event) {
+
+    const archivo =
+      event.target.files?.[0];
+
+    if (!archivo) {
+      return;
+    }
+
+    const tiposPermitidos = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+    ];
+
+    if (
+      !tiposPermitidos.includes(
+        archivo.type
+      )
+    ) {
+
+      alert(
+        "El cartel debe ser JPG, PNG o WEBP."
+      );
+
+      event.target.value = "";
+
+      return;
+
+    }
+
+    if (
+      archivo.size >
+      15 * 1024 * 1024
+    ) {
+
+      alert(
+        "El cartel no puede superar los 15 MB."
+      );
+
+      event.target.value = "";
+
+      return;
+
+    }
+
+    const preview =
+      URL.createObjectURL(
+        archivo
+      );
+
+    setVistaPrevia(preview);
+
+    try {
+
+      setSubiendoImagen(true);
+
+      const formData =
+        new FormData();
+
+      formData.append(
+        "imagen",
+        archivo
+      );
+
+      const respuesta =
+        await fetch(
+          "/api/eventos-imagen",
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+
+      const datos =
+        await respuesta.json();
+
+      if (
+        !respuesta.ok ||
+        !datos.correcto
+      ) {
+
+        console.error(
+          "Error subiendo cartel del evento:",
+          datos
+        );
+
+        setFormulario(
+          (actual) => ({
+            ...actual,
+            imagen: "",
+          })
+        );
+
+        setVistaPrevia(
+          editando?.imagen || ""
+        );
+
+        alert(
+          datos.mensaje ||
+          "No se pudo subir el cartel."
+        );
+
+        return;
+
+      }
+
+      const nuevaImagen =
+        datos.ruta ||
+        datos.imagen ||
+        "";
+
+      setFormulario(
+        (actual) => ({
+          ...actual,
+          imagen: nuevaImagen,
+        })
+      );
+
+      setVistaPrevia(
+        nuevaImagen
+      );
+
+    } catch (error) {
+
+      console.error(
+        "Error subiendo cartel del evento:",
+        error
+      );
+
+      setFormulario(
+        (actual) => ({
+          ...actual,
+          imagen: "",
+        })
+      );
+
+      setVistaPrevia(
+        editando?.imagen || ""
+      );
+
+      alert(
+        "Ha ocurrido un error al subir el cartel."
+      );
+
+    } finally {
+
+      setSubiendoImagen(false);
+      event.target.value = "";
+
+    }
+
+  }
+
+
+  // =======================================================
+  // QUITAR CARTEL
+  // =======================================================
+
+  function quitarImagen() {
+
+    setFormulario(
+      (actual) => ({
+        ...actual,
+        imagen: "",
+      })
+    );
+
+    setVistaPrevia("");
+
+  }
+
+
   async function guardarEvento(event) {
 
     event.preventDefault();
-
 
     if (
       !formulario.titulo.trim()
@@ -4828,7 +5005,6 @@ function Eventos() {
       return;
     }
 
-
     if (!formulario.fecha) {
 
       alert(
@@ -4838,17 +5014,23 @@ function Eventos() {
       return;
     }
 
+    if (subiendoImagen) {
+
+      alert(
+        "Espera a que termine de subir el cartel."
+      );
+
+      return;
+    }
 
     try {
 
       setGuardando(true);
 
-
       const metodo =
         editando
           ? "PUT"
           : "POST";
-
 
       const cuerpo = {
 
@@ -4867,11 +5049,13 @@ function Eventos() {
         lugar:
           formulario.lugar.trim(),
 
+        imagen:
+          formulario.imagen || null,
+
         activa:
           formulario.activa,
 
       };
-
 
       if (editando) {
 
@@ -4879,7 +5063,6 @@ function Eventos() {
           editando.id;
 
       }
-
 
       const respuesta =
         await fetch(
@@ -4900,29 +5083,39 @@ function Eventos() {
           }
         );
 
-
       const datos =
         await respuesta.json();
-
 
       if (
         !respuesta.ok ||
         !datos.correcto
       ) {
 
+        console.error(
+          "Error guardando evento:",
+          datos
+        );
+
         alert(
-          datos.mensaje ||
-          "No se pudo guardar el evento."
+          [
+            datos.mensaje ||
+              "No se pudo guardar el evento.",
+
+            datos.error
+              ? `\n\nError: ${datos.error}`
+              : "",
+
+            datos.sqlMessage
+              ? `\n\nMySQL: ${datos.sqlMessage}`
+              : "",
+          ].join("")
         );
 
         return;
       }
 
-
       cerrarFormulario();
-
       await cargarEventos();
-
 
     } catch (error) {
 
@@ -4931,11 +5124,9 @@ function Eventos() {
         error
       );
 
-
       alert(
-        "Error guardando el evento."
+        "Ha ocurrido un error al guardar el evento."
       );
-
 
     } finally {
 
@@ -4953,16 +5144,13 @@ function Eventos() {
         "¿Seguro que quieres eliminar este evento?"
       );
 
-
     if (!confirmar) {
       return;
     }
 
-
     try {
 
       setGuardando(true);
-
 
       const respuesta =
         await fetch(
@@ -4982,10 +5170,8 @@ function Eventos() {
           }
         );
 
-
       const datos =
         await respuesta.json();
-
 
       if (
         !respuesta.ok ||
@@ -5000,9 +5186,7 @@ function Eventos() {
         return;
       }
 
-
       await cargarEventos();
-
 
     } catch (error) {
 
@@ -5011,11 +5195,9 @@ function Eventos() {
         error
       );
 
-
       alert(
-        "Error eliminando el evento."
+        "Ha ocurrido un error al eliminar el evento."
       );
-
 
     } finally {
 
@@ -5031,7 +5213,6 @@ function Eventos() {
     try {
 
       setGuardando(true);
-
 
       const respuesta =
         await fetch(
@@ -5057,13 +5238,22 @@ function Eventos() {
                   evento.descripcion || "",
 
                 fecha:
-                  evento.fecha,
+                  String(
+                    evento.fecha
+                  ).slice(0, 10),
 
                 hora:
-                  evento.hora || null,
+                  evento.hora
+                    ? String(
+                        evento.hora
+                      ).slice(0, 5)
+                    : "",
 
                 lugar:
                   evento.lugar || "",
+
+                imagen:
+                  evento.imagen || null,
 
                 activa:
                   Number(
@@ -5074,10 +5264,8 @@ function Eventos() {
           }
         );
 
-
       const datos =
         await respuesta.json();
-
 
       if (
         !respuesta.ok ||
@@ -5092,22 +5280,18 @@ function Eventos() {
         return;
       }
 
-
       await cargarEventos();
-
 
     } catch (error) {
 
       console.error(
-        "Error cambiando estado del evento:",
+        "Error cambiando estado:",
         error
       );
 
-
       alert(
-        "Error cambiando el estado."
+        "Error cambiando el estado del evento."
       );
-
 
     } finally {
 
@@ -5127,7 +5311,7 @@ function Eventos() {
         <div>
 
           <div style={estilos.etiquetaSeccion}>
-            ACTIVIDADES
+            AGENDA
           </div>
 
           <h2 style={estilos.tituloSeccion}>
@@ -5135,26 +5319,20 @@ function Eventos() {
           </h2>
 
           <p style={estilos.descripcionSeccion}>
-            Gestiona los eventos que aparecerán en la web.
+            Gestiona los eventos, actuaciones y actividades especiales de la escuela.
           </p>
 
         </div>
 
-
         <button
           type="button"
-          onClick={
-            nuevoEvento
-          }
-          style={
-            estilos.botonNuevo
-          }
+          onClick={nuevoEvento}
+          style={estilos.botonNuevo}
         >
           + Añadir evento
         </button>
 
       </div>
-
 
       {mostrandoFormulario && (
 
@@ -5170,121 +5348,358 @@ function Eventos() {
 
           </div>
 
-
-          <form
-            onSubmit={
-              guardarEvento
-            }
-          >
+          <form onSubmit={guardarEvento}>
 
             <label style={estilos.label}>
               Título
             </label>
 
-
             <input
               value={
                 formulario.titulo
               }
-              onChange={(event) =>
+              onChange={(e) =>
                 cambiarCampo(
                   "titulo",
-                  event.target.value
+                  e.target.value
                 )
               }
+              placeholder="Ej.: Festival de Fin de Curso"
               style={estilos.input}
               disabled={guardando}
             />
-
 
             <label style={estilos.label}>
               Descripción
             </label>
 
-
             <textarea
               value={
                 formulario.descripcion
               }
-              onChange={(event) =>
+              onChange={(e) =>
                 cambiarCampo(
                   "descripcion",
-                  event.target.value
+                  e.target.value
                 )
               }
+              placeholder="Describe el evento..."
               style={estilos.textarea}
-              rows={4}
+              rows={5}
               disabled={guardando}
             />
-
 
             <label style={estilos.label}>
               Fecha
             </label>
-
 
             <input
               type="date"
               value={
                 formulario.fecha
               }
-              onChange={(event) =>
+              onChange={(e) =>
                 cambiarCampo(
                   "fecha",
-                  event.target.value
+                  e.target.value
                 )
               }
               style={estilos.input}
               disabled={guardando}
             />
 
-
             <label style={estilos.label}>
               Hora
             </label>
-
 
             <input
               type="time"
               value={
                 formulario.hora
               }
-              onChange={(event) =>
+              onChange={(e) =>
                 cambiarCampo(
                   "hora",
-                  event.target.value
+                  e.target.value
                 )
               }
               style={estilos.input}
               disabled={guardando}
             />
-
 
             <label style={estilos.label}>
               Lugar
             </label>
 
-
             <input
               value={
                 formulario.lugar
               }
-              onChange={(event) =>
+              onChange={(e) =>
                 cambiarCampo(
                   "lugar",
-                  event.target.value
+                  e.target.value
                 )
               }
+              placeholder="Ej.: Teatro Palacio Erisana"
               style={estilos.input}
               disabled={guardando}
             />
 
+            {/* =================================================
+                CARTEL DEL EVENTO
+            ================================================= */}
+
+            <label style={estilos.label}>
+              Cartel del evento
+            </label>
 
             <div
-              style={
-                estilos.botonesEditor
-              }
+              style={{
+                border:
+                  "1px dashed rgba(255,255,255,0.18)",
+                borderRadius:
+                  "16px",
+                padding:
+                  "18px",
+                marginBottom:
+                  "20px",
+              }}
             >
+
+              {vistaPrevia ? (
+
+                <div
+                  style={{
+                    display:
+                      "flex",
+                    alignItems:
+                      "center",
+                    gap:
+                      "18px",
+                    flexWrap:
+                      "wrap",
+                  }}
+                >
+
+                  <img
+                    src={vistaPrevia}
+                    alt={
+                      `Cartel de ${formulario.titulo || "evento"}`
+                    }
+                    style={{
+                      width:
+                        "150px",
+                      maxHeight:
+                        "210px",
+                      objectFit:
+                        "contain",
+                      borderRadius:
+                        "12px",
+                      display:
+                        "block",
+                      background:
+                        "rgba(255,255,255,0.05)",
+                    }}
+                  />
+
+                  <div>
+
+                    <div
+                      style={{
+                        color:
+                          "#ffffff",
+                        fontWeight:
+                          "700",
+                        marginBottom:
+                          "8px",
+                      }}
+                    >
+                      Cartel del evento
+                    </div>
+
+                    {subiendoImagen && (
+
+                      <div
+                        style={{
+                          color:
+                            "#ff9aa5",
+                          fontSize:
+                            "13px",
+                          marginBottom:
+                            "12px",
+                        }}
+                      >
+                        📤 Subiendo cartel...
+                      </div>
+
+                    )}
+
+                    {!subiendoImagen &&
+                      formulario.imagen && (
+
+                      <div
+                        style={{
+                          color:
+                            "#9ff0b2",
+                          fontSize:
+                            "13px",
+                          marginBottom:
+                            "12px",
+                        }}
+                      >
+                        ✓ Cartel subido correctamente
+                      </div>
+
+                    )}
+
+                    <div
+                      style={{
+                        display:
+                          "flex",
+                        gap:
+                          "10px",
+                        flexWrap:
+                          "wrap",
+                      }}
+                    >
+
+                      <label
+                        style={{
+                          ...estilos.botonNuevo,
+                          display:
+                            "inline-flex",
+                          cursor:
+                            "pointer",
+                          fontSize:
+                            "12px",
+                        }}
+                      >
+                        Cambiar cartel
+
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp"
+                          onChange={
+                            subirImagen
+                          }
+                          style={{
+                            display:
+                              "none",
+                          }}
+                          disabled={
+                            guardando ||
+                            subiendoImagen
+                          }
+                        />
+
+                      </label>
+
+                      <button
+                        type="button"
+                        onClick={
+                          quitarImagen
+                        }
+                        style={{
+                          ...estilos.botonCancelar,
+                          fontSize:
+                            "12px",
+                        }}
+                        disabled={
+                          guardando ||
+                          subiendoImagen
+                        }
+                      >
+                        Quitar cartel
+                      </button>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              ) : (
+
+                <div>
+
+                  <div
+                    style={{
+                      color:
+                        "rgba(255,255,255,0.65)",
+                      fontSize:
+                        "13px",
+                      marginBottom:
+                        "14px",
+                    }}
+                  >
+                    Añade el cartel del evento.
+                  </div>
+
+                  <label
+                    style={{
+                      ...estilos.botonNuevo,
+                      display:
+                        "inline-flex",
+                      cursor:
+                        "pointer",
+                    }}
+                  >
+                    📷 Seleccionar cartel
+
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      onChange={
+                        subirImagen
+                      }
+                      style={{
+                        display:
+                          "none",
+                      }}
+                      disabled={
+                        guardando ||
+                        subiendoImagen
+                      }
+                    />
+
+                  </label>
+
+                </div>
+
+              )}
+
+            </div>
+
+            <div style={estilos.checkboxSimple}>
+
+              <label
+                style={estilos.checkEstado}
+              >
+
+                <input
+                  type="checkbox"
+                  checked={
+                    formulario.activa
+                  }
+                  onChange={(e) =>
+                    cambiarCampo(
+                      "activa",
+                      e.target.checked
+                    )
+                  }
+                  disabled={guardando}
+                />
+
+                <span>
+                  Evento visible / activo
+                </span>
+
+              </label>
+
+            </div>
+
+            <div style={estilos.botonesEditor}>
 
               <button
                 type="button"
@@ -5295,12 +5710,12 @@ function Eventos() {
                   estilos.botonCancelar
                 }
                 disabled={
-                  guardando
+                  guardando ||
+                  subiendoImagen
                 }
               >
                 Cancelar
               </button>
-
 
               <button
                 type="submit"
@@ -5308,7 +5723,8 @@ function Eventos() {
                   estilos.botonGuardar
                 }
                 disabled={
-                  guardando
+                  guardando ||
+                  subiendoImagen
                 }
               >
                 {guardando
@@ -5325,7 +5741,6 @@ function Eventos() {
         </div>
 
       )}
-
 
       <div style={estilos.lista}>
 
@@ -5348,7 +5763,7 @@ function Eventos() {
             </div>
 
             <div style={estilos.vacioTexto}>
-              Añade un evento para mostrarlo en la web.
+              Añade el primer evento utilizando el botón de arriba.
             </div>
 
           </div>
@@ -5359,23 +5774,15 @@ function Eventos() {
             (evento, indice) => (
 
               <div
-                key={
-                  evento.id
-                }
-                style={
-                  estilos.fila
-                }
+                key={evento.id}
+                style={estilos.fila}
               >
 
                 <div style={estilos.numero}>
                   {String(
                     indice + 1
-                  ).padStart(
-                    2,
-                    "0"
-                  )}
+                  ).padStart(2, "0")}
                 </div>
-
 
                 <div
                   style={
@@ -5391,18 +5798,16 @@ function Eventos() {
                     {evento.titulo}
                   </div>
 
-
                   <div
                     style={
                       estilos.filaDescripcion
                     }
                   >
 
-                    {evento.fecha
-                      ? String(
-                          evento.fecha
-                        ).slice(0, 10)
-                      : ""}
+                    📅{" "}
+                    {String(
+                      evento.fecha
+                    ).slice(0, 10)}
 
                     {evento.hora
                       ? ` · ${String(
@@ -5416,23 +5821,34 @@ function Eventos() {
 
                   </div>
 
-
                   {evento.descripcion && (
 
                     <div
-                      style={
-                        estilos.filaDescripcion
-                      }
+                      style={{
+                        ...estilos.filaDescripcion,
+                        marginTop: "7px",
+                      }}
                     >
-                      {
-                        evento.descripcion
-                      }
+                      {evento.descripcion}
+                    </div>
+
+                  )}
+
+                  {evento.imagen && (
+
+                    <div
+                      style={{
+                        marginTop: "10px",
+                        color: "#ff9aa5",
+                        fontSize: "11px",
+                      }}
+                    >
+                      🖼️ Cartel / imagen añadida
                     </div>
 
                   )}
 
                 </div>
-
 
                 <div
                   style={
@@ -5449,24 +5865,17 @@ function Eventos() {
                     }
                     style={{
                       ...estilos.estadoActivo,
-                      border:
-                        "0",
-                      cursor:
-                        "pointer",
+                      border: "0",
+                      cursor: "pointer",
                     }}
-                    disabled={
-                      guardando
-                    }
+                    disabled={guardando}
                   >
-
                     {Number(
                       evento.activa
                     ) !== 0
                       ? "ACTIVO"
                       : "OCULTO"}
-
                   </button>
-
 
                   <button
                     type="button"
@@ -5478,13 +5887,10 @@ function Eventos() {
                     style={
                       estilos.botonEditar
                     }
-                    disabled={
-                      guardando
-                    }
+                    disabled={guardando}
                   >
                     Editar
                   </button>
-
 
                   <button
                     type="button"
@@ -5495,12 +5901,9 @@ function Eventos() {
                     }
                     style={{
                       ...estilos.botonEditar,
-                      color:
-                        "#ff8995",
+                      color: "#ff8995",
                     }}
-                    disabled={
-                      guardando
-                    }
+                    disabled={guardando}
                   >
                     Eliminar
                   </button>
@@ -5510,7 +5913,6 @@ function Eventos() {
               </div>
 
             )
-
           )
 
         )}
