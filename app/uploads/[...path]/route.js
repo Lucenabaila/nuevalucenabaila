@@ -17,7 +17,11 @@ export async function GET(request, { params }) {
 
     const tipo = filePath[0];
 
-    if (tipo !== "profesores" && tipo !== "actividades") {
+    if (
+  tipo !== "profesores" &&
+  tipo !== "actividades" &&
+  tipo !== "eventos"
+) {
       return new NextResponse("Ruta no permitida", {
         status: 404,
       });
