@@ -1936,24 +1936,38 @@ const eventosProximos = useMemo(() => {
   border-color: #ff8a00;
 }
 
+
+/* CARTEL */
+
 .event-image {
   width: 100%;
-  aspect-ratio: 16 / 10;
+  height: 320px;
   overflow: hidden;
   background: #181818;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .event-image img {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+
+  /* IMPORTANTE:
+     muestra el cartel COMPLETO */
+  object-fit: contain;
+
   transition: transform .4s ease;
 }
 
 .event-card:hover .event-image img {
-  transform: scale(1.04);
+  transform: scale(1.02);
 }
+
+
+/* SIN CARTEL */
 
 .event-image-placeholder {
   display: flex;
@@ -1962,34 +1976,118 @@ const eventosProximos = useMemo(() => {
   font-size: 54px;
 }
 
+
+/* CONTENIDO */
+
 .event-content {
   padding: 22px;
 }
 
+
+/* FECHA Y HORA GRANDES */
+
 .event-date {
-  margin-bottom: 9px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+
+  margin-bottom: 12px;
+
   color: #ff8a00;
-  font-size: 13px;
-  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: .06em;
+  letter-spacing: .04em;
 }
+
+.event-date strong:first-child {
+  font-size: 24px;
+  line-height: 1.15;
+}
+
+.event-date strong:last-child {
+  font-size: 20px;
+  line-height: 1.15;
+}
+
+
+/* TÍTULO */
 
 .event-content h3 {
   margin: 0 0 10px;
   font-size: 23px;
 }
 
-.event-content p {
-  margin: 0 0 15px;
-  line-height: 1.6;
-  opacity: .78;
-}
+
+/* LUGAR */
 
 .event-place {
+  margin-bottom: 15px;
+
   font-size: 13px;
   font-weight: 700;
   opacity: .85;
+}
+
+
+/* BOTÓN MÁS INFORMACIÓN */
+
+.event-more-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-top: 4px;
+  padding: 10px 15px;
+
+  border: 1px solid #ff8a00;
+  border-radius: 999px;
+
+  background: transparent;
+  color: #ff8a00;
+
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .08em;
+
+  cursor: pointer;
+
+  transition:
+    background .25s ease,
+    color .25s ease,
+    transform .25s ease;
+}
+
+.event-more-button:hover {
+  background: #ff8a00;
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+
+/* DESCRIPCIÓN DESPLEGABLE */
+
+.event-description {
+  margin-top: 16px;
+  padding-top: 16px;
+
+  border-top: 1px solid rgba(255, 255, 255, .10);
+
+  line-height: 1.6;
+  font-size: 14px;
+  opacity: .82;
+
+  animation: eventDescriptionIn .25s ease;
+}
+
+@keyframes eventDescriptionIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 
@@ -2003,12 +2101,32 @@ const eventosProximos = useMemo(() => {
     grid-template-columns: 1fr 1fr;
   }
 
+  .event-image {
+    height: 300px;
+  }
+
 }
 
 @media (max-width: 700px) {
 
   .events-grid {
     grid-template-columns: 1fr;
+  }
+
+  .event-image {
+    height: 360px;
+  }
+
+  .event-content {
+    padding: 20px;
+  }
+
+  .event-date strong:first-child {
+    font-size: 22px;
+  }
+
+  .event-date strong:last-child {
+    font-size: 19px;
   }
 
 }
