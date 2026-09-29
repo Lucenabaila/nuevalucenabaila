@@ -242,9 +242,6 @@ export async function generateMetadata({
 // ======================================================
 // PÁGINA
 // ======================================================
-// ======================================================
-// PÁGINA
-// ======================================================
 
 export default async function ActividadPage({
   params,
@@ -639,214 +636,136 @@ export default async function ActividadPage({
           </div>
 
 
-        <div className="schedule-grid">
+        {horarios.length > 0 ? (
 
-  {(() => {
-    const grupos = {};
+          <div className="schedule-grid">
 
-    const ordenDias = {
-      Lunes: 1,
-      Martes: 2,
-      Miércoles: 3,
-      Jueves: 4,
-      Viernes: 5,
-      Sábado: 6,
-      Domingo: 7,
-    };
+            {(() => {
+              const grupos = {};
 
-    horarios.forEach((horario) => {
-      const profesoresIds = Array.isArray(
-        horario.profesor_ids
-      )
-        ? [...horario.profesor_ids]
-            .map(Number)
-            .sort((a, b) => a - b)
-            .join(",")
-        : "";
+              const ordenDias = {
+                Lunes: 1,
+                Martes: 2,
+                Miércoles: 3,
+                Jueves: 4,
+                Viernes: 5,
+                Sábado: 6,
+                Domingo: 7,
+              };
 
-      const clave = [
-        horario.hora_inicio,
-        horario.hora_fin,
-        horario.nivel || "",
-        profesoresIds,
-      ].join("|");
+              horarios.forEach((horario) => {
+                const profesoresIds = Array.isArray(
+                  horario.profesor_ids
+                )
+                  ? [...horario.profesor_ids]
+                      .map(Number)
+                      .sort((a, b) => a - b)
+                      .join(",")
+                  : "";
 
-      if (!grupos[clave]) {
-        grupos[clave] = {
-          ...horario,
-          dias: [],
-        };
-      }
+                const clave = [
+                  horario.hora_inicio,
+                  horario.hora_fin,
+                  horario.nivel || "",
+                  profesoresIds,
+                ].join("|");
 
-      if (
-        horario.dia &&
-        !grupos[clave].dias.includes(horario.dia)
-      ) {
-        grupos[clave].dias.push(horario.dia);
-      }
-    });
+                if (!grupos[clave]) {
+                  grupos[clave] = {
+                    ...horario,
+                    dias: [],
+                  };
+                }
 
-    return Object.values(grupos).map((grupo) => {
-      grupo.dias.sort(
-        (a, b) =>
-          (ordenDias[a] || 99) -
-          (ordenDias[b] || 99)
-      );
+                if (
+                  horario.dia &&
+                  !grupos[clave].dias.includes(horario.dia)
+                ) {
+                  grupos[clave].dias.push(horario.dia);
+                }
+              });
 
-      let diasTexto = "";
+              return Object.values(grupos).map((grupo) => {
+                grupo.dias.sort(
+                  (a, b) =>
+                    (ordenDias[a] || 99) -
+                    (ordenDias[b] || 99)
+                );
 
-      if (grupo.dias.length === 1) {
-        diasTexto = grupo.dias[0];
-      } else if (grupo.dias.length === 2) {
-        diasTexto =
-          grupo.dias[0] +
-          " y " +
-          grupo.dias[1];
-      } else {
-        diasTexto =
-          grupo.dias
-            .slice(0, -1)
-            .join(", ") +
-          " y " +
-          grupo.dias[
-            grupo.dias.length - 1
-          ];
-      }
+                let diasTexto = "";
 
-      const profesoresHorario =
-        Array.isArray(
-          grupo.profesor_nombres
-        )
-          ? grupo.profesor_nombres
-          : [];
+                if (grupo.dias.length === 1) {
+                  diasTexto = grupo.dias[0];
+                } else if (grupo.dias.length === 2) {
+                  diasTexto =
+                    grupo.dias[0] +
+                    " y " +
+                    grupo.dias[1];
+                } else {
+                  diasTexto =
+                    grupo.dias.slice(0, -1).join(", ") +
+                    " y " +
+                    grupo.dias[grupo.dias.length - 1];
+                }
 
-      return (
-        <article
-          className="schedule-card"
-          key={`${grupo.id}-${diasTexto}`}
-        >
+                const profesoresHorario =
+                  Array.isArray(grupo.profesor_nombres)
+                    ? grupo.profesor_nombres
+                    : [];
 
-          <div className="schedule-top">
+                return (
+                  <article
+                                    className="schedule-card"
+                    key={`${grupo.id}-${diasTexto}`}
+                  >
 
-            <div className="schedule-day">
+                    <div className="schedule-top">
 
-              <span className="clock">
-                ◷
-              </span>
+                      <div className="schedule-day">
+                        <span className="clock">◷</span>
+                        <strong>{diasTexto}</strong>
+                      </div>
 
-              <strong>
-                {diasTexto}
-              </strong>
+                      <div className="schedule-time">
+                        {formatearHora(grupo.hora_inicio)}
+                        <span>–</span>
+                        {formatearHora(grupo.hora_fin)}
+                      </div>
 
-            </div>
+                    </div>
 
-            <div className="schedule-time">
+                    {grupo.nivel && (
+                      <div className="schedule-level">
+                        {grupo.nivel}
+                      </div>
+                    )}
 
-              {formatearHora(
-                grupo.hora_inicio
-              )}
+                    <div className="schedule-line" />
 
-              <span>
-                –
-              </span>
+                    <div className="schedule-teacher">
+                      <span>PROFESOR/A</span>
+                      <strong>
+                        {profesoresHorario.length > 0
+                          ? profesoresHorario.join(" · ")
+                          : "Consultar"}
+                      </strong>
+                    </div>
 
-              {formatearHora(
-                grupo.hora_fin
-              )}
-
-            </div>
-
-          </div>
-
-          {grupo.nivel && (
-            <div className="schedule-level">
-              {grupo.nivel}
-            </div>
-          )}
-
-          <div className="schedule-line" />
-
-          <div className="schedule-teacher">
-
-            <span>
-              PROFESOR/A
-            </span>
-
-            <strong>
-              {profesoresHorario.length > 0
-                ? profesoresHorario.join(" · ")
-                : "Consultar"}
-            </strong>
+                  </article>
+                );
+              });
+            })()}
 
           </div>
 
-        </article>
-      );
-    });
-  })()}
+        ) : (
 
-</div>
-            <div className="schedule-time">
-
-              {formatearHora(
-                horario.hora_inicio
-              )}
-
-              <span>
-                –
-              </span>
-
-              {formatearHora(
-                horario.hora_fin
-              )}
-
-            </div>
-
+          <div className="no-schedule">
+            Próximamente publicaremos
+            los horarios de esta actividad.
           </div>
 
-          {horario.nivel && (
-
-            <div className="schedule-level">
-              {horario.nivel}
-            </div>
-
-          )}
-
-          <div className="schedule-line" />
-
-          <div className="schedule-teacher">
-
-            <span>
-              PROFESOR/A
-            </span>
-
-            <strong>
-
-              {profesoresHorario.length > 0
-                ? profesoresHorario.join(
-                    " · "
-                  )
-                : "Consultar"}
-
-            </strong>
-
-          </div>
-
-        </article>
-      );
-    }
-  );
-})()}
-
-            <div className="no-schedule">
-
-              Próximamente publicaremos
-              los horarios de esta actividad.
-
-            </div>
-
-          )}
-
+        )}
         </div>
 
       </section>
@@ -1516,9 +1435,7 @@ export default async function ActividadPage({
           transform-origin:
             center center;
         }
-
-
-        .hero-image-frame {
+                .hero-image-frame {
           position: relative;
 
           width: 108%;
@@ -2235,9 +2152,7 @@ export default async function ActividadPage({
 
           line-height: 1.6;
         }
-
-
-        /*
+                /*
          * DOS PROFESORES = DOS COLUMNAS
          */
 
