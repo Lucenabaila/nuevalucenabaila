@@ -643,101 +643,171 @@ export default async function ActividadPage({
 
             <div className="schedule-grid">
 
-              {horarios.map(
-                (horario) => {
+            {(() => {
+  const grupos = {};
 
-                  const profesoresHorario =
-                    Array.isArray(
-                      horario.profesor_nombres
-                    )
-                      ? horario.profesor_nombres
-                      : [];
+  const ordenDias = {
+    Lunes: 1,
+    Martes: 2,
+    Miércoles: 3,
+    Jueves: 4,
+    Viernes: 5,
+    Sábado: 6,
+    Domingo: 7,
+  };
 
+  horarios.forEach((horario) => {
+    const profesoresIds =
+      Array.isArray(horario.profesor_ids)
+        ? [...horario.profesor_ids]
+            .map(Number)
+            .sort((a, b) => a - b)
+            .join(",")
+        : Array.isArray(horario.profesor_nombres)
+          ? [...horario.profesor_nombres]
+              .sort()
+              .join(",")
+          : "";
 
-                  return (
+    const clave = [
+      horario.actividad_id,
+      horario.hora_inicio,
+      horario.hora_fin,
+      horario.nivel || "",
+      profesoresIds,
+    ].join("|");
 
-                    <article
-                      className="schedule-card"
-                      key={horario.id}
-                    >
+    if (!grupos[clave]) {
+      grupos[clave] = {
+        ...horario,
+        dias: [],
+      };
+    }
 
+    if (
+      horario.dia &&
+      !grupos[clave].dias.includes(
+        horario.dia
+      )
+    ) {
+      grupos[clave].dias.push(
+        horario.dia
+      );
+    }
+  });
 
-                      <div className="schedule-top">
+  const horariosAgrupados =
+    Object.values(grupos).map((grupo) => {
+      grupo.dias.sort(
+        (a, b) =>
+          (ordenDias[a] || 99) -
+          (ordenDias[b] || 99)
+      );
 
-                        <div className="schedule-day">
+      let diasTexto = "";
 
-                          <span className="clock">
-                            ◷
-                          </span>
+      if (grupo.dias.length === 1) {
+        diasTexto = grupo.dias[0];
+      } else if (grupo.dias.length === 2) {
+        diasTexto =
+          `${grupo.dias[0]} y ${grupo.dias[1]}`;
+      } else {
+        diasTexto =
+          grupo.dias
+            .slice(0, -1)
+            .join(", ") +
+          " y " +
+          grupo.dias[
+            grupo.dias.length - 1
+          ];
+      }
 
-                          <strong>
-                            {horario.dia}
-                          </strong>
+      return {
+        ...grupo,
+        diasTexto,
+      };
+    });
 
-                        </div>
+  return horariosAgrupados.map(
+    (horario) => {
+      const profesoresHorario =
+        Array.isArray(
+          horario.profesor_nombres
+        )
+          ? horario.profesor_nombres
+          : [];
 
+      return (
+        <article
+          className="schedule-card"
+          key={`${horario.id}-${horario.diasTexto}`}
+        >
 
-                        <div className="schedule-time">
+          <div className="schedule-top">
 
-                          {formatearHora(
-                            horario.hora_inicio
-                          )}
+            <div className="schedule-day">
 
-                          <span>
-                            –
-                          </span>
+              <span className="clock">
+                ◷
+              </span>
 
-                          {formatearHora(
-                            horario.hora_fin
-                          )}
+              <strong>
+                {horario.diasTexto}
+              </strong>
 
-                        </div>
+            </div>
 
-                      </div>
+            <div className="schedule-time">
 
+              {formatearHora(
+                horario.hora_inicio
+              )}
 
-                      {horario.nivel && (
+              <span>
+                –
+              </span>
 
-                        <div className="schedule-level">
-                          {horario.nivel}
-                        </div>
-
-                      )}
-
-
-                      <div className="schedule-line" />
-
-
-                      <div className="schedule-teacher">
-
-                        <span>
-                          PROFESOR/A
-                        </span>
-
-
-                        <strong>
-
-                          {profesoresHorario.length > 0
-                            ? profesoresHorario.join(
-                                " · "
-                              )
-                            : "Consultar"}
-
-                        </strong>
-
-                      </div>
-
-
-                    </article>
-
-                  );
-
-                }
+              {formatearHora(
+                horario.hora_fin
               )}
 
             </div>
 
-          ) : (
+          </div>
+
+          {horario.nivel && (
+
+            <div className="schedule-level">
+              {horario.nivel}
+            </div>
+
+          )}
+
+          <div className="schedule-line" />
+
+          <div className="schedule-teacher">
+
+            <span>
+              PROFESOR/A
+            </span>
+
+            <strong>
+
+              {profesoresHorario.length > 0
+                ? profesoresHorario.join(
+                    " · "
+                  )
+                : "Consultar"}
+
+            </strong>
+
+          </div>
+
+        </article>
+      );
+    }
+  );
+})()}
 
             <div className="no-schedule">
 
