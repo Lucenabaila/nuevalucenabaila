@@ -3,9 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 
 export default function Home() {
-  const [actividades, setActividades] = useState([]);
-  const [horarios, setHorarios] = useState([]);
-  const [profesores, setProfesores] = useState([]);
+const [actividades, setActividades] = useState([]);
+const [horarios, setHorarios] = useState([]);
+const [profesores, setProfesores] = useState([]);
+const [eventos, setEventos] = useState([]);
 
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
@@ -19,15 +20,17 @@ export default function Home() {
         setCargando(true);
         setError("");
 
-        const [
-          respuestaActividades,
-          respuestaHorarios,
-          respuestaProfesores,
-        ] = await Promise.all([
-          fetch("/api/actividades", { cache: "no-store" }),
-          fetch("/api/horarios", { cache: "no-store" }),
-          fetch("/api/profesores", { cache: "no-store" }),
-        ]);
+       const [
+  respuestaActividades,
+  respuestaHorarios,
+  respuestaProfesores,
+  respuestaEventos,
+] = await Promise.all([
+  fetch("/api/actividades", { cache: "no-store" }),
+  fetch("/api/horarios", { cache: "no-store" }),
+  fetch("/api/profesores", { cache: "no-store" }),
+  fetch("/api/eventos", { cache: "no-store" }),
+]);
 
         if (!respuestaActividades.ok) {
           throw new Error(
@@ -48,14 +51,16 @@ export default function Home() {
         }
 
         const [
-          datosActividades,
-          datosHorarios,
-          datosProfesores,
-        ] = await Promise.all([
-          respuestaActividades.json(),
-          respuestaHorarios.json(),
-          respuestaProfesores.json(),
-        ]);
+  datosActividades,
+  datosHorarios,
+  datosProfesores,
+  datosEventos,
+] = await Promise.all([
+  respuestaActividades.json(),
+  respuestaHorarios.json(),
+  respuestaProfesores.json(),
+  respuestaEventos.json(),
+]);
 
         if (!datosActividades.correcto) {
           throw new Error(
@@ -95,6 +100,11 @@ export default function Home() {
             ? datosProfesores.profesores
             : []
         );
+        setEventos(
+  Array.isArray(datosEventos.eventos)
+    ? datosEventos.eventos
+    : []
+);
       } catch (err) {
         console.error(
           "Error cargando la web:",
@@ -255,6 +265,48 @@ const horariosAgrupados = useMemo(() => {
 
     return String(hora).slice(0, 5);
   }
+  function formatearFecha(fecha) {
+  if (!fecha) return "";
+
+  const fechaLocal = new Date(
+    `${String(fecha).slice(0, 10)}T00:00:00`
+  );
+
+  return fechaLocal.toLocaleDateString("es-ES", {
+    day: "numeric",
+    month: "long",
+  });
+}
+
+
+const eventosProximos = useMemo(() => {
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+
+  return eventos
+    .filter((evento) => {
+      if (!evento.activa) return false;
+      if (!evento.fecha) return false;
+
+      const fechaEvento = new Date(
+        `${String(evento.fecha).slice(0, 10)}T00:00:00`
+      );
+
+      return fechaEvento >= hoy;
+    })
+    .sort((a, b) => {
+      const fechaA = new Date(
+        `${String(a.fecha).slice(0, 10)}T00:00:00`
+      );
+
+      const fechaB = new Date(
+        `${String(b.fecha).slice(0, 10)}T00:00:00`
+      );
+
+      return fechaA - fechaB;
+    })
+    .slice(0, 3);
+}, [eventos]);
 
   function obtenerIcono(nombre = "") {
     const texto = nombre.toLowerCase();
@@ -398,6 +450,12 @@ const horariosAgrupados = useMemo(() => {
           >
             Horarios
           </a>
+              <a
+  href="#eventos"
+  onClick={cerrarMenu}
+>
+  Eventos
+</a>
 
           <a
             href="#profesores"
@@ -1001,6 +1059,114 @@ const horariosAgrupados = useMemo(() => {
 </div>
 
 </section>
+{/* =====================================================
+    EVENTOS
+====================================================== */}
+
+{eventosProximos.length > 0 && (
+  <section
+    id="eventos"
+    className="section events-section"
+  >
+
+    <div className="section-head">
+
+      <div>
+
+        <p className="eyebrow">
+          VIVE EL BAILE
+        </p>
+
+        <h2>
+          Próximos <em>eventos</em>
+        </h2>
+
+      </div>
+
+      <p>
+        Mucho más que clases.
+        <br />
+        Vive también nuestros eventos.
+      </p>
+
+    </div>
+
+
+    <div className="events-grid">
+
+      {eventosProximos.map((evento) => (
+
+        <article
+          className="event-card"
+          key={evento.id}
+        >
+
+          {evento.imagen ? (
+
+            <div className="event-image">
+
+              <img
+                src={evento.imagen}
+                alt={evento.titulo}
+                loading="lazy"
+              />
+
+            </div>
+
+          ) : (
+
+            <div className="event-image event-image-placeholder">
+              <span>🎉</span>
+            </div>
+
+          )}
+
+
+          <div className="event-content">
+
+            <div className="event-date">
+
+              <span>
+                {formatearFecha(evento.fecha)}
+              </span>
+
+              {evento.hora && (
+                <span>
+                  · {formatearHora(evento.hora)}
+                </span>
+              )}
+
+            </div>
+
+
+            <h3>
+              {evento.titulo}
+            </h3>
+
+
+            {evento.descripcion && (
+              <p>
+                {evento.descripcion}
+              </p>
+            )}
+
+
+            {evento.lugar && (
+              <div className="event-place">
+                📍 {evento.lugar}
+              </div>
+            )}
+
+          </div>
+
+        </article>
+
+      ))}
+
+    </div>
+
+  </section>
+)}
       {/* =====================================================
           PROFESORES
       ====================================================== */}
@@ -1693,7 +1859,111 @@ const horariosAgrupados = useMemo(() => {
             translateY(0);
         }
 
+/* ============================
+   EVENTOS
+============================ */
 
+.events-section {
+  position: relative;
+}
+
+.events-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.event-card {
+  overflow: hidden;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, .04);
+  border: 1px solid rgba(255, 255, 255, .08);
+  transition:
+    transform .3s ease,
+    border-color .3s ease;
+}
+
+.event-card:hover {
+  transform: translateY(-6px);
+  border-color: #ff8a00;
+}
+
+.event-image {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: #181818;
+}
+
+.event-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .4s ease;
+}
+
+.event-card:hover .event-image img {
+  transform: scale(1.04);
+}
+
+.event-image-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 54px;
+}
+
+.event-content {
+  padding: 22px;
+}
+
+.event-date {
+  margin-bottom: 9px;
+  color: #ff8a00;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.event-content h3 {
+  margin: 0 0 10px;
+  font-size: 23px;
+}
+
+.event-content p {
+  margin: 0 0 15px;
+  line-height: 1.6;
+  opacity: .78;
+}
+
+.event-place {
+  font-size: 13px;
+  font-weight: 700;
+  opacity: .85;
+}
+
+
+/* ============================
+   EVENTOS — MÓVIL
+============================ */
+
+@media (max-width: 900px) {
+
+  .events-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+}
+
+@media (max-width: 700px) {
+
+  .events-grid {
+    grid-template-columns: 1fr;
+  }
+
+}
         /* ============================
            MODAL
            ============================ */
