@@ -167,6 +167,80 @@ export async function generateMetadata({
   const nombre =
     datos.actividad.nombre;
 
+  /*
+   * Título SEO
+   *
+   * Ejemplo:
+   * Clases de Bachata en Lucena | Artes Escénicas Paradise
+   */
+  const title =
+    `Clases de ${nombre} en Lucena | Artes Escénicas Paradise`;
+
+  /*
+   * Descripción SEO
+   *
+   * Utilizamos la descripción que tienes
+   * introducida desde Administración → Actividades.
+   */
+  const description =
+    datos.actividad.descripcion ||
+    `Clases de ${nombre} en Lucena en Artes Escénicas Paradise. Aprende, disfruta y mejora tu baile con nuestras clases en Lucena.`;
+
+  /*
+   * URL canónica
+   */
+  const canonical =
+    `${SITE_URL}/actividades/${slug}`;
+
+  return {
+    title,
+
+    description,
+
+    alternates: {
+      canonical,
+    },
+
+    openGraph: {
+      title,
+
+      description,
+
+      url: canonical,
+
+      siteName:
+        "Artes Escénicas Paradise",
+
+      locale: "es_ES",
+
+      type: "website",
+
+      images: datos.actividad.imagen
+        ? [
+            {
+              url: datos.actividad.imagen,
+              alt:
+                `Clases de ${nombre} en Lucena`,
+            },
+          ]
+        : [],
+    },
+
+    robots: {
+      index: true,
+      follow: true,
+
+      googleBot: {
+        index: true,
+        follow: true,
+      },
+    },
+  };
+}
+
+  const nombre =
+    datos.actividad.nombre;
+
   const description =
     datos.actividad.descripcion ||
     `Clases de ${nombre} en Lucena en Artes Escénicas Paradise.`;
