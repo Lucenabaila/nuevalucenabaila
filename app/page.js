@@ -1941,7 +1941,6 @@ const eventosProximos = useMemo(() => {
 
 .event-image {
   width: 100%;
-  height: 320px;
   overflow: hidden;
   background: #181818;
 
@@ -1953,10 +1952,8 @@ const eventosProximos = useMemo(() => {
 .event-image img {
   display: block;
   width: 100%;
-  height: 100%;
+  height: auto;
 
-  /* IMPORTANTE:
-     muestra el cartel COMPLETO */
   object-fit: contain;
 
   transition: transform .4s ease;
@@ -2101,10 +2098,6 @@ const eventosProximos = useMemo(() => {
     grid-template-columns: 1fr 1fr;
   }
 
-  .event-image {
-    height: 300px;
-  }
-
 }
 
 @media (max-width: 700px) {
@@ -2113,9 +2106,6 @@ const eventosProximos = useMemo(() => {
     grid-template-columns: 1fr;
   }
 
-  .event-image {
-    height: 360px;
-  }
 
   .event-content {
     padding: 20px;
