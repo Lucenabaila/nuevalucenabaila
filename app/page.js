@@ -13,6 +13,7 @@ const [eventos, setEventos] = useState([]);
   const [filtroActividad, setFiltroActividad] = useState("todas");
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [cartelAbierto, setCartelAbierto] = useState(null);
+  const [eventoAbierto, setEventoAbierto] = useState(null);
 
   useEffect(() => {
     async function cargarDatos() {
@@ -1094,74 +1095,121 @@ const eventosProximos = useMemo(() => {
 
     <div className="events-grid">
 
-      {eventosProximos.map((evento) => (
+      {eventosProximos.map((evento) => {
 
-        <article
-          className="event-card"
-          key={evento.id}
-        >
+        const informacionAbierta =
+          eventoAbierto === evento.id;
 
-          {evento.imagen ? (
+        return (
 
-            <div className="event-image">
+          <article
+            className="event-card"
+            key={evento.id}
+          >
 
-              <img
-                src={evento.imagen}
-                alt={evento.titulo}
-                loading="lazy"
-              />
+            {/* CARTEL */}
 
-            </div>
+            {evento.imagen ? (
 
-          ) : (
+              <div className="event-image">
 
-            <div className="event-image event-image-placeholder">
-              <span>🎉</span>
-            </div>
+                <img
+                  src={evento.imagen}
+                  alt={evento.titulo}
+                  loading="lazy"
+                />
 
-          )}
+              </div>
+
+            ) : (
+
+              <div className="event-image event-image-placeholder">
+                <span>🎉</span>
+              </div>
+
+            )}
 
 
-          <div className="event-content">
+            {/* INFORMACIÓN PRINCIPAL */}
 
-            <div className="event-date">
+            <div className="event-content">
 
-              <span>
-                {formatearFecha(evento.fecha)}
-              </span>
+              <div className="event-date">
 
-              {evento.hora && (
-                <span>
-                  · {formatearHora(evento.hora)}
-                </span>
+                <strong>
+                  {formatearFecha(evento.fecha)}
+                </strong>
+
+                {evento.hora && (
+                  <strong>
+                    {formatearHora(evento.hora)}
+                  </strong>
+                )}
+
+              </div>
+
+
+              <h3>
+                {evento.titulo}
+              </h3>
+
+
+              {evento.lugar && (
+                <div className="event-place">
+                  📍 {evento.lugar}
+                </div>
+              )}
+
+
+              {/* BOTÓN MÁS INFORMACIÓN */}
+
+              {evento.descripcion && (
+
+                <>
+
+                  <button
+                    type="button"
+                    className="event-more-button"
+                    onClick={() =>
+                      setEventoAbierto(
+                        informacionAbierta
+                          ? null
+                          : evento.id
+                      )
+                    }
+                    aria-expanded={informacionAbierta}
+                  >
+
+                    {informacionAbierta
+                      ? "− OCULTAR INFORMACIÓN"
+                      : "+ MÁS INFORMACIÓN"}
+
+                  </button>
+
+
+                  {/* DESCRIPCIÓN DESPLEGABLE */}
+
+                  {informacionAbierta && (
+
+                    <div className="event-description">
+
+                      {evento.descripcion}
+
+                    </div>
+
+                  )}
+
+                </>
+
               )}
 
             </div>
 
+          </article>
 
-            <h3>
-              {evento.titulo}
-            </h3>
+        );
 
-
-            {evento.descripcion && (
-              <p>
-                {evento.descripcion}
-              </p>
-            )}
-
-
-            {evento.lugar && (
-              <div className="event-place">
-                📍 {evento.lugar}
-              </div>
-            )}
-
-          </div>
-
-        </article>
-
-      ))}
+      })}
 
     </div>
 
