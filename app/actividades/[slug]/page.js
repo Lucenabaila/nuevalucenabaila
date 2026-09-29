@@ -179,8 +179,8 @@ export async function generateMetadata({
   /*
    * Descripción SEO
    *
-   * Utilizamos la descripción que tienes
-   * introducida desde Administración → Actividades.
+   * Utilizamos la descripción introducida
+   * desde Administración → Actividades.
    */
   const description =
     datos.actividad.descripcion ||
@@ -238,49 +238,10 @@ export async function generateMetadata({
   };
 }
 
-  const nombre =
-    datos.actividad.nombre;
 
-  const description =
-    datos.actividad.descripcion ||
-    `Clases de ${nombre} en Lucena en Artes Escénicas Paradise.`;
-
-  return {
-    title:
-      `${nombre} en Lucena | Artes Escénicas Paradise`,
-
-    description,
-
-    alternates: {
-      canonical:
-        `${SITE_URL}/actividades/${slug}`,
-    },
-
-    openGraph: {
-      title:
-        `${nombre} en Lucena | Artes Escénicas Paradise`,
-
-      description,
-
-      url:
-        `${SITE_URL}/actividades/${slug}`,
-
-      siteName:
-        "Artes Escénicas Paradise",
-
-      locale: "es_ES",
-
-      type: "website",
-    },
-
-    robots: {
-      index: true,
-      follow: true,
-    },
-  };
-}
-
-
+// ======================================================
+// PÁGINA
+// ======================================================
 // ======================================================
 // PÁGINA
 // ======================================================
